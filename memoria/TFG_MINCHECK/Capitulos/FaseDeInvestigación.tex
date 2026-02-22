@@ -1,0 +1,63 @@
+\chapter{Fase de Investigación}
+\label{cap:investigacion}
+
+En este capítulo se describe el proceso de toma de requisitos mediante técnicas cualitativas y cuantitativas. El objetivo es identificar las dificultades reales de los alumnos y las expectativas del equipo docente para justificar las funcionalidades de la herramienta propuesta.
+
+%CUESTIONARIO
+\section{Cuestionario a alumnos}
+
+Se realizó un cuestionario a alumnos de carreras técnicas con nociones básicas de programación. El objetivo es conocer los hábitos de los alumnos a la hora de afrontar un problema de programación basados en un enunciado: cómo lo plantean, cómo lo resuelven y comprueban su solución, qué hacen cuando algo falla... . (Ver Anexo \ref{Appendix:cuestionarios} para el detalle de las preguntas y sus respectivas respuestas).
+
+\subsection{Análisis y Conclusiones}
+\textcolor{red}{Mejorar}
+\textbf{Perfil de la muestra: }
+La mayoría de los encuestados se encuentran entre segundo y cuarto curso de titulaciones técnicas (Informática, Ingeniería de Computadores, Desarrollo de Videojuegos, Física, entre otras) como podemos observar en la Figura \ref{fig:año} y Figura \ref{fig:estudios}. Se trata, por tanto, de estudiantes que ya han superado la etapa introductoria de programación y cursan, o han cursado, asignaturas centradas en resolución de problemas algorítmicos y estructuras de datos.
+
+\begin{itemize}
+    \item \textbf{Identificación del "punto de dolor":} Los resultados indican que la mayor dificultad para el alumno no reside en la comprensión del enunciado como podemos ver en la Figura \ref{fig:entender_enunciado}, sino en la detección de errores dentro de su propia solución y en la capacidad para encontrar contraejemplos de forma autónoma. Como se detalla en la Figura \ref{fig:encontrar_contraejemplos}, la mayoría de los encuestados califica esta tarea con niveles altos de dificultad.
+    
+    \item \textbf{Insuficiencia del feedback actual:} Como podemos ver en la figura \ref{fig:impacto_feedback} existe una demanda crítica de mejorar la retroalimentación que ofrecen los jueces automáticos tradicionales. Los alumnos consideran insuficiente el veredicto binario (correcto/incorrecto) y solicitan información que explique el motivo del fallo. 
+    
+    \item \textbf{Dependencia externa y falta de autonomía:} Ante un error, según la Figura \ref{fig:comportamiento_código_erróneo}, el 75,8\% de los estudiantes recurre a consultas en Internet, herramientas de IA o ayuda de compañeros. Esta dependencia evidencia la falta de herramientas integradas que permitan una depuración guiada y autónoma.
+    
+    \item \textbf{Valor de la visualización y los contraejemplos:} El 80\% de los alumnos identifica como "muy útil" disponer de una herramienta que genere contraejemplos mínimos basados en su código (Figura \ref{fig:utilidad_herramienta_contraejemplos}). Además, se observa que casi la mitad de los estudiantes no suele representar gráficamente las estructuras de datos por iniciativa propia (Figura \ref{fig:dibujo_estructuras}), pero valoran positivamente recibir asistencia visual automática (Figura \ref{fig:feedback_visualización}).
+\end{itemize}
+
+%ENTREVISTA
+\section{Entrevista docente}
+Para contrastar la visión de los alumnos con la perspectiva pedagógica, se realizó una entrevista estructurada al equipo docente. Los puntos clave obtenidos refuerzan los hallazgos del cuestionario: \todo{MEJORAR}
+
+%REQUISITOS
+\section{Requisitos identificados}
+\subsection{Requisitos funcionales}
+\begin{itemize}
+    \item[] \textbf{Diagnóstico y Feedback (Alumno)}
+    \item \textbf{RF1. Mensaje explicativo:} El sistema debe proporcionar un mensaje explicativo sobre el motivo del fallo tras detectar una solución incorrecta.
+    \item \textbf{RF2. Identificación del error:} El sistema debe identificar la línea de código o sección específica donde se produce el fallo para facilitar la depuración.
+    \item \textbf{RF3. Mostrar tipo de error:} El sistema debe mostrar explícitamente el tipo de error técnico (p. ej., error de compilación o tiempo de ejecución) en el feedback devuelto.
+    \item \textbf{RF4. Comparación de salidas:} El sistema debe comparar la salida obtenida por el alumno con la esperada para resaltar visualmente las discrepancias.
+    \item \textbf{RF5. Sistema de pistas:} El sistema debe ofrecer una pista (\textit{hint}) sobre el fallo antes de proporcionar el feedback completo para fomentar la reflexión del alumno.
+
+    \item[] \textbf{Depuración Inteligente y Visualización}
+    \item \textbf{RF6. Generación de contraejemplos:} El sistema debe generar un contraejemplo mínimo que invalide la solución basándose específicamente en el código del alumno.
+    \item \textbf{RF7. Visualización de estructuras:} El sistema debe visualizar el estado de las estructuras de datos durante la ejecución para facilitar su comprensión lógica.
+
+    \item[] \textbf{Gestión Docente y Administración}
+    \item \textbf{RF8. Subida de código:} El sistema debe permitir la carga de archivos de código tanto a alumnos como a profesores.
+    \item \textbf{RF9. Configuración de feedback:} El profesor debe poder configurar el nivel de detalle y contenido del feedback desde un panel de control.
+    \item \textbf{RF10. Generación de casos para el juez:} El sistema debe generar casos de prueba automáticos para el juez virtual a partir del código solución del profesor.
+    \item \textbf{RF11. Estadísticas de errores:} El sistema debe mostrar al profesor un resumen estadístico de los errores más comunes cometidos por los alumnos.
+    \item \textbf{RF12. Estimación de nota:} El sistema debe permitir estimar una nota orientativa puntuando aspectos concretos mediante casos de prueba.
+\end{itemize}
+
+\subsection{Requisitos no funcionales}
+\begin{itemize}
+    \item[] \textbf{Rendimiento y Eficiencia}
+    \item \textbf{RNF1. Tiempo de respuesta:} El sistema debe garantizar una corrección automática y la entrega de feedback en un tiempo de respuesta óptimo tras la entrega del ejercicio.
+    \item \textbf{RNF2. Eficiencia algorítmica:} El proceso de generación de contraejemplos mínimos debe ser lo suficientemente rápido para no comprometer la experiencia de usuario.
+    
+    \item[] \textbf{Usabilidad y Metodología}
+    \item \textbf{RNF3. Interfaz de usuario:} El sistema debe presentar una interfaz clara, intuitiva y fácil de usar tanto para alumnos como para profesores.
+    \item \textbf{RNF4. Control del aprendizaje:} El sistema debe ocultar la solución final del problema en todo momento para evitar que el feedback sea una ayuda excesiva.
+    \item \textbf{RNF5. Organización de contenidos:} El material y los ejercicios deben estar organizados jerárquicamente por temas o niveles de dificultad.
+\end{itemize}
