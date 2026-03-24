@@ -1,0 +1,280 @@
+.page {
+  min-height: 100vh;
+  background-color: #0d1117;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  color: #e6edf3;
+}
+
+/* ---- Navbar ---- */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 32px;
+  background-color: #0d1117;
+  border-bottom: 1px solid #1e2a3a;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logoIcon {
+  font-size: 18px;
+  color: #4d7cfe;
+  font-weight: 700;
+  font-family: monospace;
+}
+
+.logoText {
+  font-size: 18px;
+  font-weight: 700;
+  color: #e6edf3;
+  letter-spacing: 0.02em;
+}
+
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.navLinks a {
+  color: #8b949e;
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.2s;
+}
+
+.navLinks a:hover {
+  color: #e6edf3;
+}
+
+.signupBtn {
+  background-color: #4d7cfe;
+  border: 1px solid #4d7cfe;
+  color: #ffffff;
+  padding: 6px 18px;
+  border-radius: 6px;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+/* ---- Main ---- */
+.main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+}
+
+.card {
+  background-color: #161b27;
+  border: 1px solid #21283a;
+  border-radius: 14px;
+  padding: 36px 40px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* ---- Title ---- */
+.title {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: #e6edf3;
+  margin: 0 0 24px;
+  letter-spacing: 0.03em;
+}
+
+/* ---- Tabs ---- */
+.tabs {
+  display: flex;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 24px;
+  border: 1px solid #21283a;
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  background-color: transparent;
+  border: none;
+  color: #8b949e;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.tab:hover {
+  background-color: #1e2a3a;
+  color: #e6edf3;
+}
+
+.tabActive {
+  background-color: #4d7cfe;
+  color: #fff;
+}
+
+.tabIcon {
+  font-size: 16px;
+}
+
+/* ---- Form ---- */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 13px;
+  color: #8b949e;
+  font-weight: 500;
+}
+
+.cuadranteInput {
+  display: flex;
+  align-items: center;
+  background-color: #0d1117;
+  border: 1px solid #21283a;
+  border-radius: 8px;
+  padding: 0 12px;
+  transition: border-color 0.2s;
+}
+
+.inputWrapper:focus-within {
+  border-color: #4d7cfe;
+}
+
+.inputIcon {
+  font-size: 15px;
+  margin-right: 10px;
+  opacity: 0.6;
+}
+
+.input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #e6edf3;
+  font-size: 14px;
+  padding: 11px 0;
+}
+
+.input::placeholder {
+  color: #3d4a5c;
+}
+
+/* ---- Extras (remember + forgot) ---- */
+.extras {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: -4px;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: #8b949e;
+  cursor: pointer;
+}
+
+.checkbox {
+  accent-color: #4d7cfe;
+  width: 14px;
+  height: 14px;
+}
+
+.forgotLink {
+  font-size: 13px;
+  color: #4d7cfe;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.forgotLink:hover {
+  opacity: 0.8;
+}
+
+/* ---- Submit ---- */
+.submitBtn {
+  width: 100%;
+  padding: 12px;
+  background-color: #4d7cfe;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.submitBtn:hover {
+  background-color: #3a6aef;
+}
+
+.submitBtn:active {
+  transform: scale(0.99);
+}
+
+/* ---- Register Section ---- */
+.registerSection {
+  text-align: center;
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid #21283a;
+}
+
+.registerText {
+  font-size: 14px;
+  color: #e6edf3;
+  margin: 0 0 2px;
+}
+
+.registerSub {
+  font-size: 12px;
+  color: #8b949e;
+  margin: 0 0 14px;
+}
+
+.registerBtn {
+  display: inline-block;
+  padding: 8px 32px;
+  background-color: #4d7cfe;
+  color: #fff;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.registerBtn:hover {
+  background-color: #3a6aef;
+}
