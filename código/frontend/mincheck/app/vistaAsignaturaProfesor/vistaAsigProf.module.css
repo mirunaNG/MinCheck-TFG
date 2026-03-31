@@ -24,16 +24,6 @@
   overflow: hidden;
 }
 
-/* Patrón de fondo decorativo */
-.banner::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.03) 0%, transparent 60%),
-                    radial-gradient(circle at 80% 20%, rgba(255,255,255,0.04) 0%, transparent 50%);
-  pointer-events: none;
-}
-
 .bannerInner {
   display: flex;
   align-items: center;
@@ -173,6 +163,7 @@
   border-bottom: 1px solid #1e2a3a;
 }
 
+/* limina el borde inferior del último alumno para un acabado más limpio */
 .alumnoRow:last-child {
   border-bottom: none;
 }
@@ -212,15 +203,11 @@
   border-bottom: 1px solid #21283a;
 }
 
-.tabla th:first-child { padding-left: 0; }
-
 .tabla td {
   padding: 14px 12px;
   color: #e6edf3;
   border-bottom: 1px solid #1e2a3a;
 }
-
-.tabla td:first-child { padding-left: 0; }
 
 .tabla tr:last-child td {
   border-bottom: none;
