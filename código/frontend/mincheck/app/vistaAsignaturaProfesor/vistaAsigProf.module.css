@@ -1,0 +1,272 @@
+.layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #0b0f1a;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  color: #e6edf3;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+/* ── Banner ── */
+.banner {
+  position: relative;
+  padding: 32px 36px 24px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  min-height: 160px;
+  overflow: hidden;
+}
+
+/* Patrón de fondo decorativo */
+.banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.03) 0%, transparent 60%),
+                    radial-gradient(circle at 80% 20%, rgba(255,255,255,0.04) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.bannerInner {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  z-index: 1;
+}
+
+.bannerIcon {
+  width: 64px;
+  height: 64px;
+  background-color: rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.bannerNombre {
+  font-size: 26px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 4px;
+}
+
+.bannerCurso {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.65);
+  margin: 0;
+}
+
+.bannerCodigo {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 1;
+  background-color: rgba(0, 0, 0, 0.25);
+  padding: 8px 14px;
+  border-radius: 8px;
+}
+
+.codigoValor {
+  font-weight: 700;
+  color: #fff;
+}
+
+.copiarBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  padding: 0;
+  line-height: 1;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.copiarBtn:hover {
+  opacity: 1;
+}
+
+/* ── Content ── */
+.content {
+  display: flex;
+  gap: 24px;
+  padding: 28px 36px;
+  flex: 1;
+  align-items: flex-start;
+}
+
+.leftCol {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+
+.rightCol {
+  width: 220px;
+  flex-shrink: 0;
+}
+
+/* ── Card ── */
+.card {
+  background-color: #161b27;
+  border: 1px solid #21283a;
+  border-radius: 14px;
+  padding: 24px;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.cardTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #e6edf3;
+  margin: 0;
+}
+
+.verTodosBtn {
+  background: none;
+  border: none;
+  font-size: 13px;
+  color: #4d7cfe;
+  cursor: pointer;
+  padding: 0;
+}
+
+.verTodosBtn:hover {
+  text-decoration: underline;
+}
+
+/* ── Alumnos ── */
+.alumnosList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.alumnoRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 0;
+  border-bottom: 1px solid #1e2a3a;
+}
+
+.alumnoRow:last-child {
+  border-bottom: none;
+}
+
+.alumnoAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #2a3a5a;
+  flex-shrink: 0;
+}
+
+.alumnoNombre {
+  flex: 1;
+  font-size: 14px;
+  color: #e6edf3;
+}
+
+.alumnoProgreso {
+  font-size: 12px;
+  color: #8b949e;
+}
+
+/* ── Tabla entregas ── */
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.tabla th {
+  text-align: left;
+  padding: 0 12px 12px;
+  color: #8b949e;
+  font-weight: 600;
+  font-size: 12px;
+  border-bottom: 1px solid #21283a;
+}
+
+.tabla th:first-child { padding-left: 0; }
+
+.tabla td {
+  padding: 14px 12px;
+  color: #e6edf3;
+  border-bottom: 1px solid #1e2a3a;
+}
+
+.tabla td:first-child { padding-left: 0; }
+
+.tabla tr:last-child td {
+  border-bottom: none;
+}
+
+.estadoDot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.codigoLink {
+  background: none;
+  border: none;
+  color: #e38500;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.codigoLink:hover {
+  text-decoration: underline;
+}
+
+/* ── Botón temas ── */
+.temasBtn {
+  width: 100%;
+  padding: 14px 20px;
+  background-color: #e38500;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.temasBtn:hover {
+  background-color: #783600;
+}
+
+/* ── Not found ── */
+.notFound {
+  padding: 40px;
+  color: #8b949e;
+  font-size: 16px;
+}

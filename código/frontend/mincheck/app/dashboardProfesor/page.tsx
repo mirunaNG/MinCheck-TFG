@@ -1,3 +1,6 @@
+"use client";
+
+import { useRouter } from "next/navigation";
 import Sidebar from "../sidebar/sidebar";
 import styles from "./dashProf.module.css";
 
@@ -41,6 +44,7 @@ const erroresComunes = [
 ];
 
 export default function DashboardProfesorPage() {
+  const router = useRouter();
   return (
     <div className={styles.layout}>
       <Sidebar rol="profesor" />
@@ -88,8 +92,10 @@ export default function DashboardProfesorPage() {
               <div className={styles.asignaturasGrid}>
                 {/*Se usa una lambda función para un código más limpio.
                 Por cada asignatura del array, se crea una tarjeta */}
-                {asignaturas.map((a) => (
-                  <div key={a.id} className={styles.asignaturaCard}>
+
+                {/*Solo se muestran las 4 primeras asignaturas, si hay más se accede a través del enlace "Ver todas" */}
+                {asignaturas.slice(0, 4).map((a) => (
+                  <div key={a.id} className={styles.asignaturaCard} onClick={() => router.push(`/vistaAsignaturaProfesor/${a.id}`)}>
                     <div
                       className={styles.asignaturaImg}
                       style={{ backgroundColor: a.color }}

@@ -28,7 +28,7 @@ export default function Sidebar({ rol }: { rol: Rol }) {
 
   return (
     <aside className={styles.sidebar}>
-      <div className={styles.logo}>MinCheck</div>
+      <Link href="/" className={styles.logo}>MinCheck</Link>
 
       <div className={styles.profile}>
         <div className={styles.avatar}>

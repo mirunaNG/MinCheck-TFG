@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Sidebar from "../sidebar/sidebar";
 import styles from "./asignaturasProfesor.module.css";
 
@@ -20,7 +21,7 @@ const asignaturasIniciales = [
     nombre: "Fundamentos de la Algoritmia",
     alumnos: 42,
     ejercicios: 10,
-    codigo: "ALG001",
+    codigo: "458C3",
     imagen: "/asignaturas/algoritmos.jpg",
     color: "#2a3a5a",
   },
@@ -47,6 +48,7 @@ const asignaturasIniciales = [
 export default function DashboardProfesorPage() {
   {/*Estado del componente
     const [variable, funcion setter] = useState(<valor inicial>) */}
+  const router = useRouter();
   const [asignaturas, setAsignaturas] = useState(asignaturasIniciales);
   const [mostrarModal, setMostrarModal] = useState(false);
   const [nombre, setNombre] = useState(""); {/*Lo que se escribe en el input*/}
@@ -94,7 +96,7 @@ export default function DashboardProfesorPage() {
             <div className={styles.section}>
               <div className={styles.asignaturasGrid}>
                 {asignaturas.map((a) => (
-                  <div key={a.id} className={styles.asignaturaCard}>
+                  <div key={a.id} className={styles.asignaturaCard} onClick={() => router.push(`/vistaAsignaturaProfesor/${a.id}`)}>
                     <div
                       className={styles.asignaturaImg}
                       style={{ backgroundColor: a.color }}
