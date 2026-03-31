@@ -1,0 +1,245 @@
+.layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #0b0f1a;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  color: #e6edf3;
+}
+
+/* ── Main ── */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px 36px 20px;
+  border-bottom: 1px solid #1e2a3a;
+}
+
+.greeting {
+  font-size: 26px;
+  font-weight: 700;
+  color: #e6edf3;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.bellBtn {
+  position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.bellIcon {
+  font-size: 22px;
+}
+
+.bellBadge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 9px;
+  height: 9px;
+  background-color: #f04040;
+  border-radius: 50%;
+  border: 2px solid #0b0f1a;
+}
+
+/* ── Content ── */
+.content {
+  display: flex;
+  gap: 24px;
+  padding: 28px 36px;
+  flex: 1;
+}
+
+.leftCol {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  min-width: 0;
+}
+
+.rightCol {
+  width: 300px;
+  flex-shrink: 0;
+}
+
+
+/* ── Asignaturas Grid ── */
+.asignaturasGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.asignaturaCard {
+  background-color: #161b27;
+  border: 1px solid #21283a;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  transition: border-color 0.2s, transform 0.15s;
+  cursor: pointer;
+}
+/* Cuando se pone el cursor encima */
+.asignaturaCard:hover {
+  border-color: #4d7cfe;
+  transform: translateY(-2px);
+}
+
+.asignaturaImg {
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.asignaturaImgIcon {
+  font-size: 40px;
+  opacity: 0.5;
+}
+
+.asignaturaInfo {
+  padding: 14px 16px;
+}
+
+.asignaturaNombre {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e6edf3;
+  margin: 0 0 6px;
+  line-height: 1.3;
+}
+
+.asignaturaInfo {
+  font-size: 12px;
+  color: #8b949e;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* ── Add button ── */
+.addBtn {
+  width: 100%;
+  padding: 12px 20px;
+  background-color: #e38500;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.addBtn:hover {
+  background-color: #783600;
+}
+
+/* ── Modal ── */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal {
+  background-color: #161b27;
+  border: 1px solid #21283a;
+  border-radius: 14px;
+  padding: 32px;
+  width: 420px;
+  max-width: 90vw;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.modalTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #e6edf3;
+  margin: 0;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.formGroup label {
+  font-size: 13px;
+  color: #8b949e;
+  font-weight: 500;
+}
+
+.formGroup input {
+  background-color: #0b0f1a;
+  border: 1px solid #21283a;
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #e6edf3;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.formGroup input:focus {
+  border-color: #4d7cfe;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.cancelBtn {
+  padding: 10px 20px;
+  background: none;
+  border: 1px solid #21283a;
+  border-radius: 8px;
+  color: #8b949e;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.cancelBtn:hover {
+  border-color: #8b949e;
+  color: #e6edf3;
+}
+
+.submitBtn {
+  padding: 10px 20px;
+  background-color: #e38500;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.submitBtn:hover {
+  background-color: #783600;
+}

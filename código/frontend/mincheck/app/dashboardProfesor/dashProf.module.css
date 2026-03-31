@@ -1,0 +1,293 @@
+.layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #0b0f1a;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  color: #e6edf3;
+}
+
+/* ── Main ── */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px 36px 20px;
+  border-bottom: 1px solid #1e2a3a;
+}
+
+.greeting {
+  font-size: 26px;
+  font-weight: 700;
+  color: #e6edf3;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.bellBtn {
+  position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.bellIcon {
+  font-size: 22px;
+}
+
+.bellBadge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 9px;
+  height: 9px;
+  background-color: #f04040;
+  border-radius: 50%;
+  border: 2px solid #0b0f1a;
+}
+
+/* ── Content ── */
+.content {
+  display: flex;
+  gap: 24px;
+  padding: 28px 36px;
+  flex: 1;
+}
+
+.leftCol {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  min-width: 0;
+}
+
+.rightCol {
+  width: 300px;
+  flex-shrink: 0;
+}
+
+/* ── Stats ── */
+.statsRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.statCard {
+  background-color: #161b27;
+  border: 1px solid #21283a;
+  border-radius: 12px;
+  padding: 20px 22px;
+  position: relative;
+}
+
+.statIconWrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.statIcon {
+  font-size: 20px;
+}
+
+.statLabel {
+  font-size: 13px;
+  color: #8b949e;
+  margin: 0 0 6px;
+}
+
+.statValue {
+  font-size: 32px;
+  font-weight: 700;
+  color: #e6edf3;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+/* ── Sección ── */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sectionTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #e6edf3;
+  margin: 0;
+}
+
+.seeAll {
+  font-size: 13px;
+  color: #4d7cfe;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.seeAll:hover {
+  opacity: 0.8;
+}
+
+/* ── Asignaturas Grid ── */
+.asignaturasGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.asignaturaCard {
+  background-color: #161b27;
+  border: 1px solid #21283a;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  transition: border-color 0.2s, transform 0.15s;
+  cursor: pointer;
+}
+
+.asignaturaCard:hover {
+  border-color: #4d7cfe;
+  transform: translateY(-2px);
+}
+
+.asignaturaImg {
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.asignaturaImgIcon {
+  font-size: 40px;
+  opacity: 0.5;
+}
+
+.asignaturaInfo {
+  padding: 14px 16px;
+}
+
+.asignaturaNombre {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e6edf3;
+  margin: 0 0 6px;
+  line-height: 1.3;
+}
+
+.asignaturaInfo {
+  font-size: 12px;
+  color: #8b949e;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* ── Errores Card ── */
+.erroresCard {
+  background-color: #161b27;
+  border: 1px solid #21283a;
+  border-radius: 12px;
+  padding: 22px 20px;
+  height: fit-content;
+}
+
+.erroresTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: #e6edf3;
+  margin: 0 0 20px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.erroresList {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.errorItem {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.errorTop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.errorEjercicio {
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.errorDesc {
+  font-size: 12px;
+  color: #8b949e;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.errorPct {
+  font-size: 12px;
+  font-weight: 600;
+  color: #e6edf3;
+  flex-shrink: 0;
+}
+
+.errorBarBg {
+  height: 4px;
+  background-color: #21283a;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.errorBarFill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+.verAnalisis {
+  display: block;
+  text-align: center;
+  margin-top: 20px;
+  font-size: 13px;
+  color: #4d7cfe;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.verAnalisis:hover {
+  opacity: 0.8;
+}
