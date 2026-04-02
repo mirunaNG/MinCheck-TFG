@@ -1,40 +1,23 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import Sidebar from "../sidebar/sidebar";
+import Sidebar from "../../components/sidebar";
 import styles from "./dashProf.module.css";
+import { asignaturasDe, totalAlumnosDe, totalEjerciciosDe } from "../../lib/mockData";
 
-/**
- * Datos de EJEMPLO para asignaturas y errores comunes.
- */
+// toDo: id del profesor autenticado vendrá de la sesión
+const PROFESOR_ID = 1;
 
-const asignaturas = [
-  {
-    id: 1,
-    nombre: "Fundamentos de la Algoritmia",
-    alumnos: 42,
-    ejercicios: 10,
-    imagen: "/asignaturas/algoritmos.jpg",
-    color: "#2a3a5a",
-  },
-  {
-    id: 2,
-    nombre: "Estructuras de datos",
-    alumnos: 30,
-    ejercicios: 9,
-    imagen: "/asignaturas/datos.jpg",
-    color: "#1a3a4a",
-  },
-  {
-    id: 3,
-    nombre: "Bases de datos",
-    alumnos: 36,
-    ejercicios: 8,
-    imagen: "/asignaturas/bbdd.jpg",
-    color: "#2a2a4a",
-  },
-];
+const asignaturas = asignaturasDe(PROFESOR_ID).map((a) => ({
+  ...a,
+  alumnos:    totalAlumnosDe(a.id),
+  ejercicios: totalEjerciciosDe(a.id),
+}));
 
+const totalEstudiantes = asignaturas.reduce((sum, a) => sum + a.alumnos, 0);
+const totalEjercicios  = asignaturas.reduce((sum, a) => sum + a.ejercicios, 0);
+
+// toDo: obtener del backend (análisis de errores frecuentes por ejercicio)
 const erroresComunes = [
   { ejercicio: "Quick sort",     descripcion: "Condición incorrecta en loop",   porcentaje: 78, color: "#4d7cfe" },
   { ejercicio: "Quick sort",     descripcion: "No maneja duplicados",            porcentaje: 62, color: "#4d7cfe" },
@@ -72,14 +55,14 @@ export default function DashboardProfesorPage() {
                   <span className={styles.statIcon}>👥</span>
                 </div>
                 <p className={styles.statLabel}>Total estudiantes</p>
-                <p className={styles.statValue}>142</p>
+                <p className={styles.statValue}>{totalEstudiantes}</p>
               </div>
               <div className={styles.statCard}>
                 <div className={styles.statIconWrap} style={{ backgroundColor: "rgba(240,165,0,0.15)" }}>
                   <span className={styles.statIcon}>&lt;/&gt;</span>
                 </div>
                 <p className={styles.statLabel}>Total ejercicios</p>
-                <p className={styles.statValue}>45</p>
+                <p className={styles.statValue}>{totalEjercicios}</p>
               </div>
             </div>
 
@@ -87,7 +70,7 @@ export default function DashboardProfesorPage() {
             <div className={styles.section}>
               <div className={styles.sectionHeader}>
                 <h2 className={styles.sectionTitle}>Asignaturas actuales</h2>
-                <a href="/asignaturasProfesor" className={styles.seeAll}>Ver todas →</a>
+                <a href="/asignaturas" className={styles.seeAll}>Ver todas →</a>
               </div>
               <div className={styles.asignaturasGrid}>
                 {/*Se usa una lambda función para un código más limpio.
@@ -95,7 +78,7 @@ export default function DashboardProfesorPage() {
 
                 {/*Solo se muestran las 4 primeras asignaturas, si hay más se accede a través del enlace "Ver todas" */}
                 {asignaturas.slice(0, 4).map((a) => (
-                  <div key={a.id} className={styles.asignaturaCard} onClick={() => router.push(`/vistaAsignaturaProfesor/${a.id}`)}>
+                  <div key={a.id} className={styles.asignaturaCard} onClick={() => router.push(`/vistaAsignatura/${a.id}`)}>
                     <div
                       className={styles.asignaturaImg}
                       style={{ backgroundColor: a.color }}

@@ -1,0 +1,353 @@
+.layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #0b0f1a;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  color: #e6edf3;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+/* ── Cabecera ── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32px 36px 24px;
+  border-bottom: 1px solid #1e2a3a;
+}
+
+.titulo {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #e6edf3;
+  margin: 0 0 6px;
+}
+
+.subtitulo {
+  font-size: 13px;
+  color: #8b949e;
+  margin: 0;
+}
+
+.nuevoEjercicioBtn {
+  background-color: #e38500;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 22px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.nuevoEjercicioBtn:hover {
+  background-color: #c47300;
+}
+
+/* ── Contenido ── */
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 28px 36px;
+}
+
+/* ── Tarjeta de tema ── */
+.temaCard {
+  background-color: #161b27;
+  border: 1px solid #21283a;
+  border-radius: 14px;
+  padding: 20px 24px;
+}
+
+.temaHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.temaLeft {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.temaCircle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.temaNombre {
+  font-size: 16px;
+  font-weight: 700;
+  color: #e6edf3;
+}
+
+.temaRight {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ejerciciosCount {
+  font-size: 13px;
+  color: #8b949e;
+}
+
+/* ── Filas de ejercicios ── */
+.ejerciciosList {
+  display: flex;
+  flex-direction: column;
+}
+
+.ejercicioRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #1e2a3a;
+}
+
+.ejercicioRowLast {
+  border-bottom: none;
+}
+
+.ejercicioNombre {
+  font-size: 14px;
+  color: #e6edf3;
+}
+
+.ejercicioAcciones {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ── Badge de entregas ── */
+.badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  padding: 3px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+/* ── Botones de icono ── */
+.iconBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  color: #8b949e;
+  padding: 4px;
+  line-height: 1;
+  opacity: 0.7;
+  transition: opacity 0.2s, color 0.2s;
+}
+
+.iconBtn:hover {
+  opacity: 1;
+  color: #e6edf3;
+}
+
+/* ── Botón añadir ejercicio a tema ── */
+.añadirEjercicioBtn {
+  background: none;
+  border: none;
+  color: #4d7cfe;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 14px 0 0;
+  display: block;
+  transition: color 0.2s;
+}
+
+.añadirEjercicioBtn:hover {
+  color: #7096ff;
+  text-decoration: underline;
+}
+
+/* ── Botón añadir nuevo tema ── */
+.añadirTemaBtn {
+  width: 100%;
+  padding: 18px;
+  background: none;
+  border: 2px dashed #21283a;
+  border-radius: 14px;
+  color: #8b949e;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.añadirTemaBtn:hover {
+  border-color: #4d7cfe;
+  color: #4d7cfe;
+}
+
+/* ── Contenido de los modales ── */
+.campoModal {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.labelModal {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8b949e;
+}
+
+.inputModal {
+  background-color: #141926;
+  border: 1px solid #3a4a6a;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: #e6edf3;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.inputModal::placeholder {
+  color: #4a5568;
+}
+
+.inputModal:focus {
+  border-color: #4d7cfe;
+}
+
+.selectModal {
+  background-color: #141926;
+  border: 1px solid #3a4a6a;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: #e6edf3;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+  transition: border-color 0.2s;
+}
+
+.selectModal:focus {
+  border-color: #4d7cfe;
+}
+
+/* ── Área de archivo ── */
+.fileArea {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #141926;
+  border: 1px solid #3a4a6a;
+  border-radius: 8px;
+  padding: 14px 18px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.fileArea:hover {
+  border-color: #4d7cfe;
+}
+
+.fileIcon {
+  font-size: 18px;
+  opacity: 0.6;
+}
+
+.fileTexto {
+  font-size: 13px;
+  color: #8b949e;
+}
+
+.fileInput {
+  display: none;
+}
+
+/* ── Selector de color ── */
+.coloresGrid {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.colorCircle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s;
+  padding: 0;
+}
+
+.colorCircle:hover {
+  transform: scale(1.15);
+}
+
+.colorCircleActivo {
+  border-color: #fff;
+  transform: scale(1.15);
+}
+
+/* ── Botones del modal ── */
+.botonesModal {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.confirmarModalBtn {
+  flex: 1;
+  background-color: #e38500;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.confirmarModalBtn:hover {
+  background-color: #c47300;
+}
+
+.cancelarModalBtn {
+  flex: 1;
+  background-color: #2e3a4e;
+  color: #e6edf3;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cancelarModalBtn:hover {
+  background-color: #3a4a62;
+}

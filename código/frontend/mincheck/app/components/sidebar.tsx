@@ -6,8 +6,8 @@ import styles from "./sidebar.module.css";
 
 const navItemsByRol = {
   profesor: [
-    { label: "Dashboard", href: "/dashboardProfesor", icon: "▦" },
-    { label: "Asignaturas", href: "/asignaturasProfesor", icon: "🔖" },
+    { label: "Dashboard", href: "/dashboard", icon: "▦" },
+    { label: "Asignaturas", href: "/asignaturas", icon: "🔖" },
     { label: "Estadísticas", href: "/estadisticas", icon: "📊" },
     { label: "Mi perfil", href: "/perfilProfesor", icon: "👤" },
     { label: "Generador de casos", href: "/generadorCasos", icon: "📋" },

@@ -235,6 +235,7 @@
 
 /* ── Botón temas ── */
 .temasBtn {
+  display: block;
   width: 100%;
   padding: 14px 20px;
   background-color: #e38500;
@@ -244,7 +245,10 @@
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  text-align: center;
+  text-decoration: none;
   transition: background-color 0.2s;
+  box-sizing: border-box;
 }
 
 .temasBtn:hover {

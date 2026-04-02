@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Sidebar from "../sidebar/sidebar";
+import Sidebar from "../../components/sidebar";
+import Modal from "../../components/Modal";
 import styles from "./asignaturasProfesor.module.css";
+import { asignaturasDe, totalAlumnosDe, totalEjerciciosDe } from "../../lib/mockData";
 
-/**
- * Datos de EJEMPLO para asignaturas y errores comunes.
- */
+// toDo: id del profesor autenticado vendrá de la sesión
+const PROFESOR_ID = 1;
 
 function generarCodigo(): string {
   /* toDo: el código lo generará el backend al crear la asignatura */
@@ -15,35 +16,12 @@ function generarCodigo(): string {
   return Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
 }
 
-const asignaturasIniciales = [
-  {
-    id: 1,
-    nombre: "Fundamentos de la Algoritmia",
-    alumnos: 42,
-    ejercicios: 10,
-    codigo: "458C3",
-    imagen: "/asignaturas/algoritmos.jpg",
-    color: "#2a3a5a",
-  },
-  {
-    id: 2,
-    nombre: "Estructuras de datos",
-    alumnos: 30,
-    ejercicios: 9,
-    codigo: "DAT002",
-    imagen: "/asignaturas/datos.jpg",
-    color: "#1a3a4a",
-  },
-  {
-    id: 3,
-    nombre: "Bases de datos",
-    alumnos: 36,
-    ejercicios: 8,
-    codigo: "BDD003",
-    imagen: "/asignaturas/bbdd.jpg",
-    color: "#2a2a4a",
-  },
-];
+const asignaturasIniciales = asignaturasDe(PROFESOR_ID).map((a) => ({
+  ...a,
+  codigo:     a.codigoAsignatura,
+  alumnos:    totalAlumnosDe(a.id),
+  ejercicios: totalEjerciciosDe(a.id),
+}));
 
 export default function DashboardProfesorPage() {
   {/*Estado del componente
@@ -65,6 +43,9 @@ export default function DashboardProfesorPage() {
         alumnos: 0, /*siempre empieza en 0, se incrementa cuando los alumnos se unen con el código*/
         ejercicios: 0,
         codigo: generarCodigo(), /*toDo: el código lo generará el backend*/
+        codigoAsignatura: generarCodigo(),
+        profesorId: PROFESOR_ID,
+        curso: "2025-2026",
         imagen: "",
         color: "#2a3a5a",
       },
@@ -96,7 +77,7 @@ export default function DashboardProfesorPage() {
             <div className={styles.section}>
               <div className={styles.asignaturasGrid}>
                 {asignaturas.map((a) => (
-                  <div key={a.id} className={styles.asignaturaCard} onClick={() => router.push(`/vistaAsignaturaProfesor/${a.id}`)}>
+                  <div key={a.id} className={styles.asignaturaCard} onClick={() => router.push(`/vistaAsignatura/${a.id}`)}>
                     <div
                       className={styles.asignaturaImg}
                       style={{ backgroundColor: a.color }}
@@ -124,37 +105,38 @@ export default function DashboardProfesorPage() {
 
       {/* Modal */}
       {mostrarModal && (
-        <div className={styles.modalOverlay} onClick={() => setMostrarModal(false)}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <h2 className={styles.modalTitle}>Nueva asignatura</h2>
-            <form onSubmit={handleAnadir}>
-              <div className={styles.formGroup}>
-                <label htmlFor="nombre">Nombre</label>
-                <input
-                  id="nombre"
-                  type="text"
-                  placeholder="Ej. Programación orientada a objetos"
-                  value={nombre}
-                  onChange={(e) => setNombre(e.target.value)}
-                  autoFocus
-                />
-              </div>
+        <Modal
+          titulo="Nueva asignatura"
+          subtitulo="Añade una nueva asignatura a tu lista"
+          onCerrar={() => setMostrarModal(false)}
+        >
+          <form onSubmit={handleAnadir}>
+            <div className={styles.formGroup}>
+              <label htmlFor="nombre">Nombre</label>
+              <input
+                id="nombre"
+                type="text"
+                placeholder="Ej. Programación orientada a objetos"
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                autoFocus
+              />
+            </div>
 
-              <div className={styles.modalActions}>
-                <button
-                  type="button"
-                  className={styles.cancelBtn}
-                  onClick={() => setMostrarModal(false)}
-                >
-                  Cancelar
-                </button>
-                <button type="submit" className={styles.submitBtn}>
-                  Añadir
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+            <div className={styles.modalActions}>
+              <button
+                type="button"
+                className={styles.cancelBtn}
+                onClick={() => setMostrarModal(false)}
+              >
+                Cancelar
+              </button>
+              <button type="submit" className={styles.submitBtn}>
+                Añadir
+              </button>
+            </div>
+          </form>
+        </Modal>
       )}
     </div>
   );
