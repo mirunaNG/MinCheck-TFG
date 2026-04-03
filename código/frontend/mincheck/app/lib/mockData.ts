@@ -1,16 +1,9 @@
 /**
  * Datos de EJEMPLO que simulan la base de datos.
  * toDo: reemplazar cada función/constante por llamadas fetch al backend.
- *
- * Modelo de datos:
- *   Usuario ──< Asignatura (profesor crea)
- *   Usuario ──< Matricula >── Asignatura (alumno se matricula)
- *   Asignatura ──< Tema ──< Ejercicio
- *   Usuario ──< Entrega >── Ejercicio
  */
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
-
 export type Rol = "profesor" | "alumno";
 
 export type Usuario = {
@@ -42,10 +35,25 @@ export type Tema = {
   asignaturaId: number;
 };
 
+export type ArchivoEjercicio = {
+  nombre: string;
+  tamano: string;
+  fecha: string;
+};
+
 export type Ejercicio = {
   id: number;
   nombre: string;
   temaId: number;
+  enunciadoPdf: ArchivoEjercicio | null;
+  codigoSolucion: ArchivoEjercicio | null;
+};
+
+export type CasoPrueba = {
+  id: number;
+  ejercicioId: number;
+  input: string;
+  outputEsperado: string;
 };
 
 export type ResultadoEntrega = "correcto" | "incorrecto" | "pendiente";
@@ -56,6 +64,8 @@ export type Entrega = {
   ejercicioId: number;
   resultado: ResultadoEntrega;
   fechaHora: string;
+  intentos: number;
+  errorPrincipal: string | null;
 };
 
 // ─── Datos ────────────────────────────────────────────────────────────────────
@@ -115,49 +125,82 @@ export const temas: Tema[] = [
 
 export const ejercicios: Ejercicio[] = [
   // Tema 1 – Recursividad
-  { id: 1,  nombre: "Factorial recursivo",         temaId: 1 },
-  { id: 2,  nombre: "Torres de Hanói",             temaId: 1 },
-  { id: 3,  nombre: "Problema de las N-reinas",    temaId: 1 },
-  { id: 4,  nombre: "Sudoku 1",                    temaId: 1 },
+  { id: 1,  nombre: "Factorial recursivo",        temaId: 1, enunciadoPdf:   { nombre: "FACT_RECURSIVO.pdf",    tamano: "145 KB", fecha: "1 feb 2025" }, codigoSolucion: { nombre: "FactRecursivo_sol.cpp",  tamano: "2.4 KB", fecha: "1 feb 2025" } },
+  { id: 2,  nombre: "Torres de Hanói",            temaId: 1, enunciadoPdf:   { nombre: "HANOI.pdf",             tamano: "98 KB",  fecha: "3 feb 2025" }, codigoSolucion: { nombre: "Hanoi_sol.cpp",           tamano: "1.8 KB", fecha: "3 feb 2025" } },
+  { id: 3,  nombre: "Problema de las N-reinas",   temaId: 1, enunciadoPdf:   { nombre: "N_REINAS.pdf",          tamano: "210 KB", fecha: "5 feb 2025" }, codigoSolucion: { nombre: "NReinas_sol.cpp",         tamano: "3.1 KB", fecha: "5 feb 2025" } },
+  { id: 4,  nombre: "Sudoku 1",                   temaId: 1, enunciadoPdf:   { nombre: "SUDOKU1.pdf",           tamano: "175 KB", fecha: "7 feb 2025" }, codigoSolucion: { nombre: "Sudoku_sol.pdf",            tamano: "1.1 KB", fecha: "7 feb 2025" } },
   // Tema 2 – Ordenación
-  { id: 5,  nombre: "Bubble sort",                 temaId: 2 },
-  { id: 6,  nombre: "Merge sort",                  temaId: 2 },
-  { id: 7,  nombre: "Quick sort",                  temaId: 2 },
-  { id: 8,  nombre: "Heap sort",                   temaId: 2 },
+  { id: 5,  nombre: "Bubble sort",                temaId: 2, enunciadoPdf:   { nombre: "BUBBLE_SORT.pdf",       tamano: "88 KB",  fecha: "10 feb 2025" }, codigoSolucion: { nombre: "BubbleSort_sol.cpp",      tamano: "1.2 KB", fecha: "10 feb 2025" } },
+  { id: 6,  nombre: "Merge sort",                 temaId: 2, enunciadoPdf:   { nombre: "MERGE_SORT.pdf",        tamano: "112 KB", fecha: "10 feb 2025" }, codigoSolucion: { nombre: "MergeSort_sol.cpp",       tamano: "2.0 KB", fecha: "10 feb 2025" } },
+  { id: 7,  nombre: "Quick sort",                 temaId: 2, enunciadoPdf:   { nombre: "QUICK_SORT.pdf",        tamano: "95 KB",  fecha: "12 feb 2025" }, codigoSolucion: { nombre: "QuickSort_sol.cpp",       tamano: "1.6 KB", fecha: "12 feb 2025" } },
+  { id: 8,  nombre: "Heap sort",                  temaId: 2, enunciadoPdf:   { nombre: "HEAP_SORT.pdf",         tamano: "105 KB", fecha: "14 feb 2025" }, codigoSolucion: { nombre: "HeapSort_sol.cpp",        tamano: "1.9 KB", fecha: "14 feb 2025" } },
   // Tema 3 – Divide y vencerás
-  { id: 9,  nombre: "Búsqueda binaria",            temaId: 3 },
-  { id: 10, nombre: "Par de puntos más cercanos",  temaId: 3 },
+  { id: 9,  nombre: "Búsqueda binaria",           temaId: 3, enunciadoPdf:   { nombre: "BUSQUEDA_BINARIA.pdf",  tamano: "130 KB", fecha: "15 feb 2025" }, codigoSolucion: { nombre: "BusquedaBinaria_sol.cpp", tamano: "1.5 KB", fecha: "15 feb 2025" } },
+  { id: 10, nombre: "Par de puntos más cercanos", temaId: 3, enunciadoPdf:   { nombre: "PAR_PUNTOS.pdf",        tamano: "190 KB", fecha: "17 feb 2025" }, codigoSolucion: { nombre: "ParPuntos_sol.pdf",         tamano: "1.2 KB", fecha: "17 feb 2025" } },
   // Tema 4 – Listas y árboles
-  { id: 11, nombre: "Listas enlazadas",            temaId: 4 },
-  { id: 12, nombre: "Pilas y colas",               temaId: 4 },
-  { id: 13, nombre: "Árboles AVL",                 temaId: 4 },
+  { id: 11, nombre: "Listas enlazadas",           temaId: 4, enunciadoPdf:   { nombre: "LISTAS_ENLAZADAS.pdf",  tamano: "155 KB", fecha: "1 mar 2025"  }, codigoSolucion: { nombre: "ListasEnlazadas_sol.cpp", tamano: "2.7 KB", fecha: "1 mar 2025"  } },
+  { id: 12, nombre: "Pilas y colas",              temaId: 4, enunciadoPdf:   { nombre: "PILAS_COLAS.pdf",       tamano: "120 KB", fecha: "3 mar 2025"  }, codigoSolucion: { nombre: "PilasColas_sol.cpp",      tamano: "1.8 KB", fecha: "3 mar 2025"  } },
+  { id: 13, nombre: "Árboles AVL",                temaId: 4, enunciadoPdf:   { nombre: "ARBOLES_AVL.pdf",       tamano: "230 KB", fecha: "5 mar 2025"  }, codigoSolucion: { nombre: "ArbolesAVL_sol.cpp",      tamano: "4.2 KB", fecha: "5 mar 2025"  } },
   // Tema 5 – Consultas y modelado
-  { id: 14, nombre: "Consultas SQL",               temaId: 5 },
-  { id: 15, nombre: "Normalización",               temaId: 5 },
-  { id: 16, nombre: "Joins y subconsultas",        temaId: 5 },
+  { id: 14, nombre: "Consultas SQL",              temaId: 5, enunciadoPdf:   { nombre: "CONSULTAS_SQL.pdf",     tamano: "165 KB", fecha: "10 mar 2025" }, codigoSolucion: { nombre: "ConsultasSQL_sol.sql",    tamano: "1.9 KB", fecha: "10 mar 2025" } },
+  { id: 15, nombre: "Normalización",              temaId: 5, enunciadoPdf:   { nombre: "NORMALIZACION.pdf",     tamano: "200 KB", fecha: "12 mar 2025" }, codigoSolucion:  { nombre: "Normalizacion_sol.pdf",     tamano: "1.4 KB", fecha: "12 mar 2025" } },
+  { id: 16, nombre: "Joins y subconsultas",       temaId: 5, enunciadoPdf:   { nombre: "JOINS.pdf",             tamano: "145 KB", fecha: "14 mar 2025" }, codigoSolucion: { nombre: "Joins_sol.sql",           tamano: "2.3 KB", fecha: "14 mar 2025" } },
 ];
 
 // Cada fila = un alumno entrega un ejercicio
 export const entregas: Entrega[] = [
   // ── Asignatura 1 ──
-  { id: 1,  alumnoId: 2,  ejercicioId: 1,  resultado: "correcto",    fechaHora: "Hoy, 14:30"   },
-  { id: 2,  alumnoId: 3,  ejercicioId: 1,  resultado: "correcto",    fechaHora: "Hoy, 13:10"   },
-  { id: 3,  alumnoId: 4,  ejercicioId: 1,  resultado: "incorrecto",  fechaHora: "Ayer, 18:45"  },
-  { id: 4,  alumnoId: 5,  ejercicioId: 1,  resultado: "correcto",    fechaHora: "Ayer, 10:45"  },
-  { id: 5,  alumnoId: 6,  ejercicioId: 1,  resultado: "correcto",    fechaHora: "Ayer, 09:00"  },
-  { id: 6,  alumnoId: 7,  ejercicioId: 1,  resultado: "correcto",    fechaHora: "Lun, 17:00"   },
-  { id: 7,  alumnoId: 8,  ejercicioId: 2,  resultado: "incorrecto",  fechaHora: "Hoy, 10:00"   },
-  { id: 8,  alumnoId: 9,  ejercicioId: 2,  resultado: "correcto",    fechaHora: "Ayer, 11:30"  },
-  { id: 9,  alumnoId: 2,  ejercicioId: 3,  resultado: "correcto",    fechaHora: "Lun, 16:00"   },
-  { id: 10, alumnoId: 3,  ejercicioId: 3,  resultado: "incorrecto",  fechaHora: "Lun, 12:00"   },
+  { id: 1,  alumnoId: 2,  ejercicioId: 1,  resultado: "correcto",   fechaHora: "Hoy, 14:30",  intentos: 1, errorPrincipal: null                  },
+  { id: 2,  alumnoId: 3,  ejercicioId: 1,  resultado: "incorrecto", fechaHora: "Hoy, 13:10",  intentos: 3, errorPrincipal: "Index out of bound"   },
+  { id: 3,  alumnoId: 4,  ejercicioId: 1,  resultado: "correcto",   fechaHora: "Ayer, 18:45", intentos: 2, errorPrincipal: null                  },
+  { id: 4,  alumnoId: 5,  ejercicioId: 1,  resultado: "correcto",   fechaHora: "Ayer, 10:45", intentos: 2, errorPrincipal: null                  },
+  { id: 5,  alumnoId: 6,  ejercicioId: 1,  resultado: "incorrecto", fechaHora: "Ayer, 20:32", intentos: 1, errorPrincipal: "Null pointer exception"},
+  { id: 6,  alumnoId: 7,  ejercicioId: 1,  resultado: "incorrecto", fechaHora: "Ayer, 10:45", intentos: 1, errorPrincipal: "Infinite loop"        },
+  { id: 7,  alumnoId: 8,  ejercicioId: 2,  resultado: "incorrecto", fechaHora: "Hoy, 10:00",  intentos: 2, errorPrincipal: "Stack overflow"        },
+  { id: 8,  alumnoId: 9,  ejercicioId: 2,  resultado: "correcto",   fechaHora: "Ayer, 11:30", intentos: 1, errorPrincipal: null                  },
+  { id: 9,  alumnoId: 2,  ejercicioId: 3,  resultado: "correcto",   fechaHora: "Lun, 16:00",  intentos: 1, errorPrincipal: null                  },
+  { id: 10, alumnoId: 3,  ejercicioId: 3,  resultado: "incorrecto", fechaHora: "Lun, 12:00",  intentos: 4, errorPrincipal: "Wrong output"          },
   // ── Asignatura 2 ──
-  { id: 11, alumnoId: 6,  ejercicioId: 11, resultado: "correcto",    fechaHora: "Hoy, 09:00"   },
-  { id: 12, alumnoId: 7,  ejercicioId: 12, resultado: "incorrecto",  fechaHora: "Ayer, 17:00"  },
-  { id: 13, alumnoId: 10, ejercicioId: 13, resultado: "correcto",    fechaHora: "Ayer, 11:30"  },
+  { id: 11, alumnoId: 6,  ejercicioId: 11, resultado: "correcto",   fechaHora: "Hoy, 09:00",  intentos: 1, errorPrincipal: null                  },
+  { id: 12, alumnoId: 7,  ejercicioId: 12, resultado: "incorrecto", fechaHora: "Ayer, 17:00", intentos: 2, errorPrincipal: "Null pointer exception"},
+  { id: 13, alumnoId: 10, ejercicioId: 13, resultado: "correcto",   fechaHora: "Ayer, 11:30", intentos: 1, errorPrincipal: null                  },
   // ── Asignatura 3 ──
-  { id: 14, alumnoId: 11, ejercicioId: 14, resultado: "correcto",    fechaHora: "Hoy, 12:00"   },
-  { id: 15, alumnoId: 12, ejercicioId: 15, resultado: "incorrecto",  fechaHora: "Hoy, 08:45"   },
-  { id: 16, alumnoId: 13, ejercicioId: 16, resultado: "correcto",    fechaHora: "Ayer, 16:00"  },
+  { id: 14, alumnoId: 11, ejercicioId: 14, resultado: "correcto",   fechaHora: "Hoy, 12:00",  intentos: 1, errorPrincipal: null                  },
+  { id: 15, alumnoId: 12, ejercicioId: 15, resultado: "incorrecto", fechaHora: "Hoy, 08:45",  intentos: 3, errorPrincipal: "Syntax error"          },
+  { id: 16, alumnoId: 13, ejercicioId: 16, resultado: "correcto",   fechaHora: "Ayer, 16:00", intentos: 2, errorPrincipal: null                  },
+];
+
+export const casosPrueba: CasoPrueba[] = [
+  // ── Ejercicio 1: Factorial recursivo ──
+  { id: 1,  ejercicioId: 1, input: "0",  outputEsperado: "1"       },
+  { id: 2,  ejercicioId: 1, input: "1",  outputEsperado: "1"       },
+  { id: 3,  ejercicioId: 1, input: "5",  outputEsperado: "120"     },
+  { id: 4,  ejercicioId: 1, input: "10", outputEsperado: "3628800" },
+  { id: 5,  ejercicioId: 1, input: "7",  outputEsperado: "5040"    },
+  // ── Ejercicio 2: Torres de Hanói ──
+  { id: 6,  ejercicioId: 2, input: "1",  outputEsperado: "1"  },
+  { id: 7,  ejercicioId: 2, input: "2",  outputEsperado: "3"  },
+  { id: 8,  ejercicioId: 2, input: "3",  outputEsperado: "7"  },
+  { id: 9,  ejercicioId: 2, input: "4",  outputEsperado: "15" },
+  { id: 10, ejercicioId: 2, input: "5",  outputEsperado: "31" },
+  // ── Ejercicio 5: Bubble sort ──
+  { id: 11, ejercicioId: 5, input: "5\n3 1 4 1 5", outputEsperado: "1 1 3 4 5" },
+  { id: 12, ejercicioId: 5, input: "4\n8 2 6 3",   outputEsperado: "2 3 6 8"   },
+  { id: 13, ejercicioId: 5, input: "1\n42",         outputEsperado: "42"        },
+  { id: 14, ejercicioId: 5, input: "6\n5 4 3 2 1 0", outputEsperado: "0 1 2 3 4 5" },
+  { id: 15, ejercicioId: 5, input: "3\n7 7 7",      outputEsperado: "7 7 7"     },
+  // ── Ejercicio 6: Merge sort ──
+  { id: 16, ejercicioId: 6, input: "5\n9 3 7 1 5",  outputEsperado: "1 3 5 7 9" },
+  { id: 17, ejercicioId: 6, input: "4\n10 4 8 2",   outputEsperado: "2 4 8 10"  },
+  { id: 18, ejercicioId: 6, input: "6\n6 5 4 3 2 1", outputEsperado: "1 2 3 4 5 6" },
+  // ── Ejercicio 7: Quick sort ──
+  { id: 19, ejercicioId: 7, input: "5\n3 6 8 10 1", outputEsperado: "1 3 6 8 10" },
+  { id: 20, ejercicioId: 7, input: "4\n7 2 1 9",    outputEsperado: "1 2 7 9"    },
+  { id: 21, ejercicioId: 7, input: "5\n5 4 3 2 1",  outputEsperado: "1 2 3 4 5"  },
+  // ── Ejercicio 9: Búsqueda binaria ──
+  { id: 22, ejercicioId: 9, input: "5\n1 3 5 7 9\n5", outputEsperado: "2"  },
+  { id: 23, ejercicioId: 9, input: "5\n1 3 5 7 9\n1", outputEsperado: "0"  },
+  { id: 24, ejercicioId: 9, input: "5\n1 3 5 7 9\n4", outputEsperado: "-1" },
 ];
 
 // ─── Helpers (sustituirán a llamadas fetch cuando haya backend) ───────────────
@@ -208,6 +251,11 @@ export function ejerciciosCompletados(alumnoId: number, asignaturaId: number): n
   return entregas.filter(
     (en) => en.alumnoId === alumnoId && ejercicioIds.includes(en.ejercicioId) && en.resultado === "correcto"
   ).length;
+}
+
+/** Casos de prueba de un ejercicio */
+export function casosDe(ejercicioId: number): CasoPrueba[] {
+  return casosPrueba.filter((c) => c.ejercicioId === ejercicioId);
 }
 
 /** Últimas N entregas de una asignatura, con nombres resueltos */

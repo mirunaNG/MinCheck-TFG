@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { use, useState } from "react";
+import { useRouter } from "next/navigation";
 import Sidebar from "../../../components/sidebar";
 import Modal from "../../../components/Modal";
 import styles from "../gestionMat.module.css";
@@ -30,6 +32,7 @@ export default function GestionMaterial({
 }) {
   const { id } = use(params);
   const asignaturaId = Number(id);
+  const router = useRouter();
 
   const asignatura = asignaturas.find((a) => a.id === asignaturaId);
   const totalAlumnos = totalAlumnosDe(asignaturaId);
@@ -176,10 +179,13 @@ export default function GestionMaterial({
                       >
                         {ej.entregas} entregas
                       </span>
-                      {/* toDo: navegar a página de estadísticas del ejercicio */}
-                      <button className={styles.iconBtn} title="Ver estadísticas">📊</button>
-                      {/* toDo: abrir modal de edición */}
-                      <button className={styles.iconBtn} title="Editar ejercicio">✎</button>
+                      {/*CAMBIAR A LINK CUANDO HAYA CREADO LAS ESTADISTICAS */}
+                      <button
+                        className={styles.iconBtn}
+                        title="Ver estadísticas"
+                        onClick={() => router.push(`/detalleEjercicio/${ej.id}`)}
+                      >📊</button>
+                      <Link href={`/detalleEjercicio/${ej.id}`} className={styles.iconBtn}> ✎ </Link>
                       <button
                         className={styles.iconBtn}
                         onClick={() => eliminarEjercicio(tema.id, ej.id)}
