@@ -93,9 +93,6 @@
   flex: 1;
 }
 
-/* ══════════════════════════════════════════
-   PESTAÑA MATERIAL
-══════════════════════════════════════════ */
 .materialLayout {
   display: flex;
   gap: 28px;
@@ -292,9 +289,6 @@
   background-color: #22703f;
 }
 
-/* ══════════════════════════════════════════
-   TOGGLE (reutilizado en material y feedback)
-══════════════════════════════════════════ */
 .toggle {
   position: relative;
   width: 46px;
@@ -327,9 +321,7 @@
   transform: translateX(20px);
 }
 
-/* ══════════════════════════════════════════
-   PESTAÑA ENTREGAS
-══════════════════════════════════════════ */
+
 .entregasContent {
   display: flex;
   flex-direction: column;
@@ -518,9 +510,6 @@
   color: #e6edf3;
 }
 
-/* ══════════════════════════════════════════
-   PESTAÑA FEEDBACK
-══════════════════════════════════════════ */
 .feedbackLayout {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -642,9 +631,6 @@
   text-align: right;
 }
 
-/* ══════════════════════════════════════════
-   MODAL
-══════════════════════════════════════════ */
 .modalOverlay {
   position: fixed;
   inset: 0;
@@ -804,9 +790,6 @@
   cursor: not-allowed;
 }
 
-/* ══════════════════════════════════════════
-   CASOS DE PRUEBA
-══════════════════════════════════════════ */
 .casosHeader {
   display: flex;
   align-items: center;
