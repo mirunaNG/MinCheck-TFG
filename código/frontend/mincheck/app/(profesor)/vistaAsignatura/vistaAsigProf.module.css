@@ -1,8 +1,8 @@
+/* Layout General*/
 .layout {
   display: flex;
   min-height: 100vh;
-  background-color: #0b0f1a;
-  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-family: sans-serif;
   color: #e6edf3;
 }
 
@@ -13,14 +13,14 @@
   overflow-y: auto;
 }
 
-/* ── Banner ── */
+/* Banner */
 .banner {
   position: relative;
-  padding: 32px 36px 24px;
+  padding: 30px;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  min-height: 160px;
+  min-height: 150px;
   overflow: hidden;
 }
 
@@ -32,10 +32,10 @@
 }
 
 .bannerIcon {
-  width: 64px;
-  height: 64px;
-  background-color: rgba(255, 255, 255, 0.12);
-  border-radius: 14px;
+  width: 60px;
+  height: 60px;
+  background-color: rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -44,55 +44,54 @@
 }
 
 .bannerNombre {
-  font-size: 26px;
-  font-weight: 700;
-  color: #fff;
-  margin: 0 0 4px;
+  font-size: 28px;
+  font-weight: bold;
+  color: white;
+  margin: 0 0 5px;
 }
 
 .bannerCurso {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.65);
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
   margin: 0;
 }
 
 .bannerCodigo {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   z-index: 1;
-  background-color: rgba(0, 0, 0, 0.25);
-  padding: 8px 14px;
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 10px 15px;
   border-radius: 8px;
 }
 
 .codigoValor {
-  font-weight: 700;
-  color: #fff;
+  font-weight: bold;
+  color: white;
 }
 
 .copiarBtn {
-  background: none;
+  background: transparent;
   border: none;
   cursor: pointer;
-  font-size: 15px;
+  font-size: 16px;
   padding: 0;
-  line-height: 1;
-  opacity: 0.8;
-  transition: opacity 0.2s;
+  opacity: 0.7;
+  transition: 0.2s;
 }
 
 .copiarBtn:hover {
   opacity: 1;
 }
 
-/* ── Content ── */
+/* Content */
 .content {
   display: flex;
-  gap: 24px;
-  padding: 28px 36px;
+  gap: 25px;
+  padding: 30px;
   flex: 1;
   align-items: flex-start;
 }
@@ -101,21 +100,20 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  min-width: 0;
+  gap: 25px;
 }
 
 .rightCol {
-  width: 220px;
+  width: 250px; 
   flex-shrink: 0;
 }
 
-/* ── Card ── */
+/* Cards */
 .card {
   background-color: #161b27;
   border: 1px solid #21283a;
-  border-radius: 14px;
-  padding: 24px;
+  border-radius: 12px;
+  padding: 25px;
 }
 
 .cardHeader {
@@ -126,51 +124,51 @@
 }
 
 .cardTitle {
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: bold;
   color: #e6edf3;
   margin: 0;
 }
 
 .verTodosBtn {
-  background: none;
+  background: transparent;
   border: none;
-  font-size: 13px;
+  font-size: 14px;
   color: #4d7cfe;
   cursor: pointer;
   padding: 0;
+  font-weight: bold;
 }
 
 .verTodosBtn:hover {
   text-decoration: underline;
 }
 
-/* ── Alumnos ── */
+/* Alumnos */
 .alumnosList {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
 }
 
 .alumnoRow {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 10px 0;
+  gap: 15px;
+  padding: 12px 0;
   border-bottom: 1px solid #1e2a3a;
 }
 
-/* limina el borde inferior del último alumno para un acabado más limpio */
 .alumnoRow:last-child {
   border-bottom: none;
 }
 
 .alumnoAvatar {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background-color: #2a3a5a;
   flex-shrink: 0;
@@ -178,33 +176,34 @@
 
 .alumnoNombre {
   flex: 1;
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: bold;
   color: #e6edf3;
 }
 
 .alumnoProgreso {
-  font-size: 12px;
+  font-size: 13px;
   color: #8b949e;
 }
 
-/* ── Tabla entregas ── */
+/* Tabla de Entregas */
 .tabla {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
 }
 
 .tabla th {
   text-align: left;
-  padding: 0 12px 12px;
+  padding: 10px 15px;
   color: #8b949e;
-  font-weight: 600;
-  font-size: 12px;
+  font-weight: bold;
+  font-size: 13px;
   border-bottom: 1px solid #21283a;
 }
 
 .tabla td {
-  padding: 14px 12px;
+  padding: 15px;
+  font-size: 14px;
   color: #e6edf3;
   border-bottom: 1px solid #1e2a3a;
 }
@@ -215,49 +214,51 @@
 
 .estadoDot {
   display: inline-block;
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
 }
 
 .codigoLink {
-  background: none;
+  background: transparent;
   border: none;
   color: #e38500;
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: bold;
   cursor: pointer;
   padding: 0;
+  transition: 0.2s;
 }
 
 .codigoLink:hover {
   text-decoration: underline;
 }
 
-/* ── Botón temas ── */
+/* Botón Temas */
 .temasBtn {
   display: block;
   width: 100%;
-  padding: 14px 20px;
+  padding: 15px;
   background-color: #e38500;
-  color: #fff;
+  color: white;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: bold;
   cursor: pointer;
   text-align: center;
   text-decoration: none;
-  transition: background-color 0.2s;
-  box-sizing: border-box;
+  transition: 0.2s;
 }
 
 .temasBtn:hover {
-  background-color: #783600;
+  background-color: #c47300;
 }
 
-/* ── Not found ── */
+/* Not found */
 .notFound {
   padding: 40px;
   color: #8b949e;
-  font-size: 16px;
+  font-size: 18px;
+  text-align: center;
 }

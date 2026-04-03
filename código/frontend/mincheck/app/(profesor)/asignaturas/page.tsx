@@ -63,11 +63,6 @@ export default function DashboardProfesorPage() {
         <header className={styles.header}>
           {/* Aqui coger el nombre del profesor de quien inicia sesion */}
           <h1 className={styles.greeting}>Hola, Prof. García</h1>
-          {/*las notificaciones no se implemetan de momento, se dejan para future work*/}
-          <button className={styles.bellBtn} aria-label="Notificaciones">
-            <span className={styles.bellIcon}>🔔</span>
-            <span className={styles.bellBadge} />
-          </button>
         </header>
 
         <div className={styles.content}>
@@ -86,8 +81,8 @@ export default function DashboardProfesorPage() {
                     </div>
                     <div className={styles.asignaturaInfo}>
                       <p className={styles.asignaturaNombre}>{a.nombre}</p>
-                      <p className={styles.asignaturaInfo}>{a.alumnos} alumnos</p>
-                      <p className={styles.asignaturaInfo}>{a.ejercicios} ejercicios</p>
+                      <p className={styles.asignaturaDetalle}>{a.alumnos} alumnos</p>
+                      <p className={styles.asignaturaDetalle}>{a.ejercicios} ejercicios</p>
                     </div>
                   </div>
                 ))}

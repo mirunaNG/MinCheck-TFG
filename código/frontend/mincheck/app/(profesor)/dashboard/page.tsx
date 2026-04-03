@@ -87,8 +87,8 @@ export default function DashboardProfesorPage() {
                     </div>
                     <div className={styles.asignaturaInfo}>
                       <p className={styles.asignaturaNombre}>{a.nombre}</p>
-                      <p className={styles.asignaturaInfo}>{a.alumnos} alumnos</p>
-                      <p className={styles.asignaturaInfo}>{a.ejercicios} ejercicios</p>
+                      <p className={styles.asignaturaDetalle}>{a.alumnos} alumnos</p>
+                      <p className={styles.asignaturaDetalle}>{a.ejercicios} ejercicios</p>
                     </div>
                   </div>
                 ))}

@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import styles from "./login.module.css";
 
-
 export default function LoginPage() {
   const [remember, setRemember] = useState(false);
 
@@ -19,7 +18,8 @@ export default function LoginPage() {
         <div className={styles.navLinks}>
           <a href="#">About</a>
           <a href="#">Help</a>
-          <p className={styles.signupBtn}>SignUp</p>
+          {/* Cambiado de <p> a <Link> para que tenga sentido semántico */}
+          <Link href="/registro" className={styles.signupBtn}>SignUp</Link>
         </div>
       </nav>
 
@@ -31,7 +31,8 @@ export default function LoginPage() {
           <form className={styles.form} onSubmit={(e) => e.preventDefault()}>
             <div className={styles.field}>
               <label className={styles.label}>Nombre de usuario</label>
-              <div className={styles.cuadranteInput}>
+              {/* 👇 AQUI ESTA EL CAMBIO: cuadranteInput -> inputWrapper */}
+              <div className={styles.inputWrapper}>
                 <span className={styles.inputIcon}>👤</span>
                 <input
                   type="text"
@@ -43,7 +44,7 @@ export default function LoginPage() {
 
             <div className={styles.field}>
               <label className={styles.label}>Contraseña</label>
-              <div className={styles.cuadranteInput}>
+              <div className={styles.inputWrapper}>
                 <span className={styles.inputIcon}>🔒</span>
                 <input
                   type="password"

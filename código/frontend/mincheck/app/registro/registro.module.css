@@ -1,110 +1,108 @@
+/* Layout General */
 .page {
   min-height: 100vh;
-  background-color: #0d1117;
   display: flex;
   flex-direction: column;
-  font-family: 'Segoe UI', system-ui, sans-serif;
   color: #e6edf3;
 }
 
-/* ---- Navbar ---- */
+/* Navbar */
 .navbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 32px;
-  background-color: #0d1117;
+  padding: 15px 30px;
   border-bottom: 1px solid #1e2a3a;
 }
 
 .logo {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .logoIcon {
   font-size: 18px;
   color: #4d7cfe;
-  font-weight: 700;
-  font-family: monospace;
+  font-weight: bold;
+  font-family: monospace; 
 }
 
 .logoText {
   font-size: 18px;
-  font-weight: 700;
+  font-weight: bold;
   color: #e6edf3;
-  letter-spacing: 0.02em;
 }
 
 .navLinks {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 25px;
 }
 
 .navLinks a {
   color: #8b949e;
   text-decoration: none;
   font-size: 14px;
-  transition: color 0.2s;
+  transition: 0.2s;
 }
 
 .navLinks a:hover {
   color: #e6edf3;
 }
 
+/* Botón que lleva a Login */
 .signupBtn {
   background-color: transparent;
   border: 1px solid #4d7cfe;
   color: #4d7cfe;
-  padding: 6px 18px;
+  padding: 8px 20px;
   border-radius: 6px;
   font-size: 14px;
   text-decoration: none;
-  transition: background-color 0.2s, color 0.2s;
+  font-weight: bold;
+  transition: 0.2s;
 }
 
 .signupBtn:hover {
   background-color: #4d7cfe;
-  color: #ffff;
+  color: white;
 }
 
-/* ---- Main ---- */
+/* Main */
 .main {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px 16px;
+  padding: 40px 20px;
 }
 
 .card {
   background-color: #161b27;
   border: 1px solid #21283a;
-  border-radius: 14px;
-  padding: 36px 40px;
+  border-radius: 12px;
+  padding: 40px;
   width: 100%;
   max-width: 420px;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); 
 }
 
-/* ---- Title ---- */
+/* Title */
 .title {
   text-align: center;
-  font-size: 22px;
-  font-weight: 700;
+  font-size: 24px;
+  font-weight: bold;
   color: #e6edf3;
-  margin: 0 0 24px;
-  letter-spacing: 0.03em;
+  margin: 0 0 25px;
 }
 
-/* ---- Tabs ---- */
+/* Tabs */
 .tabs {
   display: flex;
   border-radius: 8px;
   overflow: hidden;
-  margin-bottom: 24px;
+  margin-bottom: 25px;
   border: 1px solid #21283a;
 }
 
@@ -114,14 +112,14 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px;
+  padding: 12px;
   background-color: transparent;
   border: none;
   color: #8b949e;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
+  transition: 0.2s;
 }
 
 .tab:hover {
@@ -131,48 +129,48 @@
 
 .tabActive {
   background-color: #4d7cfe;
-  color: #fff;
+  color: white;
 }
 
 .tabIcon {
   font-size: 16px;
 }
 
-/* ---- Form ---- */
+/* Form */
 .form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .label {
-  font-size: 13px;
+  font-size: 14px;
   color: #8b949e;
-  font-weight: 500;
+  font-weight: bold;
 }
 
-.cuadranteInput {
+.inputWrapper {
   display: flex;
   align-items: center;
   background-color: #0d1117;
   border: 1px solid #21283a;
   border-radius: 8px;
-  padding: 0 12px;
-  transition: border-color 0.2s;
+  padding: 0 15px;
+  transition: 0.2s;
 }
 
-.cuadranteInput:focus-within {
+.inputWrapper:focus-within {
   border-color: #4d7cfe;
 }
 
 .inputIcon {
-  font-size: 15px;
+  font-size: 16px;
   margin-right: 10px;
   opacity: 0.6;
 }
@@ -182,29 +180,28 @@
   background: transparent;
   border: none;
   outline: none;
-  color: #e6edf3;
+  color: white;
   font-size: 14px;
-  padding: 11px 0;
+  padding: 12px 0;
 }
 
 .input::placeholder {
   color: #3d4a5c;
 }
 
-/* ---- Submit ---- */
+/* Submit */
 .submitBtn {
   width: 100%;
   padding: 12px;
   background-color: #4d7cfe;
-  color: #fff;
+  color: white;
   border: none;
   border-radius: 8px;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-size: 15px;
+  font-weight: bold;
   cursor: pointer;
-  margin-top: 4px;
-  transition: background-color 0.2s, transform 0.1s;
+  margin-top: 10px;
+  transition: 0.2s;
 }
 
 .submitBtn:hover {
@@ -212,5 +209,5 @@
 }
 
 .submitBtn:active {
-  transform: scale(0.99);
+  transform: scale(0.98);
 }

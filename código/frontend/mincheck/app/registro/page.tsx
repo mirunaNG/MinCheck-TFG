@@ -20,7 +20,7 @@ export default function RegisterPage() {
         <div className={styles.navLinks}>
           <a href="#">About</a>
           <a href="#">Help</a>
-          <Link href="/login" className={styles.signupBtn}>SignUp</Link>
+          <Link href="/login" className={styles.signupBtn}>Login</Link>
         </div>
       </nav>
 
@@ -51,7 +51,7 @@ export default function RegisterPage() {
           <form className={styles.form} onSubmit={(e) => e.preventDefault()}>
             <div className={styles.field}>
               <label className={styles.label}>Nombre de usuario</label>
-              <div className={styles.cuadranteInput}>
+              <div className={styles.inputWrapper}>
                 <span className={styles.inputIcon}>👤</span>
                 <input
                   type="text"
@@ -63,7 +63,7 @@ export default function RegisterPage() {
 
             <div className={styles.field}>
               <label className={styles.label}>Correo</label>
-              <div className={styles.cuadranteInput}>
+              <div className={styles.inputWrapper}>
                 <span className={styles.inputIcon}>✉️</span>
                 <input
                   type="email"
@@ -75,7 +75,7 @@ export default function RegisterPage() {
 
             <div className={styles.field}>
               <label className={styles.label}>Contraseña</label>
-              <div className={styles.cuadranteInput}>
+              <div className={styles.inputWrapper}>
                 <span className={styles.inputIcon}>🔒</span>
                 <input
                   type="password"
@@ -87,20 +87,21 @@ export default function RegisterPage() {
 
             <div className={styles.field}>
               <label className={styles.label}>Repite tu contraseña</label>
-              <div className={styles.cuadranteInput}>
+              <div className={styles.inputWrapper}>
                 <span className={styles.inputIcon}>🔒</span>
                 <input
                   type="password"
-                  placeholder="Introduce tu contraseña"
+                  placeholder="Repite tu contraseña"
                   className={styles.input}
                 />
               </div>
             </div>
+            
             {/* El campo de seleccionar el centro solo aparece para profesores */}
             {role === "profesor" && (
               <div className={styles.field}>
                 <label className={styles.label}>Centro educativo</label>
-                <div className={styles.cuadranteInput}>
+                <div className={styles.inputWrapper}>
                   <span className={styles.inputIcon}>🏫</span>
                   <input
                     type="text"

@@ -1,8 +1,8 @@
+/* Layout General */
 .layout {
   display: flex;
   min-height: 100vh;
-  background-color: #0b0f1a;
-  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-family: sans-serif;
   color: #e6edf3;
 }
 
@@ -13,39 +13,38 @@
   overflow-y: auto;
 }
 
-/* ── Cabecera ── */
+/* Cabecera */
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 32px 36px 24px;
+  padding: 30px;
   border-bottom: 1px solid #1e2a3a;
 }
 
 .titulo {
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: 0.05em;
+  font-size: 24px;
+  font-weight: bold;
   color: #e6edf3;
-  margin: 0 0 6px;
+  margin: 0 0 5px;
 }
 
 .subtitulo {
-  font-size: 13px;
+  font-size: 14px;
   color: #8b949e;
   margin: 0;
 }
 
 .nuevoEjercicioBtn {
   background-color: #e38500;
-  color: #fff;
+  color: white;
   border: none;
-  border-radius: 10px;
-  padding: 12px 22px;
+  border-radius: 8px;
+  padding: 12px 20px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: 0.2s;
   white-space: nowrap;
 }
 
@@ -53,60 +52,60 @@
   background-color: #c47300;
 }
 
-/* ── Contenido ── */
+/* Contenido */
 .content {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding: 28px 36px;
+  padding: 30px;
 }
 
-/* ── Tarjeta de tema ── */
+/* Tarjeta de tema */
 .temaCard {
   background-color: #161b27;
   border: 1px solid #21283a;
-  border-radius: 14px;
-  padding: 20px 24px;
+  border-radius: 12px;
+  padding: 20px;
 }
 
 .temaHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 15px;
 }
 
 .temaLeft {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 15px;
 }
 
 .temaCircle {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   flex-shrink: 0;
 }
 
 .temaNombre {
   font-size: 16px;
-  font-weight: 700;
+  font-weight: bold;
   color: #e6edf3;
 }
 
 .temaRight {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 15px;
 }
 
 .ejerciciosCount {
-  font-size: 13px;
+  font-size: 14px;
   color: #8b949e;
 }
 
-/* ── Filas de ejercicios ── */
+/* Filas de ejercicios */
 .ejerciciosList {
   display: flex;
   flex-direction: column;
@@ -116,7 +115,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 0;
+  padding: 15px 0;
   border-bottom: 1px solid #1e2a3a;
 }
 
@@ -135,44 +134,42 @@
   gap: 10px;
 }
 
-/* ── Badge de entregas ── */
+/* Badge de entregas */
 .badge {
-  font-size: 11px;
-  font-weight: 600;
-  color: #fff;
-  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: bold;
+  color: white;
+  padding: 4px 10px;
   border-radius: 20px;
   white-space: nowrap;
 }
 
-/* ── Botones de icono ── */
+/* Botones de icono */
 .iconBtn {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 15px;
+  font-size: 16px;
   color: #8b949e;
-  padding: 4px;
-  line-height: 1;
-  opacity: 0.7;
-  transition: opacity 0.2s, color 0.2s;
+  padding: 5px;
+  transition: 0.2s;
+  text-decoration: none;
 }
 
 .iconBtn:hover {
-  opacity: 1;
   color: #e6edf3;
 }
 
-/* ── Botón añadir ejercicio a tema ── */
+/* Botón añadir ejercicio a tema */
 .añadirEjercicioBtn {
-  background: none;
+  background: transparent;
   border: none;
   color: #4d7cfe;
-  font-size: 13px;
+  font-size: 14px;
   cursor: pointer;
-  padding: 14px 0 0;
+  padding: 15px 0 0;
   display: block;
-  transition: color 0.2s;
+  transition: 0.2s;
 }
 
 .añadirEjercicioBtn:hover {
@@ -180,18 +177,18 @@
   text-decoration: underline;
 }
 
-/* ── Botón añadir nuevo tema ── */
+/* Botón añadir nuevo tema */
 .añadirTemaBtn {
   width: 100%;
-  padding: 18px;
-  background: none;
+  padding: 20px;
+  background: transparent;
   border: 2px dashed #21283a;
-  border-radius: 14px;
+  border-radius: 12px;
   color: #8b949e;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: bold;
   cursor: pointer;
-  transition: border-color 0.2s, color 0.2s;
+  transition: 0.2s;
 }
 
 .añadirTemaBtn:hover {
@@ -199,62 +196,41 @@
   color: #4d7cfe;
 }
 
-/* ── Contenido de los modales ── */
+/* Contenido de los modales */
 .campoModal {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
 
 .labelModal {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: bold;
   text-transform: uppercase;
   color: #8b949e;
 }
 
-.inputModal {
+.inputModal, .selectModal {
   background-color: #141926;
   border: 1px solid #3a4a6a;
   border-radius: 8px;
-  padding: 10px 14px;
+  padding: 12px 15px;
   font-size: 14px;
-  color: #e6edf3;
+  color: white;
   outline: none;
-  transition: border-color 0.2s;
+  transition: 0.2s;
 }
 
 .inputModal::placeholder {
   color: #4a5568;
 }
 
-.inputModal:focus {
+.inputModal:focus, .selectModal:focus {
   border-color: #4d7cfe;
 }
 
-.selectModal {
-  background-color: #141926;
-  border: 1px solid #3a4a6a;
-  border-radius: 8px;
-  padding: 10px 14px;
-  font-size: 14px;
-  color: #e6edf3;
-  outline: none;
-  cursor: pointer;
-  appearance: none;
-  background-repeat: no-repeat;
-  background-position: right 14px center;
-  padding-right: 36px;
-  transition: border-color 0.2s;
-}
-
-.selectModal:focus {
-  border-color: #4d7cfe;
-}
-
-/* ── Área de archivo ── */
+/* Área de archivo */
 .fileArea {
   display: flex;
   align-items: center;
@@ -262,9 +238,9 @@
   background-color: #141926;
   border: 1px solid #3a4a6a;
   border-radius: 8px;
-  padding: 14px 18px;
+  padding: 15px;
   cursor: pointer;
-  transition: border-color 0.2s;
+  transition: 0.2s;
 }
 
 .fileArea:hover {
@@ -273,11 +249,11 @@
 
 .fileIcon {
   font-size: 18px;
-  opacity: 0.6;
+  opacity: 0.8;
 }
 
 .fileTexto {
-  font-size: 13px;
+  font-size: 14px;
   color: #8b949e;
 }
 
@@ -285,7 +261,7 @@
   display: none;
 }
 
-/* ── Selector de color ── */
+/* Selector de color */
 .coloresGrid {
   display: flex;
   gap: 10px;
@@ -293,42 +269,45 @@
 }
 
 .colorCircle {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   border: 2px solid transparent;
   cursor: pointer;
-  transition: transform 0.15s, border-color 0.15s;
+  transition: 0.2s;
   padding: 0;
 }
 
 .colorCircle:hover {
-  transform: scale(1.15);
+  transform: scale(1.1);
 }
 
 .colorCircleActivo {
-  border-color: #fff;
-  transform: scale(1.15);
+  border-color: white;
+  transform: scale(1.1);
 }
 
-/* ── Botones del modal ── */
+/* Botones del modal */
 .botonesModal {
   display: flex;
-  gap: 12px;
-  margin-top: 24px;
+  gap: 15px;
+  margin-top: 20px;
 }
 
-.confirmarModalBtn {
+.confirmarModalBtn, .cancelarModalBtn {
   flex: 1;
-  background-color: #e38500;
-  color: #fff;
   border: none;
   border-radius: 8px;
   padding: 12px 20px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: 0.2s;
+}
+
+.confirmarModalBtn {
+  background-color: #e38500;
+  color: white;
 }
 
 .confirmarModalBtn:hover {
@@ -336,16 +315,8 @@
 }
 
 .cancelarModalBtn {
-  flex: 1;
   background-color: #2e3a4e;
-  color: #e6edf3;
-  border: none;
-  border-radius: 8px;
-  padding: 12px 20px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s;
+  color: white;
 }
 
 .cancelarModalBtn:hover {
