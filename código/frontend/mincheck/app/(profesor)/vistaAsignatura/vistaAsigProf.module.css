@@ -1,4 +1,3 @@
-/* Layout General*/
 .layout {
   display: flex;
   min-height: 100vh;
@@ -13,9 +12,7 @@
   overflow-y: auto;
 }
 
-/* Banner */
 .banner {
-  position: relative;
   padding: 30px;
   display: flex;
   align-items: flex-end;
@@ -23,15 +20,7 @@
   min-height: 150px;
   overflow: hidden;
 }
-
-.bannerInner {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  z-index: 1;
-}
-
-.bannerIcon {
+.iconoBanner {
   width: 60px;
   height: 60px;
   background-color: rgba(255, 255, 255, 0.15);
@@ -42,20 +31,17 @@
   font-size: 28px;
   flex-shrink: 0;
 }
-
 .bannerNombre {
   font-size: 28px;
   font-weight: bold;
   color: white;
   margin: 0 0 5px;
 }
-
 .bannerCurso {
   font-size: 14px;
   color: rgba(255, 255, 255, 0.7);
   margin: 0;
 }
-
 .bannerCodigo {
   font-size: 14px;
   color: rgba(255, 255, 255, 0.8);
@@ -67,102 +53,85 @@
   padding: 10px 15px;
   border-radius: 8px;
 }
-
 .codigoValor {
   font-weight: bold;
   color: white;
 }
-
 .copiarBtn {
-  background: transparent;
-  border: none;
   cursor: pointer;
   font-size: 16px;
   padding: 0;
   opacity: 0.7;
   transition: 0.2s;
 }
-
 .copiarBtn:hover {
-  opacity: 1;
+  opacity: 5;
 }
 
-/* Content */
-.content {
+.contenidoPagina {
   display: flex;
   gap: 25px;
   padding: 30px;
   flex: 1;
   align-items: flex-start;
 }
-
-.leftCol {
+.columnaIzquierda {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 25px;
 }
-
-.rightCol {
+.columnaDerecha {
   width: 250px; 
   flex-shrink: 0;
 }
 
-/* Cards */
 .card {
   background-color: #161b27;
   border: 1px solid #21283a;
   border-radius: 12px;
   padding: 25px;
 }
-
-.cardHeader {
+.cardEncabezado {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 20px;
 }
-
-.cardTitle {
+.tituloCard {
   font-size: 18px;
   font-weight: bold;
   color: #e6edf3;
   margin: 0;
 }
 
-.verTodosBtn {
+.botonVerTodos {
   background: transparent;
-  border: none;
   font-size: 14px;
   color: #4d7cfe;
   cursor: pointer;
   padding: 0;
   font-weight: bold;
 }
-
-.verTodosBtn:hover {
+.botonVerTodos:hover {
   text-decoration: underline;
 }
 
-/* Alumnos */
-.alumnosList {
-  list-style: none;
+.listaAlumnos {
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
   gap: 5px;
 }
-
-.alumnoRow {
+.filaAlumno {
   display: flex;
   align-items: center;
   gap: 15px;
   padding: 12px 0;
   border-bottom: 1px solid #1e2a3a;
 }
-
-.alumnoRow:last-child {
+.filaAlumno:last-child {
   border-bottom: none;
 }
 
@@ -173,29 +142,25 @@
   background-color: #2a3a5a;
   flex-shrink: 0;
 }
-
 .alumnoNombre {
   flex: 1;
   font-size: 15px;
   font-weight: bold;
   color: #e6edf3;
 }
-
 .alumnoProgreso {
   font-size: 13px;
   color: #8b949e;
 }
 
-.estadoDot {
+.marcaEstado {
   display: inline-block;
   width: 14px;
   height: 14px;
   border-radius: 50%;
 }
-
-.codigoLink {
+.linkAlCodigo {
   background: transparent;
-  border: none;
   color: #e38500;
   font-size: 14px;
   font-weight: bold;
@@ -203,33 +168,27 @@
   padding: 0;
   transition: 0.2s;
 }
-
-.codigoLink:hover {
+.linkAlCodigo:hover {
   text-decoration: underline;
 }
 
-/* Botón Temas */
-.temasBtn {
+.botonGestionMaterial {
   display: block;
   width: 100%;
   padding: 15px;
   background-color: #e38500;
   color: white;
-  border: none;
   border-radius: 8px;
   font-size: 14px;
   font-weight: bold;
   cursor: pointer;
   text-align: center;
-  text-decoration: none;
   transition: 0.2s;
 }
-
-.temasBtn:hover {
+.botonGestionMaterial:hover {
   background-color: #c47300;
 }
 
-/* Not found */
 .notFound {
   padding: 40px;
   color: #8b949e;

@@ -6,16 +6,16 @@ import styles from "./sidebar.module.css";
 
 const rutasSegunRol = {
   profesor: [
-    { texto: "Panel Principal", ruta: "/dashboard", icono: "▦" },
+    { texto: "Dashboard", ruta: "/dashboard", icono: "▦" },
     { texto: "Asignaturas", ruta: "/asignaturas", icono: "🔖" },
     { texto: "Estadísticas", ruta: "/estadisticas", icono: "📊" },
     { texto: "Mi perfil", ruta: "/perfilProfesor", icono: "👤" },
     { texto: "Generador de casos", ruta: "/generadorCasos", icono: "📋" },
   ],
   alumno: [
-    { texto: "Mi Progreso", ruta: "/dashboardAlumno", icono: "▦" },
+    { texto: "Dashboard", ruta: "/dashboardAlumno", icono: "▦" },
     { texto: "Cursos", ruta: "/cursos", icono: "🔖" },
-    { texto: "Resultados", ruta: "/resultados", icono: "📊" },
+    { texto: "Historial Entregas", ruta: "/resultados", icono: "📊" },
     { texto: "Perfil", ruta: "/perfilAlumno", icono: "👤" },
   ],
 };

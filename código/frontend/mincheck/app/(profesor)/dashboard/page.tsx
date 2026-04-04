@@ -18,65 +18,56 @@ const asignaturas = asignaturasDe(PROFESOR_ID).map((a) => ({
 const totalEstudiantes = asignaturas.reduce((sum, a) => sum + a.alumnos, 0);
 const totalEjercicios  = asignaturas.reduce((sum, a) => sum + a.ejercicios, 0);
 
-// toDo: obtener del backend (análisis de errores frecuentes por ejercicio)
 const erroresComunes = [
-  { ejercicio: "Quick sort",     descripcion: "Condición incorrecta en loop",   porcentaje: 78, color: "#4d7cfe" },
-  { ejercicio: "Quick sort",     descripcion: "No maneja duplicados",            porcentaje: 62, color: "#4d7cfe" },
-  { ejercicio: "Factorial rec.", descripcion: "Caso base fallante",              porcentaje: 55, color: "#f0a500" },
-  { ejercicio: "Torres Hanói",   descripcion: "Index out of bound",              porcentaje: 48, color: "#9b5fe0" },
-  { ejercicio: "Búsqueda bin.",  descripcion: "Condición parada incorrecta",     porcentaje: 41, color: "#2ecc71" },
+  { ejercicio: "Quick sort", descripcion: "Condición incorrecta en loop", porcentaje: 78, color: "#4d7cfe" },
+  { ejercicio: "Quick sort", descripcion: "No maneja duplicados", porcentaje: 62, color: "#4d7cfe" },
+  { ejercicio: "Factorial rec.", descripcion: "Caso base fallante", porcentaje: 55, color: "#f0a500" },
+  { ejercicio: "Torres Hanói", descripcion: "Index out of bound", porcentaje: 48, color: "#9b5fe0" },
+  { ejercicio: "Búsqueda bin.", descripcion: "Condición parada incorrecta", porcentaje: 41, color: "#2ecc71" },
 ];
 
-export default function DashboardProfesorPage() {
+export default function PaginaDashboardProfesor() {
   const router = useRouter();
   return (
     <div className={styles.layout}>
       <Sidebar rol="profesor" />
 
       <main className={styles.main}>
-        {/* Header */}
-        <header className={styles.header}>
-          {/* Aqui coger el nombre del profesor de quien inicia sesion */}
-          <h1 className={styles.greeting}>Hola, Prof. García</h1>
-          {/*las notificaciones no se implemetan de momento, se dejan para future work*/}
-          <button className={styles.bellBtn} aria-label="Notificaciones">
-            <span className={styles.bellIcon}>🔔</span>
-            <span className={styles.bellBadge} />
-          </button>
+        <header className={styles.encabezado}>
+          <h1 className={styles.bienvenida}>Hola, Prof. García</h1>
+          {/*Ya veré si añadir el boton de las notificaciones, de momento -> trabajo futuro */}
         </header>
 
-        <div className={styles.content}>
+        <div className={styles.contenidoPagina}>
           {/* Columna izquierda */}
-          <div className={styles.leftCol}>
+          <div className={styles.ladoIzquierdo}>
 
-            {/* Stats */}
-            <div className={styles.statsRow}>
-              <div className={styles.statCard}>
-                <div className={styles.statIconWrap} style={{ backgroundColor: "rgba(77,124,254,0.15)" }}>
-                  <span className={styles.statIcon}>👥</span>
+            {/*Estadisticas */}
+            <div className={styles.zonaEstadisticas}>
+              <div className={styles.estadisticaCard}>
+                <div className={styles.grupoIconoEstadistica} style={{ backgroundColor: "rgba(77,124,254,0.15)" }}>
+                  <span className={styles.iconoEstadistica}>👥</span>
                 </div>
-                <p className={styles.statLabel}>Total estudiantes</p>
-                <p className={styles.statValue}>{totalEstudiantes}</p>
+                <p className={styles.etiquetaEstadistica}>Total estudiantes</p>
+                <p className={styles.valorEstadistica}>{totalEstudiantes}</p>
               </div>
-              <div className={styles.statCard}>
-                <div className={styles.statIconWrap} style={{ backgroundColor: "rgba(240,165,0,0.15)" }}>
-                  <span className={styles.statIcon}>&lt;/&gt;</span>
+              <div className={styles.estadisticaCard}>
+                <div className={styles.grupoIconoEstadistica} style={{ backgroundColor: "rgba(240,165,0,0.15)" }}>
+                  <span className={styles.iconoEstadistica}>&lt;/&gt;</span>
                 </div>
-                <p className={styles.statLabel}>Total ejercicios</p>
-                <p className={styles.statValue}>{totalEjercicios}</p>
+                <p className={styles.etiquetaEstadistica}>Total ejercicios</p>
+                <p className={styles.valorEstadistica}>{totalEjercicios}</p>
               </div>
             </div>
 
             {/* Asignaturas */}
-            <div className={styles.section}>
-              <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>Asignaturas actuales</h2>
-                <a href="/asignaturas" className={styles.seeAll}>Ver todas →</a>
+            <div className={styles.zonaAsignaturas}>
+              <div className={styles.encabezadoZona}>
+                <h2 className={styles.tituloZona}>Asignaturas actuales</h2>
+                <a href="/asignaturas" className={styles.verTodas}>Ver todas →</a>
               </div>
               <div className={styles.asignaturasGrid}>
-                {/*Se usa una lambda función para un código más limpio.
-                Por cada asignatura del array, se crea una tarjeta */}
-
+                {/*Por cada asignatura del array, se crea una tarjeta */}
                 {/*Solo se muestran las 4 primeras asignaturas, si hay más se accede a través del enlace "Ver todas" */}
                 {asignaturas.slice(0, 4).map((a) => (
                   <AsignaturaCard
@@ -95,12 +86,12 @@ export default function DashboardProfesorPage() {
           </div>
 
           {/* Columna derecha — Errores */}
-          <div className={styles.rightCol}>
+          <div className={styles.ladoDerecho}>
             <div className={styles.erroresCard}>
-              <h2 className={styles.erroresTitle}>Errores más comunes<br />por ejercicio</h2>
-              <div className={styles.erroresList}>
+              <h2 className={styles.tituloErrores}>Errores más comunes<br />por ejercicio</h2>
+              <div className={styles.listaErrores}>
                 {erroresComunes.map((e, i) => (
-                  <div key={i} className={styles.errorItem}>
+                  <div key={i} className={styles.error}>
                     <div className={styles.errorTop}>
                       <span
                         className={styles.errorEjercicio}
@@ -108,12 +99,12 @@ export default function DashboardProfesorPage() {
                       >
                         {e.ejercicio}
                       </span>
-                      <span className={styles.errorDesc}>{e.descripcion}</span>
-                      <span className={styles.errorPct}>{e.porcentaje}%</span>
+                      <span className={styles.descripcionError}>{e.descripcion}</span>
+                      <span className={styles.porcentajeError}>{e.porcentaje}%</span>
                     </div>
-                    <div className={styles.errorBarBg}>
+                    <div className={styles.progressBarError}>
                       <div
-                        className={styles.errorBarFill}
+                        className={styles.rellenoProgressBarError}
                         style={{ width: `${e.porcentaje}%`, backgroundColor: e.color }}
                       />
                     </div>

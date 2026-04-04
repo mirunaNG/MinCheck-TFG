@@ -48,8 +48,8 @@ export default function VistaAsignaturaProfesor({
 
         {/* Banner de la asignatura */}
         <div className={styles.banner} style={{ backgroundColor: asignatura.color }}>
-          <div className={styles.bannerInner}>
-            <div className={styles.bannerIcon}>📚</div>
+          <div>
+            <div className={styles.iconoBanner}>📚</div>
             <div>
               <h1 className={styles.bannerNombre}>{asignatura.nombre}</h1>
               <p className={styles.bannerCurso}>curso {asignatura.curso}</p>
@@ -68,22 +68,21 @@ export default function VistaAsignaturaProfesor({
           </div>
         </div>
 
-        <div className={styles.content}>
-
+        <div className={styles.contenidoPagina}>
           {/* Columna izquierda */}
-          <div className={styles.leftCol}>
+          <div className={styles.columnaIzquierda}>
 
-            {/* Alumnos inscritos */}
+            {/* Alumnos apuntados*/}
             <div className={styles.card}>
-              <div className={styles.cardHeader}>
-                <h2 className={styles.cardTitle}>Alumnos inscritos</h2>
-                <button className={styles.verTodosBtn} onClick={() => setVerTodosAlumnos(!verTodosAlumnos)}>
+              <div className={styles.cardEncabezado}>
+                <h2 className={styles.tituloCard}>Alumnos matriculados</h2>
+                <button className={styles.botonVerTodos} onClick={() => setVerTodosAlumnos(!verTodosAlumnos)}>
                   {verTodosAlumnos ? "Ver menos ↑" : "Ver todos →"}
                 </button>
               </div>
-              <ul className={styles.alumnosList}>
+              <ul className={styles.listaAlumnos}>
                 {(verTodosAlumnos ? alumnos : alumnos.slice(0, 4)).map((a) => (
-                  <li key={a.id} className={styles.alumnoRow}>
+                  <li key={a.id} className={styles.filaAlumno}>
                     <div className={styles.alumnoAvatar} />
                     <span className={styles.alumnoNombre}>{a.nombreCompleto}</span>
                     <span className={styles.alumnoProgreso}>
@@ -95,7 +94,7 @@ export default function VistaAsignaturaProfesor({
             </div>
 
             {/* Últimas entregas */}
-              <h2 className={styles.cardTitle}>Últimas entregas</h2>
+              <h2 className={styles.tituloCard}>Últimas entregas</h2>
               <Tabla columnas={["Alumno", "Ejercicio", "Fecha/Hora", "Estado", "Revisar"]}>
                   {ultimas.map((e) => (
                     <tr key={e.id}>
@@ -104,13 +103,13 @@ export default function VistaAsignaturaProfesor({
                       <td>{e.fechaHora}</td>
                       <td>
                         <span
-                          className={styles.estadoDot}
+                          className={styles.marcaEstado}
                           style={{ backgroundColor: e.correcto ? "#4caf50" : "#f44336" }}
                         />
                       </td>
                       <td>
                         {/*toDo: implementar que muestre el código del alumno, sacado de la BBDD */}
-                        <button className={styles.codigoLink}>código →</button>
+                        <button className={styles.linkAlCodigo}>código →</button>
                       </td>
                     </tr>
                   ))}
@@ -118,8 +117,8 @@ export default function VistaAsignaturaProfesor({
           </div>
 
           {/* Columna derecha */}
-          <div className={styles.rightCol}>
-            <Link href={`/gestionMaterial/${asignaturaId}`} className={styles.temasBtn}>Temas y ejercicios</Link>
+          <div className={styles.columnaDerecha}>
+            <Link href={`/gestionMaterial/${asignaturaId}`} className={styles.botonGestionMaterial}>Temas y ejercicios</Link>
           </div>
         </div>
       </main>

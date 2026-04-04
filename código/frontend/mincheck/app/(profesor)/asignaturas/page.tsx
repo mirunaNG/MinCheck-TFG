@@ -24,7 +24,7 @@ const asignaturasIniciales = asignaturasDe(PROFESOR_ID).map((a) => ({
   ejercicios: totalEjerciciosDe(a.id),
 }));
 
-export default function DashboardProfesorPage() {
+export default function PaginaDashboardProfesor() {
   {/*Estado del componente
     const [variable, funcion setter] = useState(<valor inicial>) */}
   const router = useRouter();
@@ -32,7 +32,7 @@ export default function DashboardProfesorPage() {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [nombre, setNombre] = useState(""); {/*Lo que se escribe en el input*/}
 
-  function handleAnadir(e: React.SyntheticEvent<HTMLFormElement>) {
+  function handlerAnadirAsignatura(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault(); {/*Evita que se recargue la pagina al enviar el formulario*/}
     if (!nombre.trim()) return;
     {/*Agrega una nueva asignatura al estado. Luego limpia los campos del formulario y cierra el modal.*/}
@@ -60,17 +60,14 @@ export default function DashboardProfesorPage() {
       <Sidebar rol="profesor" />
 
       <main className={styles.main}>
-        {/* Header */}
-        <header className={styles.header}>
+        <header className={styles.encabezado}>
           {/* Aqui coger el nombre del profesor de quien inicia sesion */}
-          <h1 className={styles.greeting}>Hola, Prof. García</h1>
+          <h1 className={styles.bienvenida}>Hola, Prof. García</h1>
         </header>
 
-        <div className={styles.content}>
-          <div className={styles.leftCol}>
-
-            {/* Asignaturas */}
-            <div className={styles.section}>
+        <div className={styles.contenidoPagina}>
+          <div className={styles.ladoIzquierdo}>
+            <div>
               <div className={styles.asignaturasGrid}>
                 {asignaturas.map((a) => (
                   <AsignaturaCard
@@ -87,23 +84,22 @@ export default function DashboardProfesorPage() {
             </div>
           </div>
 
-          <div className={styles.rightCol}>
-            <button className={styles.addBtn} onClick={() => setMostrarModal(true)}>
+          <div className={styles.ladoDerecho}>
+            <button className={styles.botonAñadir} onClick={() => setMostrarModal(true)}>
               + Añadir asignatura
             </button>
           </div>
         </div>
       </main>
 
-      {/* Modal */}
       {mostrarModal && (
         <Modal
           titulo="Nueva asignatura"
           subtitulo="Añade una nueva asignatura a tu lista"
           onCerrar={() => setMostrarModal(false)}
         >
-          <form onSubmit={handleAnadir}>
-            <div className={styles.formGroup}>
+          <form onSubmit={handlerAnadirAsignatura}>
+            <div className={styles.grupoFormulario}>
               <label htmlFor="nombre">Nombre</label>
               <input
                 id="nombre"
@@ -115,15 +111,15 @@ export default function DashboardProfesorPage() {
               />
             </div>
 
-            <div className={styles.modalActions}>
+            <div className={styles.accionesModal}>
               <button
                 type="button"
-                className={styles.cancelBtn}
+                className={styles.botonCancelar}
                 onClick={() => setMostrarModal(false)}
               >
                 Cancelar
               </button>
-              <button type="submit" className={styles.submitBtn}>
+              <button type="submit" className={styles.botonAñadir}>
                 Añadir
               </button>
             </div>

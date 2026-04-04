@@ -15,9 +15,8 @@ export default function GeneradorCasos() {
   const [generando, setGenerando] = useState(false);
   const [generado, setGenerado]  = useState(false);
 
-  function handleArchivo(file: File) {
+  function handlerArchivo(file: File) {
     setArchivo(file);
-    // Leer contenido de texto si es posible
     const reader = new FileReader();
     reader.onload = (e) => {
       if (typeof e.target?.result === "string") setCodigo(e.target.result);
@@ -25,7 +24,7 @@ export default function GeneradorCasos() {
     reader.readAsText(file);
   }
 
-  function handleGenerar() {
+  function handlerGenerar() {
     if (!codigo.trim() && !archivo) return;
     setGenerando(true);
     setGenerado(false);
@@ -38,11 +37,11 @@ export default function GeneradorCasos() {
     }, 1200);
   }
 
-  function handleEliminarCaso(id: number) {
+  function handlerEliminarCaso(id: number) {
     setCasos((prev) => prev.filter((c) => c.id !== id));
   }
 
-  function handleDescargar() {
+  function handlerDescargar() {
     const contenido = casos.map((c) => `${c.input}\n${c.outputEsperado}`).join("\n\n");
     const a = document.createElement("a");
     a.href = "data:text/plain;charset=utf-8," + encodeURIComponent(contenido);
@@ -50,7 +49,7 @@ export default function GeneradorCasos() {
     a.click();
   }
 
-  // Solo pueda pulsar Generar si hay código o archivo subido y no está generando ya 
+  // Solo puede pulsar Generar si hay código o archivo subido y no está generando ya 
   const puedeGenerar = (codigo.trim().length > 0 || archivo !== null) && !generando;
 
   return (
@@ -58,7 +57,7 @@ export default function GeneradorCasos() {
       <Sidebar rol="profesor" />
 
       <main className={styles.main}>
-        <div className={styles.header}>
+        <div className={styles.encabezado}>
           <h1 className={styles.titulo}>GENERADOR DE CASOS DE PRUEBA</h1>
           <p className={styles.subtitulo}>
             En esta pestaña puedes subir un código y MinCheck te generará un set de casos de prueba incluyendo
@@ -66,22 +65,21 @@ export default function GeneradorCasos() {
           </p>
         </div>
 
-        <div className={styles.content}>
-
-          {/* ── Tarjeta de código ── */}
+        <div className={styles.contenido}>
+          {/*Tarjeta de código */}
           <div className={styles.codigoCard}>
             <h2 className={styles.codigoCardTitulo}>Sube aquí tu código o escríbelo directamente</h2>
 
-            <div className={styles.codigoTopRow}>
-              <label className={styles.subirBtn}>
+            <div>
+              <label className={styles.botonSubir}>
                 Subir archivo 📄
                 <input
                   type="file"
                   accept=".java,.c,.cpp,.py,.txt"
-                  className={styles.fileInput}
+                  className={styles.archivodeEntrada}
                   onChange={(e) => {
                     const f = e.target.files?.[0];
-                    if (f) handleArchivo(f);
+                    if (f) handlerArchivo(f);
                   }}
                 />
               </label>
@@ -89,11 +87,11 @@ export default function GeneradorCasos() {
             </div>
 
             {archivo && (
-              <div className={styles.archivoSubidoRow}>
+              <div className={styles.seccionArchivoSubido}>
                 <span>📄</span>
                 <span className={styles.archivoNombre}>{archivo.name}</span>
                 <button
-                  className={styles.eliminarArchivoBtn}
+                  className={styles.botonEliminarArchivo}
                   onClick={() => { setArchivo(null); setCodigo(""); }}
                   title="Eliminar archivo"
                 >
@@ -112,28 +110,24 @@ export default function GeneradorCasos() {
             />
           </div>
 
-          {/* ── Botón GENERAR ── */}
-          <div className={styles.generarWrap}>
+          <div className={styles.grupoGenerar}>
             <button
-              className={styles.generarBtn}
-              onClick={handleGenerar}
+              className={styles.botonGenerar}
+              onClick={handlerGenerar}
               disabled={!puedeGenerar}
             >
               {generando ? "GENERANDO..." : "GENERAR"}
             </button>
           </div>
-
-          {/* ── Generando... ── */}
           { generando && (<span>Analizando código y generando casos de prueba...</span>) }
 
-          {/* ── Resultados ── */}
           {generado && casos.length > 0 && (
-            <div className={styles.resultadosSeccion}>
-              <div className={styles.resultadosHeader}>
+            <div className={styles.seccionCasos}>
+              <div className={styles.encabezadoResultados}>
                 <h2 className={styles.resultadosTitulo}>
                   CASOS DE PRUEBA GENERADOS
                 </h2>
-                <button className={styles.descargarBtn} onClick={handleDescargar}>
+                <button className={styles.botonDescargar} onClick={handlerDescargar}>
                   ⬇ Descargar
                 </button>
               </div>
@@ -143,8 +137,8 @@ export default function GeneradorCasos() {
                   <div className={styles.casoTitulo}>
                     <span>Caso {i + 1}</span>
                     <button
-                      className={styles.eliminarCasoBtn}
-                      onClick={() => handleEliminarCaso(caso.id)}
+                      className={styles.botonEliminarCaso}
+                      onClick={() => handlerEliminarCaso(caso.id)}
                       title="Eliminar"
                     >
                       🗑
@@ -152,12 +146,12 @@ export default function GeneradorCasos() {
                   </div>
                   <div className={styles.casoIO}>
                     <div className={styles.casoIOBloque}>
-                      <span className={styles.casoIOLabel}>INPUT</span>
-                      <pre className={styles.casoIOContent}>{caso.input}</pre>
+                      <span className={styles.etiquetaCasoIO}>INPUT</span>
+                      <pre className={styles.contenidoCasoIO}>{caso.input}</pre>
                     </div>
                     <div className={styles.casoIOBloque}>
-                      <span className={styles.casoIOLabel}>OUTPUT ESPERADO</span>
-                      <pre className={styles.casoIOContent}>
+                      <span className={styles.etiquetaCasoIO}>OUTPUT ESPERADO</span>
+                      <pre className={styles.contenidoCasoIO}>
                         {caso.outputEsperado} 
                       </pre>
                     </div>
@@ -166,7 +160,6 @@ export default function GeneradorCasos() {
               ))}
             </div>
           )}
-
         </div>
       </main>
     </div>

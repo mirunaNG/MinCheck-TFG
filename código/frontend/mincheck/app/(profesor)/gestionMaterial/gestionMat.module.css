@@ -1,4 +1,3 @@
-/* Layout General */
 .layout {
   display: flex;
   min-height: 100vh;
@@ -13,29 +12,25 @@
   overflow-y: auto;
 }
 
-/* Cabecera */
-.header {
+.encabezado {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 30px;
   border-bottom: 1px solid #1e2a3a;
 }
-
-.titulo {
+.tituloAsignatura {
   font-size: 24px;
   font-weight: bold;
   color: #e6edf3;
   margin: 0 0 5px;
 }
-
 .subtitulo {
   font-size: 14px;
   color: #8b949e;
   margin: 0;
 }
-
-.nuevoEjercicioBtn {
+.botonNuevoEjercicio {
   background-color: #e38500;
   color: white;
   border: none;
@@ -47,95 +42,80 @@
   transition: 0.2s;
   white-space: nowrap;
 }
-
-.nuevoEjercicioBtn:hover {
+.botonNuevoEjercicio:hover {
   background-color: #c47300;
 }
 
-/* Contenido */
-.content {
+.contenido {
   display: flex;
   flex-direction: column;
   gap: 20px;
   padding: 30px;
 }
 
-/* Tarjeta de tema */
 .temaCard {
   background-color: #161b27;
   border: 1px solid #21283a;
   border-radius: 12px;
   padding: 20px;
 }
-
-.temaHeader {
+.temaEncabezado {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 15px;
 }
-
-.temaLeft {
+.temaIzquierda {
   display: flex;
   align-items: center;
   gap: 15px;
 }
-
-.temaCircle {
+.circuloTema {
   width: 20px;
   height: 20px;
   border-radius: 50%;
   flex-shrink: 0;
 }
-
 .temaNombre {
   font-size: 16px;
   font-weight: bold;
   color: #e6edf3;
 }
-
-.temaRight {
+.temaDerecha{
   display: flex;
   align-items: center;
   gap: 15px;
 }
-
-.ejerciciosCount {
+.numEjercicios {
   font-size: 14px;
   color: #8b949e;
 }
 
-/* Filas de ejercicios */
-.ejerciciosList {
+.listaEjercicios {
   display: flex;
   flex-direction: column;
 }
-
-.ejercicioRow {
+.filaEjercicio {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 15px 0;
   border-bottom: 1px solid #1e2a3a;
 }
-
-.ejercicioRowLast {
+.filaEjercicio:last-child {
   border-bottom: none;
 }
-
 .ejercicioNombre {
   font-size: 14px;
   color: #e6edf3;
 }
-
 .ejercicioAcciones {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-/* Badge de entregas */
-.badge {
+.entregas{
   font-size: 12px;
   font-weight: bold;
   color: white;
@@ -144,8 +124,7 @@
   white-space: nowrap;
 }
 
-/* Botones de icono */
-.iconBtn {
+.botonIcono {
   background: none;
   border: none;
   cursor: pointer;
@@ -155,13 +134,11 @@
   transition: 0.2s;
   text-decoration: none;
 }
-
-.iconBtn:hover {
+.botonIcono:hover {
   color: #e6edf3;
 }
 
-/* Botón añadir ejercicio a tema */
-.añadirEjercicioBtn {
+.botonAñadirEjercicio {
   background: transparent;
   border: none;
   color: #4d7cfe;
@@ -171,14 +148,12 @@
   display: block;
   transition: 0.2s;
 }
-
-.añadirEjercicioBtn:hover {
+.botonAñadirEjercicio:hover {
   color: #7096ff;
   text-decoration: underline;
 }
 
-/* Botón añadir nuevo tema */
-.añadirTemaBtn {
+.botonAñadirTema {
   width: 100%;
   padding: 20px;
   background: transparent;
@@ -190,13 +165,11 @@
   cursor: pointer;
   transition: 0.2s;
 }
-
-.añadirTemaBtn:hover {
+.botonAñadirTema:hover {
   border-color: #4d7cfe;
   color: #4d7cfe;
 }
 
-/* Contenido de los modales */
 .campoModal {
   display: flex;
   flex-direction: column;
@@ -204,14 +177,13 @@
   margin-bottom: 20px;
 }
 
-.labelModal {
+.etiquetaCampo {
   font-size: 12px;
   font-weight: bold;
   text-transform: uppercase;
   color: #8b949e;
 }
-
-.inputModal, .selectModal {
+.entradaCampo {
   background-color: #141926;
   border: 1px solid #3a4a6a;
   border-radius: 8px;
@@ -221,17 +193,15 @@
   outline: none;
   transition: 0.2s;
 }
-
-.inputModal::placeholder {
+.entradaCampo::placeholder {
   color: #4a5568;
 }
-
-.inputModal:focus, .selectModal:focus {
+.entradaCampo:focus {
   border-color: #4d7cfe;
 }
 
-/* Área de archivo */
-.fileArea {
+
+.archivo{
   display: flex;
   align-items: center;
   gap: 10px;
@@ -242,33 +212,28 @@
   cursor: pointer;
   transition: 0.2s;
 }
-
-.fileArea:hover {
+.archivo:hover {
   border-color: #4d7cfe;
 }
 
-.fileIcon {
+.iconoArchivo {
   font-size: 18px;
   opacity: 0.8;
 }
-
-.fileTexto {
+.textoArchivo{
   font-size: 14px;
   color: #8b949e;
 }
-
-.fileInput {
+.archivodeEntrada {
   display: none;
 }
 
-/* Selector de color */
 .coloresGrid {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
 }
-
-.colorCircle {
+.circuloColor{
   width: 30px;
   height: 30px;
   border-radius: 50%;
@@ -277,24 +242,21 @@
   transition: 0.2s;
   padding: 0;
 }
-
-.colorCircle:hover {
+.circuloColor:hover {
   transform: scale(1.1);
 }
-
-.colorCircleActivo {
+.circuloColorActivo {
   border-color: white;
   transform: scale(1.1);
 }
 
-/* Botones del modal */
 .botonesModal {
   display: flex;
   gap: 15px;
   margin-top: 20px;
 }
 
-.confirmarModalBtn, .cancelarModalBtn {
+.botonConfirmar, .botonCancelar {
   flex: 1;
   border: none;
   border-radius: 8px;
@@ -305,20 +267,18 @@
   transition: 0.2s;
 }
 
-.confirmarModalBtn {
+.botonConfirmar {
   background-color: #e38500;
   color: white;
 }
-
-.confirmarModalBtn:hover {
+.botonConfirmar:hover {
   background-color: #c47300;
 }
 
-.cancelarModalBtn {
+.botonCancelar {
   background-color: #2e3a4e;
   color: white;
 }
-
-.cancelarModalBtn:hover {
+.botonCancelar:hover {
   background-color: #3a4a62;
 }

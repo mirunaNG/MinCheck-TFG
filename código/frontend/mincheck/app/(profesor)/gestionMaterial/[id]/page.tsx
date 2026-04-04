@@ -37,7 +37,7 @@ export default function GestionMaterial({
   const asignatura = asignaturas.find((a) => a.id === asignaturaId);
   const totalAlumnos = totalAlumnosDe(asignaturaId);
 
-  function colorBadge(entregas: number): string {
+  function colorEntregas(entregas: number): string {
     if (totalAlumnos === 0) return "#7a1010";
     const pct = entregas / totalAlumnos;
     if (pct >= 0.66) return "#1e5c2d"; // >= 66 % → verde
@@ -58,10 +58,10 @@ export default function GestionMaterial({
 
   const [temas, setTemas] = useState<TemaUI[]>(temasIniciales());
 
-  /* ── Estado modales ── */
+  /*Estado modal*/
   const [modalAbierto, setModalAbierto] = useState<ModalTipo>(null);
 
-  /* Estado formulario nuevo ejercicio */
+  /* Estado formulario nuevo ejercicio*/
   const [temaSeleccionado, setTemaSeleccionado] = useState<number>(temasIniciales()[0]?.id ?? 0);
   const [nombreEjercicio, setNombreEjercicio] = useState("");
   const [enunciadoFile, setEnunciadoFile] = useState<File | null>(null);
@@ -91,7 +91,6 @@ export default function GestionMaterial({
 
   function crearEjercicio() {
     if (!nombreEjercicio.trim()) return;
-    /* toDo: enviar al backend */
     const nuevoId = Date.now();
     setTemas(
       temas.map((t) =>
@@ -105,7 +104,6 @@ export default function GestionMaterial({
 
   function crearTema() {
     if (!nombreTema.trim()) return;
-    /* toDo: enviar al backend */
     const nuevoId = Date.now();
     setTemas([...temas, { id: nuevoId, nombre: `Tema ${nombreTema.trim()}`, color: colorTema, ejercicios: [] }]);
     cerrarModal();
@@ -130,33 +128,30 @@ export default function GestionMaterial({
       <Sidebar rol="profesor" />
 
       <main className={styles.main}>
-
-        {/* Cabecera */}
-        <div className={styles.header}>
+        <div className={styles.encabezado}>
           <div>
-            <h1 className={styles.titulo}>{asignatura?.nombre.toUpperCase()}</h1>
+            <h1 className={styles.tituloAsignatura}>{asignatura?.nombre.toUpperCase()}</h1>
             <p className={styles.subtitulo}>Gestiona aquí los temas y ejercicios de tu asignatura</p>
           </div>
-          <button className={styles.nuevoEjercicioBtn} onClick={() => abrirModalEjercicio()}>
+          <button className={styles.botonNuevoEjercicio} onClick={() => abrirModalEjercicio()}>
             + Nuevo ejercicio
           </button>
         </div>
 
-        {/* Lista de temas */}
-        <div className={styles.content}>
-
+        {/* Lista de temas*/}
+        <div className={styles.contenido}>
           {temas.map((tema) => (
             <div key={tema.id} className={styles.temaCard}>
 
-              <div className={styles.temaHeader}>
-                <div className={styles.temaLeft}>
-                  <span className={styles.temaCircle} style={{ backgroundColor: tema.color }} />
+              <div className={styles.temaEncabezado}>
+                <div className={styles.temaIzquierda}>
+                  <span className={styles.circuloTema} style={{ backgroundColor: tema.color }} />
                   <span className={styles.temaNombre}>{tema.nombre}</span>
                 </div>
-                <div className={styles.temaRight}>
-                  <span className={styles.ejerciciosCount}>{tema.ejercicios.length} ejercicios</span>
+                <div className={styles.temaDerecha}>
+                  <span className={styles.numEjercicios}>{tema.ejercicios.length} ejercicios</span>
                   <button
-                    className={styles.iconBtn}
+                    className={styles.botonIcono}
                     onClick={() => eliminarTema(tema.id)}
                     title="Eliminar tema"
                   >
@@ -165,29 +160,24 @@ export default function GestionMaterial({
                 </div>
               </div>
 
-              <div className={styles.ejerciciosList}>
+              <div className={styles.listaEjercicios}>
                 {tema.ejercicios.map((ej, idx) => (
                   <div
                     key={ej.id}
-                    className={`${styles.ejercicioRow} ${idx === tema.ejercicios.length - 1 ? styles.ejercicioRowLast : ""}`}
+                    className={`${styles.filaEjercicio}`}
                   >
                     <span className={styles.ejercicioNombre}>{ej.nombre}</span>
                     <div className={styles.ejercicioAcciones}>
                       <span
-                        className={styles.badge}
-                        style={{ backgroundColor: colorBadge(ej.entregas) }}
+                        className={styles.entregas}
+                        style={{ backgroundColor: colorEntregas(ej.entregas) }}
                       >
                         {ej.entregas} entregas
                       </span>
-                      {/*CAMBIAR A LINK CUANDO HAYA CREADO LAS ESTADISTICAS */}
+                      <Link href={`/estadisticas/${ej.id}`} className={styles.botonIcono}> 📊 </Link>
+                      <Link href={`/detalleEjercicio/${ej.id}`} className={styles.botonIcono}> ✎ </Link>
                       <button
-                        className={styles.iconBtn}
-                        title="Ver estadísticas"
-                        onClick={() => router.push(`/detalleEjercicio/${ej.id}`)}
-                      >📊</button>
-                      <Link href={`/detalleEjercicio/${ej.id}`} className={styles.iconBtn}> ✎ </Link>
-                      <button
-                        className={styles.iconBtn}
+                        className={styles.botonIcono}
                         onClick={() => eliminarEjercicio(tema.id, ej.id)}
                         title="Eliminar ejercicio"
                       >
@@ -199,7 +189,7 @@ export default function GestionMaterial({
               </div>
 
               <button
-                className={styles.añadirEjercicioBtn}
+                className={styles.botonAñadirEjercicio}
                 onClick={() => abrirModalEjercicio(tema.id)}
               >
                 + Añadir ejercicio a este tema
@@ -208,14 +198,14 @@ export default function GestionMaterial({
             </div>
           ))}
 
-          <button className={styles.añadirTemaBtn} onClick={abrirModalTema}>
+          <button className={styles.botonAñadirTema} onClick={abrirModalTema}>
             + Añadir nuevo tema
           </button>
 
         </div>
       </main>
 
-      {/* ── Modal nuevo ejercicio ── */}
+      {/* Modal nuevo ejercicio */}
       {modalAbierto === "ejercicio" && (
         <Modal
           titulo="Nuevo Ejercicio"
@@ -223,9 +213,9 @@ export default function GestionMaterial({
           onCerrar={cerrarModal}
         >
           <div className={styles.campoModal}>
-            <label className={styles.labelModal}>Nombre del ejercicio</label>
+            <label className={styles.etiquetaCampo}>Nombre del ejercicio</label>
             <input
-              className={styles.inputModal}
+              className={styles.entradaCampo}
               type="text"
               placeholder="Ej. permutaciones"
               value={nombreEjercicio}
@@ -236,9 +226,9 @@ export default function GestionMaterial({
           </div>
 
           <div className={styles.campoModal}>
-            <label className={styles.labelModal}>Tema</label>
+            <label className={styles.etiquetaCampo}>Tema</label>
             <select
-              className={styles.selectModal}
+              className={styles.entradaCampo}
               value={temaSeleccionado}
               onChange={(e) => setTemaSeleccionado(Number(e.target.value))}
             >
@@ -249,47 +239,47 @@ export default function GestionMaterial({
           </div>
 
           <div className={styles.campoModal}>
-            <label className={styles.labelModal}>Enunciado</label>
-            <label className={styles.fileArea}>
-              <span className={styles.fileIcon}>📄</span>
-              <span className={styles.fileTexto}>
+            <label className={styles.etiquetaCampo}>Enunciado</label>
+            <label className={styles.archivo}>
+              <span className={styles.iconoArchivo}>📄</span>
+              <span className={styles.textoArchivo}>
                 {enunciadoFile ? enunciadoFile.name : "Seleccionar archivos"}
               </span>
               <input
                 type="file"
-                className={styles.fileInput}
+                className={styles.archivodeEntrada}
                 onChange={(e) => setEnunciadoFile(e.target.files?.[0] ?? null)}
               />
             </label>
           </div>
 
           <div className={styles.campoModal}>
-            <label className={styles.labelModal}>Código solución</label>
-            <label className={styles.fileArea}>
-              <span className={styles.fileIcon}>📄</span>
-              <span className={styles.fileTexto}>
+            <label className={styles.etiquetaCampo}>Código solución</label>
+            <label className={styles.archivo}>
+              <span className={styles.iconoArchivo}>📄</span>
+              <span className={styles.textoArchivo}>
                 {solucionFile ? solucionFile.name : "Seleccionar archivos"}
               </span>
               <input
                 type="file"
-                className={styles.fileInput}
+                className={styles.archivodeEntrada}
                 onChange={(e) => setSolucionFile(e.target.files?.[0] ?? null)}
               />
             </label>
           </div>
 
           <div className={styles.botonesModal}>
-            <button className={styles.confirmarModalBtn} onClick={crearEjercicio}>
+            <button className={styles.botonConfirmar} onClick={crearEjercicio}>
               Crear ejercicio +
             </button>
-            <button className={styles.cancelarModalBtn} onClick={cerrarModal}>
+            <button className={styles.botonCancelar} onClick={cerrarModal}>
               Cancelar
             </button>
           </div>
         </Modal>
       )}
 
-      {/* ── Modal nuevo tema ── */}
+      {/* Modal añadir tema*/}
       {modalAbierto === "tema" && (
         <Modal
           titulo="Nuevo Tema"
@@ -297,9 +287,9 @@ export default function GestionMaterial({
           onCerrar={cerrarModal}
         >
           <div className={styles.campoModal}>
-            <label className={styles.labelModal}>Nombre del tema</label>
+            <label className={styles.etiquetaCampo}>Nombre del tema</label>
             <input
-              className={styles.inputModal}
+              className={styles.entradaCampo}
               type="text"
               placeholder="Ej. permutaciones"
               value={nombreTema}
@@ -310,12 +300,12 @@ export default function GestionMaterial({
           </div>
 
           <div className={styles.campoModal}>
-            <label className={styles.labelModal}>Color identificativo</label>
+            <label className={styles.etiquetaCampo}>Color identificativo</label>
             <div className={styles.coloresGrid}>
               {COLORES_TEMA.map((c) => (
                 <button
                   key={c}
-                  className={`${styles.colorCircle} ${colorTema === c ? styles.colorCircleActivo : ""}`}
+                  className={`${styles.circuloColor} ${colorTema === c ? styles.circuloColorActivo : ""}`}
                   style={{ backgroundColor: c }}
                   onClick={() => setColorTema(c)}
                   title={c}
@@ -325,10 +315,10 @@ export default function GestionMaterial({
           </div>
 
           <div className={styles.botonesModal}>
-            <button className={styles.confirmarModalBtn} onClick={crearTema}>
+            <button className={styles.botonConfirmar} onClick={crearTema}>
               Crear tema +
             </button>
-            <button className={styles.cancelarModalBtn} onClick={cerrarModal}>
+            <button className={styles.botonCancelar} onClick={cerrarModal}>
               Cancelar
             </button>
           </div>

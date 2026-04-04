@@ -1,11 +1,9 @@
-/* Layout General */
 .layout {
   display: flex;
   min-height: 100vh;
   font-family: sans-serif;
   color: #e6edf3;
 }
-
 .main {
   flex: 1;
   display: flex;
@@ -13,79 +11,48 @@
   overflow-y: auto;
 }
 
-/* Header */
-.header {
+.encabezado {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 20px 30px;
   border-bottom: 1px solid #1e2a3a;
 }
-
-.greeting {
+.bienvenida {
   font-size: 24px;
   font-weight: bold;
   color: #e6edf3;
   margin: 0;
 }
 
-.bellBtn {
-  position: relative;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 5px;
-}
-
-.bellIcon {
-  font-size: 22px;
-}
-
-.bellBadge {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 10px;
-  height: 10px;
-  background-color: #f04040;
-  border-radius: 50%;
-  border: 2px solid #0b0f1a;
-}
-
-/* Content */
-.content {
+.contenidoPagina {
   display: flex;
   gap: 20px;
   padding: 30px;
   flex: 1;
 }
-
-.leftCol {
+.ladoIzquierdo {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 30px;
 }
-
-.rightCol {
+.ladoDerecho {
   width: 300px;
 }
 
-/* ── Stats ── */
-.statsRow {
+.zonaEstadisticas {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
-
-.statCard {
+.estadisticaCard {
   background-color: #161b27;
   border: 1px solid #21283a;
   border-radius: 10px;
   padding: 20px;
 }
-
-.statIconWrap {
+.grupoIconoEstadistica {
   width: 45px;
   height: 45px;
   border-radius: 10px;
@@ -94,94 +61,78 @@
   justify-content: center;
   margin-bottom: 15px;
 }
-
-.statIcon {
+.iconoEstadistica {
   font-size: 20px;
 }
-
-.statLabel {
+.etiquetaEstadistica {
   font-size: 14px;
   color: #8b949e;
   margin: 0 0 5px;
 }
-
-.statValue {
+.valorEstadistica {
   font-size: 30px;
   font-weight: bold;
   color: #e6edf3;
-  margin: 0;
 }
 
-/* Secciones */
-.section {
+.zonaAsignaturas {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
-
-.sectionHeader {
+.encabezadoZona {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
-
-.sectionTitle {
+.tituloZona {
   font-size: 18px;
   font-weight: bold;
   color: #e6edf3;
   margin: 0;
 }
-
-.seeAll {
+.verTodas {
   font-size: 14px;
   color: #4d7cfe;
 }
-
-.seeAll:hover {
+.verTodas:hover {
   text-decoration: underline;
 }
 
-/* Asignaturas Grid */
 .asignaturasGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
 }
 
-/* Tarjeta de Errores */
 .erroresCard {
   background-color: #161b27;
   border: 1px solid #21283a;
   border-radius: 10px;
   padding: 20px;
 }
-
-.erroresTitle {
+.tituloErrores {
   font-size: 16px;
   font-weight: bold;
   color: #e6edf3;
   margin: 0 0 20px 0;
   text-align: center;
 }
-
-.erroresList {
+.listaErrores {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
-
-.errorItem {
+.error {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
-
 .errorTop {
   display: flex;
   align-items: center;
   gap: 10px;
 }
-
 .errorEjercicio {
   font-size: 12px;
   font-weight: bold;
@@ -189,8 +140,7 @@
   padding: 3px 8px;
   border-radius: 5px;
 }
-
-.errorDesc {
+.descripcionError {
   font-size: 13px;
   color: #8b949e;
   flex: 1;
@@ -198,22 +148,19 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
-.errorPct {
+.porcentajeError{
   font-size: 13px;
   font-weight: bold;
   color: #e6edf3;
 }
 
-/* Barras de progreso */
-.errorBarBg {
+.progressBarError {
   height: 5px; 
   background-color: #21283a;
   border-radius: 3px;
   width: 100%;
 }
-
-.errorBarFill {
+.rellenoProgressBarError {
   height: 100%;
   border-radius: 3px;
 }
@@ -225,7 +172,6 @@
   font-size: 14px;
   color: #4d7cfe;
 }
-
 .verAnalisis:hover {
   text-decoration: underline;
 }

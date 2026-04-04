@@ -12,50 +12,43 @@
   overflow-y: auto;
 }
 
-/* Header */
-.header {
+.encabezado {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 20px 30px;
   border-bottom: 1px solid #1e2a3a;
 }
-
-.greeting {
+.bienvenida {
   font-size: 24px;
   font-weight: bold;
+  color: #e6edf3;
   margin: 0;
 }
 
-/* Content */
-.content {
+.contenidoPagina {
   display: flex;
   gap: 20px;
   padding: 30px;
   flex: 1;
 }
-
-.leftCol {
+.ladoIzquierdo {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 25px;
+  gap: 30px;
 }
-
-.rightCol {
+.ladoDerecho {
   width: 300px;
-  flex-shrink: 0;
 }
 
-/* Asignaturas Grid */
 .asignaturasGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
 }
 
-/* Botón Añadir */
-.addBtn {
+.botonAñadir {
   width: 100%;
   padding: 12px;
   background-color: #e38500;
@@ -67,57 +60,21 @@
   cursor: pointer;
   transition: background-color 0.2s;
 }
-
-.addBtn:hover {
+.botonAñadir:hover {
   background-color: #c47300;
 }
 
-/* Modal */
-.modalOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
-}
-
-.modal {
-  background-color: #161b27;
-  border: 1px solid #21283a;
-  border-radius: 12px;
-  padding: 30px;
-  width: 400px;
-  max-width: 90vw;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.modalTitle {
-  font-size: 18px;
-  font-weight: bold;
-  color: #e6edf3;
-  margin: 0;
-}
-
-.formGroup {
+.grupoFormulario {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
-
-.formGroup label {
+.grupoFormulario label {
   font-size: 13px;
   color: #8b949e;
   font-weight: bold;
 }
-
-.formGroup input {
+.grupoFormulario input {
   padding: 10px;
   background-color: #0b0f1a;
   border: 1px solid #21283a;
@@ -126,20 +83,17 @@
   outline: none;
   transition: border-color 0.2s;
 }
-
-.formGroup input:focus {
+.grupoFormulario input:focus {
   border-color: #4d7cfe;
 }
 
-/* Acciones del Modal */
-.modalActions {
+.accionesModal {
   display: flex;
   justify-content: flex-end;
   gap: 15px;
   margin-top: 10px;
 }
-
-.cancelBtn {
+.botonCancelar {
   padding: 10px 20px;
   background-color: transparent;
   border: 1px solid #4d7cfe;
@@ -150,24 +104,19 @@
   cursor: pointer;
   transition: 0.2s;
 }
-
-.cancelBtn:hover {
+.botonCancelar:hover {
   background-color: #4d7cfe;
   color: white;
 }
-
-.submitBtn {
+.botonAñadir {
   padding: 10px 20px;
   background-color: #e38500;
-  border: none;
   border-radius: 8px;
   color: white;
   font-weight: bold;
   font-size: 14px;
   cursor: pointer;
-  transition: background-color 0.2s;
 }
-
-.submitBtn:hover {
+.botonAñadir:hover {
   background-color: #c47300;
 }
