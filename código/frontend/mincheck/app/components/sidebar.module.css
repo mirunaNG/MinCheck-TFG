@@ -1,12 +1,10 @@
-/* Contenedor Lateral */
-.sidebar {
+.menuLateral {
   width: 260px;
   min-height: 100vh;
   border-right: 1px solid #1e2a3a;
   display: flex;
   flex-direction: column;
   padding: 30px 0;
-  flex-shrink: 0;
 }
 
 .logo {
@@ -17,50 +15,43 @@
   margin-bottom: 30px;
 }
 
-/* Perfil de Usuario */
-.profile {
+.perfilUsuario {
   display: flex;
   align-items: center;
   gap: 15px;
-  padding: 15px;
+  padding: 12px;
   margin: 0 15px 25px;
   border-radius: 10px;
   background-color: #161b27;
   border: 1px solid #21283a;
 }
-
-.avatar {
+.fotoPerfil {
   width: 40px;
   height: 40px;
-  border-radius: 50%;
+  border-radius: 30px;
   background-color: #4d7cfe;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
 }
-
-.avatarInitials {
+.siglasAvatar {
   font-size: 14px;
   font-weight: bold;
   color: white;
 }
-
-.profileName {
+.nombreUsuario {
   font-size: 14px;
   font-weight: bold;
   color: #e6edf3;
 }
 
-/* Navegación */
-.nav {
+.listaEnlaces {
   display: flex;
   flex-direction: column;
   gap: 5px;
   padding: 0 15px;
 }
-
-.navItem {
+.opcionMenu {
   display: flex;
   align-items: center;
   gap: 15px;
@@ -71,19 +62,16 @@
   color: #8b949e;
   transition: 0.2s;
 }
-
-.navItem:hover {
+.opcionMenu:hover {
   background-color: #161b27;
   color: #e6edf3;
 }
-
-.navItemActive {
+.opcionActiva {
   background-color: #1e2d4a;
   color: #4d7cfe;
   font-weight: bold;
 }
-
-.navIcon {
+.iconoOpcion {
   font-size: 16px;
   width: 20px;
   text-align: center;

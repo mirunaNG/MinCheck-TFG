@@ -11,9 +11,9 @@ type Props = {
 
 export default function Modal({ titulo, subtitulo, onCerrar, children }: Props) {
   return (
-    <div className={styles.overlay} onClick={onCerrar}>
+    <div className={styles.fondoModal} onClick={onCerrar}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.modalHeader}>
+        <div>
           <h2 className={styles.modalTitulo}>{titulo}</h2>
           <p className={styles.modalSubtitulo}>{subtitulo}</p>
         </div>

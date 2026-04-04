@@ -1,16 +1,14 @@
-.wrapper {
+.contenedorTabla {
   background-color: #161b27;
   border: 1px solid #21283a;
   border-radius: 10px;
   overflow: hidden;
 }
-
-.tabla {
+.listaDatos {
   width: 100%;
   border-collapse: collapse;
 }
-
-.tabla th {
+.listaDatos th { /*encabezados de la tabla*/
   text-align: left;
   padding: 12px 20px;
   background-color: #1a2030;
@@ -19,27 +17,21 @@
   font-size: 13px;
   border-bottom: 1px solid #21283a;
 }
-
-.tabla td {
+.listaDatos td { /*celdas*/
   padding: 15px 20px;
   font-size: 14px;
   color: #e6edf3;
   border-bottom: 1px solid #1e2a3a;
 }
-
-.tabla tbody tr:last-child td {
+.listaDatos tbody tr:last-child td { /*quito el borde de abajo de la última fila*/
   border-bottom: none;
 }
-
-.tabla tbody tr {
+.listaDatos tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.02);
   transition: background-color 0.2s;
 }
 
-.tabla tbody tr:hover {
-  background-color: rgba(255, 255, 255, 0.02);
-}
-
-.pie {
+.resumenInferior {
   display: flex;
   align-items: center;
   justify-content: center;

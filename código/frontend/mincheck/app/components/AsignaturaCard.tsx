@@ -12,13 +12,13 @@ type Props = {
 export default function AsignaturaCard({ nombre, color, alumnos, ejercicios, onClick }: Props) {
   return (
     <div className={styles.card} onClick={onClick}>
-      <div className={styles.img} style={{ backgroundColor: color }}>
-        <span className={styles.imgIcon}>📚</span>
+      <div className={styles.imagen} style={{ backgroundColor: color }}>
+        <span className={styles.iconoImagen}>📚</span>
       </div>
-      <div className={styles.info}>
-        <p className={styles.nombre}>{nombre}</p>
-        <p className={styles.detalle}>{alumnos} alumnos</p>
-        <p className={styles.detalle}>{ejercicios} ejercicios</p>
+      <div className={styles.infoAsignatura}>
+        <p className={styles.nombreAsignatura}>{nombre}</p>
+        <p className={styles.detalleAsignatura}>{alumnos} alumnos</p>
+        <p className={styles.detalleAsignatura}>{ejercicios} ejercicios</p>
       </div>
     </div>
   );

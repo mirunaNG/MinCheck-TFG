@@ -6,37 +6,32 @@
   cursor: pointer;
   transition: border-color 0.3s, transform 0.3s;
 }
-
 .card:hover {
   border-color: #4d7cfe;
   transform: translateY(-3px);
 }
 
-.img {
+.imagen {
   height: 120px;
   background-color: #1c2230;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
-.imgIcon {
+.iconoImagen {
   font-size: 40px;
   opacity: 0.5;
 }
-
-.info {
+.infoAsignatura {
   padding: 15px;
 }
-
-.nombre {
+.nombreAsignatura {
   font-size: 15px;
   font-weight: bold;
   color: #e6edf3;
   margin: 0 0 5px 0;
 }
-
-.detalle {
+.detalleAsignatura {
   font-size: 13px;
   color: #8b949e;
   margin: 0;

@@ -3,13 +3,13 @@ import styles from "./Tabla.module.css";
 type Props = {
   columnas: string[];
   children: React.ReactNode;
-  pie?: React.ReactNode;
+  pie?: React.ReactNode; // opcional, pie de tabla
 };
 
 export default function Tabla({ columnas, children, pie }: Props) {
   return (
-    <div className={styles.wrapper}>
-      <table className={styles.tabla}>
+    <div className={styles.contenedorTabla}>
+      <table className={styles.listaDatos}>
         <thead>
           <tr>
             {columnas.map((col) => (
@@ -19,7 +19,8 @@ export default function Tabla({ columnas, children, pie }: Props) {
         </thead>
         <tbody>{children}</tbody>
       </table>
-      {pie && <div className={styles.pie}>{pie}</div>}
+      {/* Si hay contenido para el pie, usamos la variable */}
+      {pie && <div className={styles.resumenInferior}>{pie}</div>}
     </div>
   );
 }
