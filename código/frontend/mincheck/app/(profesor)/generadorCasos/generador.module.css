@@ -1,0 +1,265 @@
+/* Layout General */
+.layout {
+  display: flex;
+  min-height: 100vh;
+  color: #e6edf3;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+/* Cabecera */
+.header {
+  padding: 40px 40px 0;
+  text-align: center;
+}
+
+.titulo {
+  font-size: 28px;
+  font-weight: bold;
+  color: #e6edf3;
+  margin: 0 0 10px;
+}
+
+.subtitulo {
+  font-size: 14px;
+  color: #8b949e;
+  margin: 0 auto;
+  max-width: 620px;
+  line-height: 1.6;
+}
+
+/* Contenido */
+.content {
+  padding: 30px 40px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* Tarjeta de código */
+.codigoCard {
+  background: #1a2235;
+  border: 1px solid #2d3a52;
+  border-radius: 14px;
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.codigoCardTitulo {
+  font-size: 14px;
+  font-weight: bold;
+  color: #e6edf3;
+  text-align: center;
+  margin: 0;
+}
+
+.codigoTopRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Botón subir */
+.subirBtn {
+  background-color: #2e3a5c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.subirBtn:hover {
+  background-color: #3a62d4;
+}
+
+.fileInput {
+  display: none;
+}
+
+/* Fila que muestra el archivo subido */
+.archivoSubidoRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #161b27;
+  border: 1px solid #2d3a52;
+  border-radius: 8px;
+  padding: 10px 15px;
+}
+
+.archivoNombre {
+  flex: 1;
+  font-size: 13px;
+  color: #e6edf3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.eliminarArchivoBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  color: #8b949e;
+  transition: color 0.2s;
+}
+
+.eliminarArchivoBtn:hover {
+  color: #e6edf3;
+}
+
+/* Textarea del código */
+.codigoTextarea {
+  background: #0f1420;
+  border: 1px solid #2d3a52;
+  border-radius: 10px;
+  padding: 18px;
+  font-size: 13px;
+  color: white;
+  resize: vertical;
+  outline: none;
+  line-height: 1.6;
+  min-height: 180px;
+}
+
+.codigoTextarea:focus {
+  border-color: #4d7cfe;
+}
+
+/* Botón GENERAR */
+.generarWrap {
+  display: flex;
+  justify-content: center;
+}
+
+.generarBtn {
+  background-color: #e38500;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 60px;
+  font-size: 16px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.generarBtn:hover:not(:disabled) {
+  background-color: #c47300;
+}
+
+.generarBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Sección resultados */
+.resultadosSeccion {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.resultadosHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.resultadosTitulo {
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #8b949e;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.descargarBtn {
+  background: #e38500;
+  border-radius: 8px;
+  padding: 8px 15px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.descargarBtn:hover {
+  background-color: #c47300;
+}
+
+/* Caso card */
+.casoCard {
+  background: #1e2638;
+  border: 1px solid #2d3a52;
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.casoTitulo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #8b949e;
+}
+
+.eliminarCasoBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #8b949e;
+  transition: color 0.2s;
+}
+
+.casoIO {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.casoIOBloque {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.casoIOLabel {
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #4a5568;
+}
+
+.casoIOContent {
+  background: #0f1420;
+  border: 1px solid #1e2a3a;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 13px;
+  color: white;
+  margin: 0;
+  min-height: 50px;
+}

@@ -1,75 +1,50 @@
-/* Layout General */
-.page {
-  min-height: 100vh;
-  background-color: #0d1117;
-  display: flex;
-  flex-direction: column;
-  color: #e6edf3;
-}
-
-/* Navbar */
-.navbar {
-  display: flex;
+.headerInicio {
+  display: flex;  
   align-items: center;
   justify-content: space-between;
-  padding: 15px 30px;
+  padding: 15px 50px;
   border-bottom: 1px solid #1e2a3a;
 }
+.linksNavegar {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+/*Estilo de cada enlace de la menú de navegación */
+.linksNavegar a {
+  color: #8b949e;
+  font-size: 14px;
+}
 
-.logo {
+.zonaLogo {
   display: flex;
   align-items: center;
   gap: 10px;
 }
-
-.logoIcon {
+.iconoLogo {
   font-size: 18px;
   color: #4d7cfe;
   font-weight: bold;
-  font-family: monospace;
 }
-
-.logoText {
+.tituloLogo {
   font-size: 18px;
   font-weight: bold;
   color: #e6edf3;
 }
-
-.navLinks {
-  display: flex;
-  align-items: center;
-  gap: 25px;
-}
-
-.navLinks a {
-  color: #8b949e;
-  text-decoration: none;
-  font-size: 14px;
-  transition: 0.2s;
-}
-
-.navLinks a:hover {
-  color: #e6edf3;
-}
-
-.signupBtn {
-  background-color: #4d7cfe;
-  color: white;
-  padding: 8px 20px;
-  border-radius: 6px;
+.botonRegistro {
+  background-color: transparent;
+  border: 1px solid #4d7cfe;
+  padding: 10px 20px;
+  border-radius: 10px; /*en figma pongo 10, ir viendo si es mucho*/
   font-size: 14px;
   font-weight: bold;
-  text-decoration: none;
-  transition: 0.2s;
+}
+.botonRegistro:hover { /*para que al pasar el cursor cambie el fondo*/
+  background-color: #4d7cfe;
+  color: white;
 }
 
-.signupBtn:hover {
-  background-color: #3a6aef;
-}
-
-/* Main */
 .main {
-  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -79,103 +54,49 @@
 .card {
   background-color: #161b27;
   border: 1px solid #21283a;
-  border-radius: 12px;
+  border-radius: 10px;
   padding: 40px;
   width: 100%;
   max-width: 420px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); /* Sombra más limpia y natural */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
-
-/* Title */
-.title {
+.tituloLogin {
   text-align: center;
   font-size: 24px;
   font-weight: bold;
   color: #e6edf3;
   margin: 0 0 25px;
 }
-
-/* Tabs */
-.tabs {
-  display: flex;
-  border-radius: 8px;
-  overflow: hidden;
-  margin-bottom: 25px;
-  border: 1px solid #21283a;
-}
-
-.tab {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 12px;
-  background-color: transparent;
-  border: none;
-  color: #8b949e;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.tab:hover {
-  background-color: #1e2a3a;
-  color: #e6edf3;
-}
-
-.tabActive {
-  background-color: #4d7cfe;
-  color: white;
-}
-
-.tabIcon {
-  font-size: 16px;
-}
-
-/* Form */
-.form {
+.formulario {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.label {
+.etiquetaCampo {
   font-size: 14px;
   color: #8b949e;
   font-weight: bold;
 }
 
-.inputWrapper {
+.grupoInput {
   display: flex;
   align-items: center;
   background-color: #0d1117;
   border: 1px solid #21283a;
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 0 15px;
   transition: 0.2s;
 }
-
-.inputWrapper:focus-within {
+.grupoInput:focus-within {
   border-color: #4d7cfe;
 }
-
-.inputIcon {
+.iconoEntrada {
   font-size: 16px;
   margin-right: 10px;
   opacity: 0.6;
 }
-
-.input {
+.entrada {
   flex: 1;
-  background: transparent;
   border: none;
   outline: none;
   color: white;
@@ -183,18 +104,12 @@
   padding: 12px 0;
 }
 
-.input::placeholder {
-  color: #3d4a5c;
-}
-
-/* Extras */
-.extras {
+.zonaExtra {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
-
-.checkboxLabel {
+.checkboxRecordar{
   display: flex;
   align-items: center;
   gap: 8px;
@@ -202,68 +117,58 @@
   color: #8b949e;
   cursor: pointer;
 }
-
 .checkbox {
   accent-color: #4d7cfe;
   width: 15px;
   height: 15px;
   cursor: pointer;
 }
-
-.forgotLink {
+.contrasenaOlvidada {
   font-size: 14px;
   color: #4d7cfe;
   text-decoration: none;
 }
-
-.forgotLink:hover {
+.contrasenaOlvidada:hover {
   text-decoration: underline;
 }
-
-/* Submit */
-.submitBtn {
+.botonSubmitLogin {
   width: 100%;
   padding: 12px;
   background-color: #4d7cfe;
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 15px;
   font-weight: bold;
   cursor: pointer;
   margin-top: 10px;
   transition: 0.2s;
 }
-
-.submitBtn:hover {
+.botonSubmitLogin:hover {
   background-color: #3a6aef;
 }
 
-.submitBtn:active {
-  transform: scale(0.98); 
-}
 
-/* Register Section */
-.registerSection {
+.zonaRegitsrarse {
   text-align: center;
   margin-top: 30px;
   padding-top: 25px;
   border-top: 1px solid #21283a;
 }
 
-.registerText {
+.textoRegistro {
   font-size: 15px;
   color: #e6edf3;
   margin: 0 0 5px;
 }
 
-.registerSub {
+.subtituloRegistro {
   font-size: 13px;
   color: #8b949e;
   margin: 0 0 15px;
 }
 
-.registerBtn {
+.botonRegistrarse {
   display: inline-block;
   padding: 10px 30px;
   background-color: transparent;
@@ -276,7 +181,7 @@
   transition: 0.2s;
 }
 
-.registerBtn:hover {
+.botonRegistrarse:hover {
   background-color: #4d7cfe;
   color: white;
 }

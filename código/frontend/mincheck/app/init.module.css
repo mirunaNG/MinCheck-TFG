@@ -1,140 +1,96 @@
-/* Layout General */
-.page {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  color: #e6edf3;
-}
-
-/* Navbar */
-.navbar {
-  display: flex;
+.headerInicio {
+  display: flex;  
   align-items: center;
   justify-content: space-between;
   padding: 15px 50px;
   border-bottom: 1px solid #1e2a3a;
 }
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.logoIcon {
-  font-size: 18px;
-  color: #4d7cfe;
-  font-weight: bold;
-  font-family: monospace;
-}
-
-.logoText {
-  font-size: 18px;
-  font-weight: bold;
-  color: #e6edf3;
-}
-
-.navLinks {
+.linksNavegar {
   display: flex;
   align-items: center;
   gap: 30px;
 }
-
-.navLinks a {
+/*Estilo de cada enlace de la menú de navegación */
+.linksNavegar a {
   color: #8b949e;
-  text-decoration: none;
   font-size: 14px;
-  transition: 0.2s;
 }
 
-.navLinks a:hover {
-  color: #e6edf3;
+.zonaLogo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
-
-.loginBtn {
-  color: #e6edf3;
-  font-size: 14px;
-  text-decoration: none;
+.iconoLogo {
+  font-size: 18px;
+  color: #4d7cfe;
   font-weight: bold;
 }
+.tituloLogo {
+  font-size: 18px;
+  font-weight: bold;
+  color: #e6edf3;
+}
 
-.signupBtn {
+.botonLogin {
+  color: #e6edf3;
+  font-size: 14px;
+  font-weight: bold;
+}
+.botonRegitsro {
   background-color: transparent;
   border: 1px solid #4d7cfe;
-  color: #4d7cfe;
-  padding: 8px 20px;
-  border-radius: 6px;
+  padding: 10px 20px;
+  border-radius: 10px; /*en figma pongo 10, ir viendo si es mucho*/
   font-size: 14px;
-  text-decoration: none;
   font-weight: bold;
-  transition: 0.2s;
 }
-
-.signupBtn:hover {
+.botonRegitsro:hover { /*para que al pasar el cursor cambie el fondo*/
   background-color: #4d7cfe;
   color: white;
 }
 
-/* Hero */
-.hero {
-  position: relative;
+.presentacionInicio {
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   padding: 100px 20px;
-  overflow: hidden;
 }
-
-.contenidoHero {
-  position: relative;
-  z-index: 2;
-  max-width: 720px;
-}
-
-.bienvenidaHero {
-  display: inline-block;
+.bienvenidaInicio {
+  display: inline-block; /* inline para que no ocupe toda la linea y block acepte el padding y el margen de abajo*/
   color: #4d7cfe;
   border: 1px solid #4d7cfe;
   padding: 6px 20px;
   border-radius: 20px;
   font-size: 14px;
   font-weight: bold;
-  margin-bottom: 25px;
+  margin-bottom: 20px;
 }
-
-.heroTitle {
+.tituloPresentacion {
   font-size: 50px;
   font-weight: bold;
   line-height: 1.2;
   color: #e6edf3;
   margin: 0 0 20px;
 }
-
-.heroAccent {
+.destacableTitulo {
   color: #4d7cfe;
 }
-
-.heroSubtitle {
-  font-size: 18px;
+.subtituloPresentacion {
+  font-size: 16px;
   color: #8b949e;
   line-height: 1.6;
-  margin: 0 auto 30px auto;
   max-width: 600px;
 }
-
-/* Fondo decorativo */
-.heroBg {
+.fondoPresentacion {
   position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
-  z-index: 1;
-  pointer-events: none;
+  pointer-events: none; /*para que funcionen los clics, si no ocupa todo*/
 }
-
-.bgGlow {
+/* He buscado como se hace esto */
+.brilloDecoracionFondo {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -145,119 +101,92 @@
   filter: blur(30px);
 }
 
-/* Features */
-.features {
-  padding: 80px 50px;
-  max-width: 1100px;
-  margin: 0 auto;
-  width: 100%;
-  position: relative;
-  z-index: 2;
+.zonaCaracteristicas {
+  padding: 15px 50px;
+  margin-bottom: 35px;
 }
-
-.sectionTitle {
+.queHace {
   text-align: center;
   font-size: 30px;
   font-weight: bold;
   color: #e6edf3;
   margin: 0 0 50px;
 }
-
-.featureGrid {
+.caracteristicasGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
 }
-
-.featureCard {
+.caracteristicaCard {
   background-color: #161b27;
   border: 1px solid #21283a;
   border-radius: 12px;
   padding: 30px 25px;
   transition: 0.3s;
 }
-
-.featureCard:hover {
+.caracteristicaCard:hover {
   border-color: #4d7cfe;
-  transform: translateY(-5px);
+  transform: translateY(-5px); /* para que al pasar el cursor se eleve un porquito (efecto de bote) */
 }
-
-.featureIcon {
+.iconoCaracteristica {
   font-size: 30px;
   margin-bottom: 15px;
 }
-
-.featureCardTitle {
+.tituloCaracteristica {
   font-size: 18px;
   font-weight: bold;
   color: #e6edf3;
   margin: 0 0 10px;
 }
-
-.featureCardText {
+.explicacionCaracteristica {
   font-size: 14px;
   color: #8b949e;
   line-height: 1.6;
   margin: 0;
 }
 
-/* CTA Final */
-.ctaSection {
+.zonaCierre {
   text-align: center;
   padding: 80px 20px;
   background-color: #0d1320;
   border-top: 1px solid #1e2a3a;
   border-bottom: 1px solid #1e2a3a;
 }
-
-.ctaTitle {
+.tituloCierre {
   font-size: 32px;
   font-weight: bold;
   color: #e6edf3;
   margin: 0 0 15px;
 }
-
-.ctaText {
+.textoCierre {
   font-size: 16px;
   color: #8b949e;
   margin: 0 0 35px;
 }
-
-.ctaBig {
-  display: inline-block;
+.botonRegistroCierre {
   padding: 15px 50px;
   background-color: #4d7cfe;
-  color: white;
-  border-radius: 8px;
-  text-decoration: none;
+  border-radius: 10px;
   font-size: 16px;
   font-weight: bold;
-  transition: 0.2s;
 }
-
-.ctaBig:hover {
+.botonRegistroCierre:hover {
   background-color: #3a6aef;
-  transform: translateY(-2px);
 }
-
-.ctaLogin {
+.loginCierre {
   margin-top: 20px;
   font-size: 14px;
   color: #8b949e;
 }
-
-.ctaLoginLink {
+.linkLoginCierre {
   color: #4d7cfe;
-  text-decoration: none;
   font-weight: bold;
 }
-
-.ctaLoginLink:hover {
+.linkLoginCierre:hover {
   text-decoration: underline;
 }
 
-/* Footer */
-.footer {
+.piePagina {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -265,44 +194,14 @@
   border-top: 1px solid #1e2a3a;
 }
 
-.footerLogo {
+.logoPie {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.footerText {
+.textoPie{
   font-size: 14px;
   color: #8b949e;
   margin: 0;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .navbar {
-    padding: 15px 20px;
-  }
-
-  .navLinks {
-    gap: 15px;
-  }
-
-  .heroTitle {
-    font-size: 36px;
-  }
-
-  .features {
-    padding: 60px 20px;
-  }
-
-  .featureGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .footer {
-    flex-direction: column;
-    gap: 15px;
-    text-align: center;
-    padding: 25px 20px;
-  }
 }

@@ -4,115 +4,113 @@ import { useState } from "react";
 import Link from "next/link";
 import styles from "./registro.module.css";
 
-type Role = "estudiante" | "profesor";
+type Rol = "estudiante" | "profesor";
 
-export default function RegisterPage() {
-  const [role, setRole] = useState<Role>("estudiante");
+export default function PaginaRegistro() {
+  const [rol, setRol] = useState<Rol>("estudiante");
 
   return (
-    <div className={styles.page}>
-      {/* Navbar */}
-      <nav className={styles.navbar}>
-        <div className={styles.logo}>
-          <span className={styles.logoIcon}>{"[>_]"}</span>
-          <span className={styles.logoText}>MinCheck</span>
+    <div>
+      {/* Barra de navegación */}
+      <nav className={styles.headerInicio}>
+        <div className={styles.zonaLogo}>
+          <span className={styles.iconoLogo}>{"[>_]"}</span>
+          <span className={styles.tituloLogo}>MinCheck</span>
         </div>
-        <div className={styles.navLinks}>
-          <a href="#">About</a>
-          <a href="#">Help</a>
-          <Link href="/login" className={styles.signupBtn}>Login</Link>
+        <div className={styles.linksNavegar}>
+          <a href="../#caracteristicas">About</a>
+          <Link href="/login" className={styles.botonLogin}>Login</Link>
         </div>
       </nav>
 
-      {/* Main */}
       <main className={styles.main}>
         <div className={styles.card}>
-          <h1 className={styles.title}>¡BIENVENIDO A MinCheck!</h1>
+          <h1 className={styles.tituloRegistro}>¡BIENVENIDO A MinCheck!</h1>
 
-          {/* Role Tabs */}
-          <div className={styles.tabs}>
+          {/*Zona roles*/}
+          <div className={styles.zonaRoles}>
             <button
-              className={`${styles.tab} ${role === "estudiante" ? styles.tabActive : ""}`}
-              onClick={() => setRole("estudiante")}
+              className={`${styles.rol} ${rol === "estudiante" ? styles.rolSeleccionado : ""}`}
+              onClick={() => setRol("estudiante")}
             >
-              <span className={styles.tabIcon}>🎓</span>
+              <span className={styles.iconoRol}>🎓</span>
               Estudiante
             </button>
             <button
-              className={`${styles.tab} ${role === "profesor" ? styles.tabActive : ""}`}
-              onClick={() => setRole("profesor")}
+              className={`${styles.rol} ${rol === "profesor" ? styles.rolSeleccionado : ""}`}
+              onClick={() => setRol("profesor")}
             >
-              <span className={styles.tabIcon}>🧑‍🏫</span>
+              <span className={styles.iconoRol}>🧑‍🏫</span>
               Profesor
             </button>
           </div>
 
           {/* Form */}
-          <form className={styles.form} onSubmit={(e) => e.preventDefault()}>
-            <div className={styles.field}>
-              <label className={styles.label}>Nombre de usuario</label>
-              <div className={styles.inputWrapper}>
-                <span className={styles.inputIcon}>👤</span>
+          <form className={styles.formulario} onSubmit={(e) => e.preventDefault()}>
+            <div className={styles.campoForm}>
+              <label className={styles.etiquetaCampo}>Nombre de usuario</label>
+              <div className={styles.grupoInput}>
+                <span className={styles.iconoEntrada}>👤</span>
                 <input
                   type="text"
                   placeholder="Introduce tu nombre de usuario"
-                  className={styles.input}
+                  className={styles.entrada}
                 />
               </div>
             </div>
 
-            <div className={styles.field}>
-              <label className={styles.label}>Correo</label>
-              <div className={styles.inputWrapper}>
-                <span className={styles.inputIcon}>✉️</span>
+            <div className={styles.campoForm}>
+              <label className={styles.etiquetaCampo}>Correo</label>
+              <div className={styles.grupoInput}>
+                <span className={styles.iconoEntrada}>✉️</span>
                 <input
                   type="email"
                   placeholder="Introduce tu correo"
-                  className={styles.input}
+                  className={styles.entrada}
                 />
               </div>
             </div>
 
-            <div className={styles.field}>
-              <label className={styles.label}>Contraseña</label>
-              <div className={styles.inputWrapper}>
-                <span className={styles.inputIcon}>🔒</span>
+            <div className={styles.campoForm}>
+              <label className={styles.etiquetaCampo}>Contraseña</label>
+              <div className={styles.grupoInput}>
+                <span className={styles.iconoEntrada}>🔒</span>
                 <input
                   type="password"
                   placeholder="Introduce tu contraseña"
-                  className={styles.input}
+                  className={styles.entrada}
                 />
               </div>
             </div>
 
-            <div className={styles.field}>
-              <label className={styles.label}>Repite tu contraseña</label>
-              <div className={styles.inputWrapper}>
-                <span className={styles.inputIcon}>🔒</span>
+            <div className={styles.campoForm}>
+              <label className={styles.etiquetaCampo}>Repite tu contraseña</label>
+              <div className={styles.grupoInput}>
+                <span className={styles.iconoEntrada}>🔒</span>
                 <input
                   type="password"
                   placeholder="Repite tu contraseña"
-                  className={styles.input}
+                  className={styles.entrada}
                 />
               </div>
             </div>
             
-            {/* El campo de seleccionar el centro solo aparece para profesores */}
-            {role === "profesor" && (
-              <div className={styles.field}>
-                <label className={styles.label}>Centro educativo</label>
-                <div className={styles.inputWrapper}>
-                  <span className={styles.inputIcon}>🏫</span>
+            {/* El campo de seleccionar el centro educativo solo aparece para profesores */}
+            {rol === "profesor" && (
+              <div className={styles.campoForm}>
+                <label className={styles.etiquetaCampo}>Centro educativo</label>
+                <div className={styles.grupoInput}>
+                  <span className={styles.iconoEntrada}>🏫</span>
                   <input
                     type="text"
                     placeholder="Introduce el centro en el que impartes"
-                    className={styles.input}
+                    className={styles.entrada}
                   />
                 </div>
               </div>
             )}
 
-            <button type="submit" className={styles.submitBtn}>
+            <button type="submit" className={styles.botonSubmitRegistro}>
               REGISTRARSE
             </button>
           </form>

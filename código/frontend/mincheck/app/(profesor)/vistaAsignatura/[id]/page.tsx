@@ -95,10 +95,7 @@ export default function VistaAsignaturaProfesor({
             </div>
 
             {/* Últimas entregas */}
-            <div className={styles.card}>
-              <div className={styles.cardHeader}>
-                <h2 className={styles.cardTitle}>Últimas entregas</h2>
-              </div>
+              <h2 className={styles.cardTitle}>Últimas entregas</h2>
               <Tabla columnas={["Alumno", "Ejercicio", "Fecha/Hora", "Estado", "Revisar"]}>
                   {ultimas.map((e) => (
                     <tr key={e.id}>
@@ -118,7 +115,6 @@ export default function VistaAsignaturaProfesor({
                     </tr>
                   ))}
               </Tabla>
-            </div>
           </div>
 
           {/* Columna derecha */}

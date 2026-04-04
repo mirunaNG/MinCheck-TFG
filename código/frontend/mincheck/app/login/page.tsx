@@ -4,79 +4,75 @@ import { useState } from "react";
 import Link from "next/link";
 import styles from "./login.module.css";
 
-export default function LoginPage() {
-  const [remember, setRemember] = useState(false);
+export default function PaginaLogin() {
+  const [recordarCuenta, setRecordarCuenta] = useState(false);
 
   return (
-    <div className={styles.page}>
-      {/* Navbar */}
-      <nav className={styles.navbar}>
-        <div className={styles.logo}>
-          <span className={styles.logoIcon}>{"[>_]"}</span>
-          <span className={styles.logoText}>MinCheck</span>
+    <div>
+      {/* Barra de navegación */}
+      <nav className={styles.headerInicio}>
+        <div className={styles.zonaLogo}>
+          <span className={styles.iconoLogo}>{"[>_]"}</span>
+          <span className={styles.tituloLogo}>MinCheck</span>
         </div>
-        <div className={styles.navLinks}>
-          <a href="#">About</a>
-          <a href="#">Help</a>
-          {/* Cambiado de <p> a <Link> para que tenga sentido semántico */}
-          <Link href="/registro" className={styles.signupBtn}>SignUp</Link>
+        <div className={styles.linksNavegar}>
+          <a href="../#caracteristicas">About</a>
+          <Link href="/registro" className={styles.botonRegistro}>SignUp</Link>
         </div>
       </nav>
 
-      {/* Main */}
       <main className={styles.main}>
         <div className={styles.card}>
-          <h1 className={styles.title}>¡BIENVENIDO DE NUEVO!</h1>
-          {/* Form */}
-          <form className={styles.form} onSubmit={(e) => e.preventDefault()}>
-            <div className={styles.field}>
-              <label className={styles.label}>Nombre de usuario</label>
-              {/* 👇 AQUI ESTA EL CAMBIO: cuadranteInput -> inputWrapper */}
-              <div className={styles.inputWrapper}>
-                <span className={styles.inputIcon}>👤</span>
+          <h1 className={styles.tituloLogin}>¡BIENVENIDO DE NUEVO!</h1>
+          {/* Formulario de inicio de sesion*/}
+          <form className={styles.formulario} onSubmit={(e) => e.preventDefault()}>
+            <div >
+              <label className={styles.etiquetaCampo}>Nombre de usuario</label>
+              <div className={styles.grupoInput}>
+                <span className={styles.iconoEntrada}>👤</span>
                 <input
                   type="text"
                   placeholder="Introduce tu nombre de usuario"
-                  className={styles.input}
+                  className={styles.entrada}
                 />
               </div>
             </div>
 
-            <div className={styles.field}>
-              <label className={styles.label}>Contraseña</label>
-              <div className={styles.inputWrapper}>
-                <span className={styles.inputIcon}>🔒</span>
+            <div>
+              <label className={styles.etiquetaCampo}>Contraseña</label>
+              <div className={styles.grupoInput}>
+                <span className={styles.iconoEntrada}>🔒</span>
                 <input
                   type="password"
                   placeholder="Introduce tu contraseña"
-                  className={styles.input}
+                  className={styles.entrada}
                 />
               </div>
             </div>
 
-            <div className={styles.extras}>
-              <label className={styles.checkboxLabel}>
+            <div className={styles.zonaExtra}>
+              <label className={styles.checkboxRecordar}>
                 <input
                   type="checkbox"
-                  checked={remember}
-                  onChange={(e) => setRemember(e.target.checked)}
+                  checked={recordarCuenta}
+                  onChange={(e) => setRecordarCuenta(e.target.checked)}
                   className={styles.checkbox}
                 />
                 Recuérdame
               </label>
-              <a href="#" className={styles.forgotLink}>¿Olvidaste tu contraseña?</a>
+              <a href="#" className={styles.contrasenaOlvidada}>¿Olvidaste tu contraseña?</a>
             </div>
 
-            <button type="submit" className={styles.submitBtn}>
+            <button type="submit" className={styles.botonSubmitLogin}>
               INICIAR SESIÓN
             </button>
           </form>
 
-          {/* Register redirect */}
-          <div className={styles.registerSection}>
-            <p className={styles.registerText}>¿No tienes cuenta todavía?</p>
-            <p className={styles.registerSub}>Crea una y disfruta de MinCheck</p>
-            <Link href="/registro" className={styles.registerBtn}>
+          {/*Si no tienes cuenta, registrate*/}
+          <div className={styles.zonaRegitsrarse}>
+            <p className={styles.textoRegistro}>¿No tienes cuenta todavía?</p>
+            <p className={styles.subtituloRegistro}>Crea una y disfruta de MinCheck</p>
+            <Link href="/registro" className={styles.botonRegistrarse}>
               Registrarse
             </Link>
           </div>

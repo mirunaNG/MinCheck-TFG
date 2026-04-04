@@ -1,6 +1,5 @@
-/* Layout General */
 .layout {
-  display: flex;
+  display: flex; 
   min-height: 100vh;
   font-family: sans-serif;
   color: #e6edf3;

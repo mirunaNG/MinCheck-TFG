@@ -644,19 +644,6 @@
   gap: 15px;
 }
 
-.casosBadge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: #4d7cfe;
-  color: white;
-  font-size: 11px;
-  font-weight: bold;
-  border-radius: 10px;
-  padding: 2px 8px;
-  margin-left: 10px;
-}
-
 .casosAcciones {
   display: flex;
   gap: 10px;
@@ -680,20 +667,17 @@
 }
 
 .casosDescargarBtn {
-  background: transparent;
-  border: 1px solid #1e5c3a;
+  background: #e38500;
   border-radius: 8px;
   padding: 8px 15px;
   font-size: 13px;
   font-weight: bold;
-  color: #4caf50;
   cursor: pointer;
   transition: 0.2s;
 }
 
 .casosDescargarBtn:hover {
-  background-color: #1e5c2d;
-  color: white;
+  background-color: #c47300;
 }
 
 .casosVacio {
@@ -750,15 +734,9 @@
   border-radius: 8px;
   padding: 12px;
   font-size: 13px;
-  font-family: monospace; /* Perfecto para el código */
   color: white;
   margin: 0;
   white-space: pre-wrap;
   word-break: break-word;
   min-height: 50px;
-}
-
-.casoIOPendiente {
-  color: #4a5568;
-  font-style: italic;
 }

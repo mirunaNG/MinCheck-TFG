@@ -83,20 +83,12 @@ export default function DetalleEjercicio({
   }
 
   function handleDescargar() {
-    const contenido = casos
-      .map((c, i) =>
-        `=== Caso ${i + 1} ===\n--- INPUT ---\n${c.input}\n--- OUTPUT ESPERADO ---\n${c.outputEsperado || "(vacío)"}`
-      )
-      .join("\n\n");
-    const blob = new Blob([contenido], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `casos_${ejercicio?.nombre.replace(/\s+/g, "_") ?? ejercicioId}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const contenido = casos.map((c) => `${c.input}\n${c.outputEsperado}`).join("\n\n");
+  const a = document.createElement("a");
+  a.href = "data:text/plain;charset=utf-8," + encodeURIComponent(contenido);
+  a.download = "casos_generados.txt";
+  a.click();
   }
-
   /* ── Entregas para este ejercicio ── */
   const entregasEjercicio = entregas
     .filter((en) => en.ejercicioId === ejercicioId)
@@ -105,9 +97,9 @@ export default function DetalleEjercicio({
       alumnoNombre: usuarios.find((u) => u.id === en.alumnoId)?.nombreCompleto ?? "–",
     }));
 
-  const totalEntregas   = entregasEjercicio.length;
-  const correctas       = entregasEjercicio.filter((e) => e.resultado === "correcto").length;
-  const conErrores      = entregasEjercicio.filter((e) => e.resultado === "incorrecto").length;
+  const totalEntregas = entregasEjercicio.length;
+  const correctas = entregasEjercicio.filter((e) => e.resultado === "correcto").length;
+  const conErrores = entregasEjercicio.filter((e) => e.resultado === "incorrecto").length;
 
   function toggleFeedback(key: keyof ConfigFeedback) {
     setConfigFeedback((configAnterior) => {
@@ -233,7 +225,6 @@ export default function DetalleEjercicio({
                   <div className={styles.casosHeader}>
                     <h2 className={styles.seccionTitulo}>
                       CASOS DE PRUEBA
-                      {casos.length > 0 && <span className={styles.casosBadge}>{casos.length}</span>}
                     </h2>
                     <div className={styles.casosAcciones}>
                       <button className={styles.casosAñadirBtn} onClick={() => setModalAñadir(true)}>
@@ -267,7 +258,7 @@ export default function DetalleEjercicio({
                           <div className={styles.casoIOBloque}>
                             <span className={styles.casoIOLabel}>OUTPUT ESPERADO</span>
                             <pre className={styles.casoIOContent}>
-                              {caso.outputEsperado || <span className={styles.casoIOPendiente}>(pendiente)</span>}
+                              {caso.outputEsperado}
                             </pre>
                           </div>
                         </div>
