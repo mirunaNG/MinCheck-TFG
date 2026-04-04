@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import Sidebar from "../../components/sidebar";
+import AsignaturaCard from "../../components/AsignaturaCard";
 import styles from "./dashProf.module.css";
 import { asignaturasDe, totalAlumnosDe, totalEjerciciosDe } from "../../lib/mockData";
 
@@ -78,19 +79,15 @@ export default function DashboardProfesorPage() {
 
                 {/*Solo se muestran las 4 primeras asignaturas, si hay más se accede a través del enlace "Ver todas" */}
                 {asignaturas.slice(0, 4).map((a) => (
-                  <div key={a.id} className={styles.asignaturaCard} onClick={() => router.push(`/vistaAsignatura/${a.id}`)}>
-                    <div
-                      className={styles.asignaturaImg}
-                      style={{ backgroundColor: a.color }}
-                    >
-                      <span className={styles.asignaturaImgIcon}>📚</span>
-                    </div>
-                    <div className={styles.asignaturaInfo}>
-                      <p className={styles.asignaturaNombre}>{a.nombre}</p>
-                      <p className={styles.asignaturaDetalle}>{a.alumnos} alumnos</p>
-                      <p className={styles.asignaturaDetalle}>{a.ejercicios} ejercicios</p>
-                    </div>
-                  </div>
+                  <AsignaturaCard
+                    key={a.id}
+                    id={a.id}
+                    nombre={a.nombre}
+                    color={a.color}
+                    alumnos={a.alumnos}
+                    ejercicios={a.ejercicios}
+                    onClick={() => router.push(`/vistaAsignatura/${a.id}`)}
+                  />
                 ))}
               </div>
             </div>

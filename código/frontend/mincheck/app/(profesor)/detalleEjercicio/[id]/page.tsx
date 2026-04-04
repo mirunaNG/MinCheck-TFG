@@ -2,6 +2,7 @@
 
 import { use, useState } from "react";
 import Sidebar from "../../../components/sidebar";
+import Tabla from "../../../components/Tabla";
 import styles from "../detalleEj.module.css";
 import { ejercicios, temas, asignaturas, entregas, usuarios, ArchivoEjercicio, CasoPrueba, casosDe } from "../../../lib/mockData";
 
@@ -348,35 +349,34 @@ export default function DetalleEjercicio({
               {entregasEjercicio.length === 0 ? (
                 <p className={styles.sinEntregas}>No hay entregas para este ejercicio todavía.</p>
               ) : (
-                <div className={styles.tabla}>
-                  <div className={styles.tablaHeader}>
-                    <span>Alumno</span>
-                    <span>Fecha</span>
-                    <span>Intentos</span>
-                    <span>Estado</span>
-                    <span>Error Principal</span>
-                  </div>
+                <Tabla
+                  columnas={["Alumno", "Fecha", "Intentos", "Estado", "Error Principal"]}
+                  pie={
+                    <>
+                      <span>Mostrando {entregasEjercicio.length} de {totalEntregas}</span>
+                      <button className={styles.siguienteBtn}>→</button>
+                    </>
+                  }
+                >
                   {entregasEjercicio.map((en) => (
-                    <div key={en.id} className={styles.tablaFila}>
-                      <div className={styles.alumnoCell}>
-                        <span className={styles.alumnoNombre}>{en.alumnoNombre}</span>
-                        <button className={styles.codigoBtn}>código</button>
-                      </div>
-                      <span className={styles.fechaEntrega}>{en.fechaHora}</span>
-                      <span className={styles.intentos}>{en.intentos}</span>
-                      <span className={styles.estadoIcono}>
+                    <tr key={en.id}>
+                      <td>
+                        <div className={styles.alumnoCell}>
+                          <span className={styles.alumnoNombre}>{en.alumnoNombre}</span>
+                          <button className={styles.codigoBtn}>código</button>
+                        </div>
+                      </td>
+                      <td>{en.fechaHora}</td>
+                      <td>{en.intentos}</td>
+                      <td>
                         {en.resultado === "correcto"
                           ? <span className={styles.check}>✓</span>
                           : <span className={styles.cross}>✗</span>}
-                      </span>
-                      <span className={styles.errorPrincipal}>{en.errorPrincipal ?? "–"}</span>
-                    </div>
+                      </td>
+                      <td>{en.errorPrincipal ?? "–"}</td>
+                    </tr>
                   ))}
-                  <div className={styles.tablaPie}>
-                    <span>Mostrando {entregasEjercicio.length} de {totalEntregas}</span>
-                    <button className={styles.siguienteBtn}>→</button>
-                  </div>
-                </div>
+                </Tabla>
               )}
             </div>
           )}
@@ -391,11 +391,11 @@ export default function DetalleEjercicio({
 
                 {(
                   [
-                    { key: "tipoError",               label: "Tipo de error",                     desc: "El 'error tipo' clase de compilación..." },
-                    { key: "lineaFallo",               label: "Línea exacta del fallo",             desc: "Señala la línea donde se produce el error" },
-                    { key: "mensajeExplicativo",       label: "Mensaje explicativo",                desc: "Descripción natural del error" },
-                    { key: "comparacionSalidas",       label: "Comparación de salidas",             desc: "Muestra salida esperada vs obtenida" },
-                    { key: "contraejemplo",            label: "Contraejemplo mínimo",               desc: "La entrada más simple que falla" },
+                    { key: "tipoError", label: "Tipo de error", desc: "El 'error tipo' clase de compilación..." },
+                    { key: "lineaFallo", label: "Línea exacta del fallo", desc: "Señala la línea donde se produce el error" },
+                    { key: "mensajeExplicativo", label: "Mensaje explicativo", desc: "Descripción natural del error" },
+                    { key: "comparacionSalidas", label: "Comparación de salidas", desc: "Muestra salida esperada vs obtenida" },
+                    { key: "contraejemplo", label: "Contraejemplo mínimo", desc: "La entrada más simple que falla" },
                     { key: "visualizacionEstructuras", label: "Visualización de estructuras de datos", desc: "Muestra como evoluciona las estructuras de datos y su contenido" },
                   ] as { key: keyof ConfigFeedback; label: string; desc: string }[]
                 ).map(({ key, label, desc }) => (

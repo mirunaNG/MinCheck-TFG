@@ -55,51 +55,6 @@
   gap: 20px;
 }
 
-.asignaturaCard {
-  background-color: #161b27;
-  border: 1px solid #21283a;
-  border-radius: 10px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: border-color 0.3s, transform 0.3s;
-}
-
-.asignaturaCard:hover {
-  border-color: #4d7cfe;
-  transform: translateY(-3px);
-}
-
-.asignaturaImg {
-  height: 120px;
-  background-color: #1c2230;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.asignaturaImgIcon {
-  font-size: 40px;
-  opacity: 0.5;
-}
-
-.asignaturaInfo {
-  padding: 15px;
-}
-
-.asignaturaNombre {
-  font-size: 15px;
-  font-weight: bold;
-  color: #e6edf3;
-  margin: 0 0 5px 0;
-}
-
-.asignaturaDetalle {
-  font-size: 13px;
-  color: #8b949e;
-  margin: 0;
-  line-height: 1.4;
-}
-
 /* Botón Añadir */
 .addBtn {
   width: 100%;

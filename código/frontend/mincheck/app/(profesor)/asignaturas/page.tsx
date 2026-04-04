@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "../../components/sidebar";
 import Modal from "../../components/Modal";
+import AsignaturaCard from "../../components/AsignaturaCard";
 import styles from "./asignaturasProfesor.module.css";
 import { asignaturasDe, totalAlumnosDe, totalEjerciciosDe } from "../../lib/mockData";
 
@@ -72,19 +73,15 @@ export default function DashboardProfesorPage() {
             <div className={styles.section}>
               <div className={styles.asignaturasGrid}>
                 {asignaturas.map((a) => (
-                  <div key={a.id} className={styles.asignaturaCard} onClick={() => router.push(`/vistaAsignatura/${a.id}`)}>
-                    <div
-                      className={styles.asignaturaImg}
-                      style={{ backgroundColor: a.color }}
-                    >
-                      <span className={styles.asignaturaImgIcon}>📚</span>
-                    </div>
-                    <div className={styles.asignaturaInfo}>
-                      <p className={styles.asignaturaNombre}>{a.nombre}</p>
-                      <p className={styles.asignaturaDetalle}>{a.alumnos} alumnos</p>
-                      <p className={styles.asignaturaDetalle}>{a.ejercicios} ejercicios</p>
-                    </div>
-                  </div>
+                  <AsignaturaCard
+                    key={a.id}
+                    id={a.id}
+                    nombre={a.nombre}
+                    color={a.color}
+                    alumnos={a.alumnos}
+                    ejercicios={a.ejercicios}
+                    onClick={() => router.push(`/vistaAsignatura/${a.id}`)}
+                  />
                 ))}
               </div>
             </div>

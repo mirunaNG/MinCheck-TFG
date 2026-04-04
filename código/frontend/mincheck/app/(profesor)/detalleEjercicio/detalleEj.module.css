@@ -371,38 +371,6 @@
   text-align: center;
 }
 
-.tabla {
-  background-color: #161b27;
-  border: 1px solid #21283a;
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.tablaHeader {
-  display: grid;
-  grid-template-columns: 2fr 1fr 80px 60px 1.5fr;
-  padding: 15px 20px;
-  background-color: #1a2030;
-  font-size: 12px;
-  font-weight: bold;
-  text-transform: uppercase;
-  color: #8b949e;
-  border-bottom: 1px solid #21283a;
-}
-
-.tablaFila {
-  display: grid;
-  grid-template-columns: 2fr 1fr 80px 60px 1.5fr;
-  padding: 15px 20px;
-  border-bottom: 1px solid #1e2a3a;
-  align-items: center;
-  transition: 0.2s;
-}
-
-.tablaFila:last-child {
-  border-bottom: none;
-}
-
 .alumnoCell {
   display: flex;
   flex-direction: column;
@@ -432,21 +400,6 @@
   background-color: #c47300;
 }
 
-.fechaEntrega {
-  font-size: 13px;
-  color: #8b949e;
-}
-
-.intentos {
-  font-size: 14px;
-  color: #e6edf3;
-  text-align: center;
-}
-
-.estadoIcono {
-  text-align: center;
-}
-
 .check {
   font-size: 18px;
   color: #4caf50;
@@ -457,22 +410,6 @@
   font-size: 18px;
   color: #e57373;
   font-weight: bold;
-}
-
-.errorPrincipal {
-  font-size: 13px;
-  color: #8b949e;
-}
-
-.tablaPie {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 15px;
-  padding: 15px;
-  border-top: 1px solid #21283a;
-  font-size: 14px;
-  color: #8b949e;
 }
 
 .siguienteBtn {

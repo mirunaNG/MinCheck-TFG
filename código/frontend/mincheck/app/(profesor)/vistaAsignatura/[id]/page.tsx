@@ -3,14 +3,9 @@
 import { use, useState } from "react";
 import Link from "next/link";
 import Sidebar from "../../../components/sidebar";
+import Tabla from "../../../components/Tabla";
 import styles from "../vistaAsigProf.module.css";
-import {
-  asignaturas,
-  alumnosDe,
-  ejerciciosCompletados,
-  totalEjerciciosDe,
-  ultimasEntregasDe,
-} from "../../../lib/mockData";
+import { asignaturas, alumnosDe, ejerciciosCompletados, totalEjerciciosDe, ultimasEntregasDe } from "../../../lib/mockData";
 
 export default function VistaAsignaturaProfesor({
   params,
@@ -20,7 +15,6 @@ export default function VistaAsignaturaProfesor({
   const { id } = use(params);
   const asignaturaId = Number(id);
 
-  /* toDo: fetch al backend con id */
   const asignatura = asignaturas.find((a) => a.id === asignaturaId);
   const [verTodosAlumnos, setVerTodosAlumnos] = useState(false);
 
@@ -105,17 +99,7 @@ export default function VistaAsignaturaProfesor({
               <div className={styles.cardHeader}>
                 <h2 className={styles.cardTitle}>Últimas entregas</h2>
               </div>
-              <table className={styles.tabla}>
-                <thead>
-                  <tr>
-                    <th>Alumno</th>
-                    <th>Ejercicio</th>
-                    <th>Fecha/Hora</th>
-                    <th>Estado</th>
-                    <th>Revisar</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <Tabla columnas={["Alumno", "Ejercicio", "Fecha/Hora", "Estado", "Revisar"]}>
                   {ultimas.map((e) => (
                     <tr key={e.id}>
                       <td>{e.alumno}</td>
@@ -133,8 +117,7 @@ export default function VistaAsignaturaProfesor({
                       </td>
                     </tr>
                   ))}
-                </tbody>
-              </table>
+              </Tabla>
             </div>
           </div>
 
