@@ -140,7 +140,6 @@ export default function DetalleEjercicio({
             <h1 className={styles.titulo}>{ejercicio.nombre}</h1>
             <p className={styles.subtitulo}>{tema?.nombre}{asignatura ? ` · ${asignatura.nombre}` : ""}</p>
           </div>
-          <button className={styles.estadisticasBtn}>Ver estadística de errores</button>
         </div>
 
         {/* ── Pestañas ── */}

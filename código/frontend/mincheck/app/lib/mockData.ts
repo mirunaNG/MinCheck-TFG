@@ -3,7 +3,6 @@
  * toDo: reemplazar cada función/constante por llamadas fetch al backend.
  */
 
-// ─── Tipos ────────────────────────────────────────────────────────────────────
 export type Rol = "profesor" | "alumno";
 
 export type Usuario = {
@@ -67,8 +66,6 @@ export type Entrega = {
   intentos: number;
   errorPrincipal: string | null;
 };
-
-// ─── Datos ────────────────────────────────────────────────────────────────────
 
 export const usuarios: Usuario[] = [
   // Profesor
@@ -203,7 +200,6 @@ export const casosPrueba: CasoPrueba[] = [
   { id: 24, ejercicioId: 9, input: "5\n1 3 5 7 9\n4", outputEsperado: "-1" },
 ];
 
-// ─── Helpers (sustituirán a llamadas fetch cuando haya backend) ───────────────
 
 /** Asignaturas que imparte un profesor */
 export function asignaturasDe(profesorId: number): Asignatura[] {
@@ -256,6 +252,22 @@ export function ejerciciosCompletados(alumnoId: number, asignaturaId: number): n
 /** Casos de prueba de un ejercicio */
 export function casosDe(ejercicioId: number): CasoPrueba[] {
   return casosPrueba.filter((c) => c.ejercicioId === ejercicioId);
+}
+
+/** Errores más comunes de un ejercicio con su tasa (% sobre total de entregas) */
+export function erroresDe(ejercicioId: number): { error: string; porcentaje: number }[] {
+  const entregasEj = entregas.filter((e) => e.ejercicioId === ejercicioId);
+  const total = entregasEj.length;
+  if (total === 0) return [];
+  const conteo: Record<string, number> = {};
+  for (const e of entregasEj) {
+    if (e.errorPrincipal) {
+      conteo[e.errorPrincipal] = (conteo[e.errorPrincipal] ?? 0) + 1;
+    }
+  }
+  return Object.entries(conteo)
+    .map(([error, count]) => ({ error, porcentaje: Math.round((count / total) * 100) }))
+    .sort((a, b) => b.porcentaje - a.porcentaje);
 }
 
 /** Últimas N entregas de una asignatura, con nombres resueltos */

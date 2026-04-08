@@ -282,3 +282,76 @@
 .botonCancelar:hover {
   background-color: #3a4a62;
 }
+
+
+.statsOverlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.statsCard {
+  background: #aabeff;
+  border-radius: 16px;
+  padding: 32px 36px;
+  width: 420px;
+  max-width: 90vw;
+}
+
+.statsTitulo {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 0 0 24px;
+  color: #000000;
+}
+
+.statsLista {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-bottom: 28px;
+  color: #000000;
+}
+
+.statsFilaLabel {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.statsBarFondo {
+  width: 100%;
+  height: 10px;
+  background: #d0d6ee;
+  border-radius: 999px;
+}
+
+.statsBarRelleno {
+  height: 100%;
+  background: #e38500;
+  border-radius: 999px;
+}
+
+.statsVacio {
+  font-size: 14px;
+  margin-bottom: 28px;
+  color: #000000;
+}
+.statsBtnCerrar {
+  display: block;
+  margin: auto;
+  width: 50%;
+  background: #4846e0;
+  color: white;
+  border-radius: 20px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.statsBtnCerrar:hover {
+  background: #331fd0;
+}

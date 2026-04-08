@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Sidebar from "../../../components/sidebar";
 import Modal from "../../../components/Modal";
 import styles from "../gestionMat.module.css";
-import { asignaturas, temasDe, ejerciciosDeTema, totalAlumnosDe } from "../../../lib/mockData";
+import { asignaturas, temasDe, ejerciciosDeTema, totalAlumnosDe, erroresDe } from "../../../lib/mockData";
 
 type EjercicioUI = {
   id: number;
@@ -24,6 +24,8 @@ type TemaUI = {
 const COLORES_TEMA = ["#e38500", "#4caf50", "#4d7cfe", "#e53935", "#ab47bc", "#f9ca24", "#26c6da"];
 
 type ModalTipo = "ejercicio" | "tema" | null;
+
+type StatsEj = { id: number; nombre: string } | null;
 
 export default function GestionMaterial({
   params,
@@ -60,6 +62,9 @@ export default function GestionMaterial({
 
   /*Estado modal*/
   const [modalAbierto, setModalAbierto] = useState<ModalTipo>(null);
+
+  /* Estado popup estadísticas */
+  const [statsEj, setStatsEj] = useState<StatsEj>(null);
 
   /* Estado formulario nuevo ejercicio*/
   const [temaSeleccionado, setTemaSeleccionado] = useState<number>(temasIniciales()[0]?.id ?? 0);
@@ -174,7 +179,11 @@ export default function GestionMaterial({
                       >
                         {ej.entregas} entregas
                       </span>
-                      <Link href={`/estadisticas/${ej.id}`} className={styles.botonIcono}> 📊 </Link>
+                      <button
+                          className={styles.botonIcono}
+                          onClick={() => setStatsEj({ id: ej.id, nombre: ej.nombre })}
+                          title="Ver estadísticas"
+                        >📊</button>
                       <Link href={`/detalleEjercicio/${ej.id}`} className={styles.botonIcono}> ✎ </Link>
                       <button
                         className={styles.botonIcono}
@@ -324,6 +333,38 @@ export default function GestionMaterial({
           </div>
         </Modal>
       )}
+
+      {/* Popup estadísticas de errores */}
+      {statsEj && (() => {
+        const errores = erroresDe(statsEj.id);
+        return (
+          <div className={styles.statsOverlay} onClick={() => setStatsEj(null)}>
+            <div className={styles.statsCard} onClick={(e) => e.stopPropagation()}>
+              <p className={styles.statsTitulo}>Estadísticas de errores en {statsEj.nombre}</p>
+              {errores.length === 0 ? (
+                <p className={styles.statsVacio}>No hay errores registrados para este ejercicio.</p>
+              ) : (
+                <div className={styles.statsLista}>
+                  {errores.map(({ error, porcentaje }) => (
+                    <div key={error}>
+                      <div className={styles.statsFilaLabel}>
+                        <span>{error}</span>
+                        <span>{porcentaje}%</span>
+                      </div>
+                      <div className={styles.statsBarFondo}>
+                        <div className={styles.statsBarRelleno} style={{ width: `${porcentaje}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <button className={styles.statsBtnCerrar} onClick={() => setStatsEj(null)}>
+                Cerrar
+              </button>
+            </div>
+          </div>
+        );
+      })()}
 
     </div>
   );

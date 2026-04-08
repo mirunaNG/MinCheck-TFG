@@ -34,23 +34,6 @@
   margin: 0;
 }
 
-.estadisticasBtn {
-  background-color: #e38500;
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  padding: 12px 20px;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: 0.2s;
-}
-
-.estadisticasBtn:hover {
-  background-color: #c47300;
-}
-
 /* Pestañas */
 .tabs {
   display: flex;
