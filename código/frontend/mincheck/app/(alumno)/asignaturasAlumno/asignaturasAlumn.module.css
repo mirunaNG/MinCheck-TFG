@@ -1,0 +1,132 @@
+.layout {
+  display: flex; 
+  min-height: 100vh;
+  font-family: sans-serif;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 30px;
+  border-bottom: 1px solid #1e2a3a;
+}
+.bienvenida {
+  font-size: 24px;
+  font-weight: bold;
+  color: #e6edf3;
+  margin: 0;
+}
+
+.contenidoPagina {
+  display: flex;
+  gap: 20px;
+  padding: 30px;
+  flex: 1;
+}
+.ladoIzquierdo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+.ladoDerecho {
+  width: 300px;
+}
+
+.asignaturasGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.botonAñadir {
+  width: 100%;
+  padding: 12px;
+  background-color: #e38500;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.botonAñadir:hover {
+  background-color: #c47300;
+}
+
+.grupoFormulario {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.grupoFormulario label {
+  font-size: 13px;
+  color: #8b949e;
+  font-weight: bold;
+}
+.grupoFormulario input {
+  padding: 10px;
+  background-color: #0b0f1a;
+  border: 1px solid #21283a;
+  border-radius: 10px;
+  transition: border-color 0.2s;
+}
+.grupoFormulario input:focus {
+  border-color: #4d7cfe;
+}
+
+.accionesModal {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 10px;
+}
+.botonCancelar {
+  padding: 10px 20px;
+  background-color: transparent;
+  border: 1px solid #4d7cfe;
+  color: #4d7cfe;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+}
+.botonCancelar:hover {
+  background-color: #4d7cfe;
+}
+.botonAñadir {
+  padding: 10px 20px;
+  background-color: #e38500;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+}
+.botonAñadir:hover {
+  background-color: #c47300;
+}
+
+.mensajeError {
+  font-size: 12px;
+  color: #f85149;
+  margin-top: 4px;
+}
+.botonGuardar {
+  width: 100%;
+  padding: 10px;
+  background-color: #4d7cfe;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+}
+.botonGuardar:hover {
+  background-color: #3a65e0;
+}

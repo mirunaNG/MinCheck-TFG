@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import Sidebar from "../../components/sidebar";
 import AsignaturaCard from "../../components/AsignaturaCard";
 import styles from "./dashProf.module.css";
-import { asignaturasDe, totalAlumnosDe, totalEjerciciosDe } from "../../lib/mockData";
+import { asignaturasDe, totalAlumnosDe, totalEjerciciosDe, usuarios} from "../../lib/mockData";
 
 // toDo: id del profesor autenticado vendrá de la sesión
 const PROFESOR_ID = 1;
@@ -34,7 +34,7 @@ export default function PaginaDashboardProfesor() {
 
       <main className={styles.main}>
         <header className={styles.encabezado}>
-          <h1 className={styles.bienvenida}>Hola, Prof. García</h1>
+          <h1 className={styles.bienvenida}>Hola {usuarios.find((u) => u.id === PROFESOR_ID)?.nombreCompleto} </h1>
           {/*Ya veré si añadir el boton de las notificaciones, de momento -> trabajo futuro */}
         </header>
 

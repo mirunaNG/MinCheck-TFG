@@ -106,7 +106,8 @@ export const matriculas: Matricula[] = [
   { alumnoId: 6,  asignaturaId: 2 },
   { alumnoId: 7,  asignaturaId: 2 },
   { alumnoId: 10, asignaturaId: 2 },
-  // Asignatura 3 – 3 alumnos
+  // Asignatura 3 – 3 alumnos + alumno 2 (demo)
+  { alumnoId: 2,  asignaturaId: 3 },
   { alumnoId: 11, asignaturaId: 3 },
   { alumnoId: 12, asignaturaId: 3 },
   { alumnoId: 13, asignaturaId: 3 },
@@ -165,6 +166,19 @@ export const entregas: Entrega[] = [
   { id: 14, alumnoId: 11, ejercicioId: 14, resultado: "correcto",   fechaHora: "Hoy, 12:00",  intentos: 1, errorPrincipal: null                  },
   { id: 15, alumnoId: 12, ejercicioId: 15, resultado: "incorrecto", fechaHora: "Hoy, 08:45",  intentos: 3, errorPrincipal: "Syntax error"          },
   { id: 16, alumnoId: 13, ejercicioId: 16, resultado: "correcto",   fechaHora: "Ayer, 16:00", intentos: 2, errorPrincipal: null                  },
+  // ── Alumno 2 (Juan) – más entregas para demo ──
+  { id: 17, alumnoId: 2,  ejercicioId: 2,  resultado: "correcto",   fechaHora: "Hoy, 13:25",  intentos: 4, errorPrincipal: null                  },
+  { id: 18, alumnoId: 2,  ejercicioId: 4,  resultado: "incorrecto", fechaHora: "Hoy, 12:00",  intentos: 3, errorPrincipal: "Wrong output"          },
+  { id: 19, alumnoId: 2,  ejercicioId: 5,  resultado: "correcto",   fechaHora: "Jue, 18:20",  intentos: 1, errorPrincipal: null                  },
+  { id: 20, alumnoId: 2,  ejercicioId: 6,  resultado: "incorrecto", fechaHora: "Mie, 10:30",  intentos: 2, errorPrincipal: "Time limit exceeded"   },
+  { id: 21, alumnoId: 2,  ejercicioId: 9,  resultado: "incorrecto", fechaHora: "Mie, 11:15",  intentos: 1, errorPrincipal: "Wrong output"          },
+  { id: 22, alumnoId: 2,  ejercicioId: 10, resultado: "correcto",   fechaHora: "Mie, 13:30",  intentos: 2, errorPrincipal: null                  },
+  { id: 23, alumnoId: 2,  ejercicioId: 7,  resultado: "incorrecto", fechaHora: "Ayer, 20:30", intentos: 2, errorPrincipal: "Runtime error"         },
+  { id: 24, alumnoId: 2,  ejercicioId: 3,  resultado: "correcto",   fechaHora: "Jue, 16:30",  intentos: 1, errorPrincipal: null                  },
+  // ── Alumno 2 en Bases de datos (asignatura 3) ──
+  { id: 25, alumnoId: 2,  ejercicioId: 14, resultado: "correcto",   fechaHora: "Hoy, 16:30",  intentos: 1, errorPrincipal: null                  },
+  { id: 26, alumnoId: 2,  ejercicioId: 16, resultado: "correcto",   fechaHora: "Mar, 18:30",  intentos: 1, errorPrincipal: null                  },
+  { id: 27, alumnoId: 2,  ejercicioId: 15, resultado: "incorrecto", fechaHora: "Mar, 17:43",  intentos: 2, errorPrincipal: "Syntax error"          },
 ];
 
 export const casosPrueba: CasoPrueba[] = [
@@ -204,6 +218,32 @@ export const casosPrueba: CasoPrueba[] = [
 /** Asignaturas que imparte un profesor */
 export function asignaturasDe(profesorId: number): Asignatura[] {
   return asignaturas.filter((a) => a.profesorId === profesorId);
+}
+
+/** Asignaturas en las que está matriculado un alumno */
+export function asignaturasDeAlumno(alumnoId: number): Asignatura[] {
+  const ids = matriculas
+    .filter((m) => m.alumnoId === alumnoId)
+    .map((m) => m.asignaturaId);
+  return asignaturas.filter((a) => ids.includes(a.id));
+}
+
+/** Últimas N entregas de un alumno con el nombre del ejercicio */
+export function ultimasEntregasDeAlumno(
+  alumnoId: number,
+  limit = 4
+): { id: number; ejercicio: string; resultado: ResultadoEntrega; errorPrincipal: string | null; fechaHora: string }[] {
+  return entregas
+    .filter((e) => e.alumnoId === alumnoId)
+    .slice(-limit)
+    .reverse()
+    .map((e) => ({
+      id:            e.id,
+      ejercicio:     ejercicios.find((ej) => ej.id === e.ejercicioId)?.nombre ?? "–",
+      resultado:     e.resultado,
+      errorPrincipal: e.errorPrincipal,
+      fechaHora:     e.fechaHora,
+    }));
 }
 
 /** Alumnos matriculados en una asignatura */
@@ -247,6 +287,26 @@ export function ejerciciosCompletados(alumnoId: number, asignaturaId: number): n
   return entregas.filter(
     (en) => en.alumnoId === alumnoId && ejercicioIds.includes(en.ejercicioId) && en.resultado === "correcto"
   ).length;
+}
+
+/** Todas las entregas de un alumno agrupadas por asignatura */
+export function entregasAgrupadasPorAsignatura(
+  alumnoId: number
+): { asignatura: Asignatura; entregas: { id: number; ejercicio: string; resultado: ResultadoEntrega; fechaHora: string }[] }[] {
+  const misAsignaturas = asignaturasDeAlumno(alumnoId);
+  return misAsignaturas.map((asig) => {
+    const temaIds = temas.filter((t) => t.asignaturaId === asig.id).map((t) => t.id);
+    const ejercicioIds = ejercicios.filter((e) => temaIds.includes(e.temaId)).map((e) => e.id);
+    const misEntregas = entregas
+      .filter((en) => en.alumnoId === alumnoId && ejercicioIds.includes(en.ejercicioId))
+      .map((en) => ({
+        id:        en.id,
+        ejercicio: ejercicios.find((ej) => ej.id === en.ejercicioId)?.nombre ?? "–",
+        resultado: en.resultado,
+        fechaHora: en.fechaHora,
+      }));
+    return { asignatura: asig, entregas: misEntregas };
+  }).filter((grupo) => grupo.entregas.length > 0);
 }
 
 /** Casos de prueba de un ejercicio */

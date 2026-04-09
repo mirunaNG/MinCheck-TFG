@@ -110,9 +110,14 @@ export default function PaginaRegistro() {
               </div>
             )}
 
-            <button type="submit" className={styles.botonSubmitRegistro}>
+            {/* <button type="submit" className={styles.botonSubmitRegistro}>
               REGISTRARSE
-            </button>
+            </button> */}
+            {/*Para probar ahora: el boton redirige al dashboard según el rol */}
+             <Link href={rol === "profesor" ? "/dashboard" : "/dashboardAlumno"} className={styles.botonSubmitRegistro}>
+              REGISTRARSE
+            </Link>
+
           </form>
         </div>
       </main>

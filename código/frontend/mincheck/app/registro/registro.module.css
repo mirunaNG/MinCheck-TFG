@@ -150,10 +150,9 @@
 
 .botonSubmitRegistro {
   width: 100%;
+  text-align: center;
   padding: 12px;
   background-color: #4d7cfe;
-  color: white;
-  border: none;
   border-radius: 10px;
   font-size: 15px;
   font-weight: bold;

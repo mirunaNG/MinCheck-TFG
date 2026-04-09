@@ -4,11 +4,12 @@ type Props = {
   columnas: string[];
   children: React.ReactNode;
   pie?: React.ReactNode; // opcional, pie de tabla
+  className?: string;
 };
 
-export default function Tabla({ columnas, children, pie }: Props) {
+export default function Tabla({ columnas, children, pie, className }: Props) {
   return (
-    <div className={styles.contenedorTabla}>
+    <div className={`${styles.contenedorTabla}${className ? ` ${className}` : ""}`}>
       <table className={styles.listaDatos}>
         <thead>
           <tr>

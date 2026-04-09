@@ -1,0 +1,63 @@
+.layout {
+  display: flex;
+  min-height: 100vh;
+  font-family: sans-serif;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.encabezado {
+  padding: 28px 30px 20px;
+  border-bottom: 1px solid #1e2a3a;
+}
+
+.titulo {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.contenido {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 28px 30px;
+}
+
+.bloqueAsignatura {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #21283a;
+}
+
+.cabeceraAsignatura {
+  padding: 14px 20px;
+}
+
+.nombreAsignatura {
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.circulo {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+
+.reintentar {
+  font-size: 13px;
+  color: #8b949e;
+  cursor: pointer;
+}
+
+.reintentar:hover {
+  color: #e6edf3;
+  text-decoration: underline;
+}
