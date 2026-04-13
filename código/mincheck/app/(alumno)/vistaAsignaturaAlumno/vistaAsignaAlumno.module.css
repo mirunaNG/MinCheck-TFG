@@ -23,7 +23,6 @@
   gap: 25px;
   padding: 0 30px 30px;
   flex: 1;
-  align-items: flex-start;
 }
 
 .columnaIzquierda {
@@ -35,7 +34,6 @@
 
 .columnaDerecha {
   width: 220px;
-  position: sticky;
   top: 20px;
 }
 
@@ -92,8 +90,7 @@
 }
 
 .ejercicioCard {
-  background-color: #161b27;
-  border: 1px solid #21283a;
+  background-color: #313b54;
   border-radius: 10px;
   padding: 15px;
   display: flex;
@@ -124,7 +121,7 @@
   color: #8b949e;
 }
 
-.btnReintentar {
+.botonReintentar {
   background-color: #62141b;
   color: #f44336;
   font-size: 12px;
@@ -133,11 +130,11 @@
   padding: 4px 8px;
   border-radius: 10px;
 }
-.btnReintentar:hover {
+.botonReintentar:hover {
   background-color: #85151e;
 }
 
-.btnIntentar {
+.botonIntentar {
   background-color: #664422;
   color: #e38500;
   font-size: 12px;
@@ -146,13 +143,12 @@
   padding: 4px 8px;
   border-radius: 10px;
 }
-.btnIntentar:hover {
+.botonIntentar:hover {
   background-color: #6a3e13;
 }
 
 .rankingCard {
-  background-color: #161b27;
-  border: 1px solid #21283a;
+  background-color: #313b54;
   border-radius: 12px;
   padding: 20px;
   display: flex;

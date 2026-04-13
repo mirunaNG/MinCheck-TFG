@@ -20,7 +20,6 @@
 .titulo {
   font-size: 26px;
   font-weight: bold;
-  color: #e6edf3;
   margin: 0 0 5px;
 }
 
@@ -30,7 +29,6 @@
   margin: 0;
 }
 
-/* Pestañas */
 .tabs {
   display: flex;
   padding: 0 30px;
@@ -62,7 +60,6 @@
   border-bottom-color: #e6edf3;
 }
 
-/* Contenido */
 .content {
   padding: 30px;
   flex: 1;
@@ -188,7 +185,6 @@
   display: none;
 }
 
-/* Configuración */
 .configuracionCard {
   background-color: #161b27;
   border: 1px solid #21283a;
@@ -254,7 +250,6 @@
   background-color: #22703f;
 }
 
-/* Toggle Switch Manual */
 .toggle {
   position: relative;
   width: 46px;
@@ -292,7 +287,6 @@
   gap: 20px;
 }
 
-/* Tarjetas de resumen */
 .statsRow {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -342,7 +336,6 @@
   color: #8b949e;
 }
 
-/* Tabla */
 .sinEntregas {
   color: #8b949e;
   font-size: 15px;
@@ -404,7 +397,6 @@
   color: #e6edf3;
 }
 
-/* Feedback y Pistas */
 .feedbackLayout {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -516,7 +508,6 @@
   text-align: right;
 }
 
-/* Modal */
 .modalOverlay {
   position: fixed;
   top: 0;
@@ -615,7 +606,6 @@
   transition: 0.2s;
 }
 
-/* ── Casos ── */
 .casosHeader {
   display: flex;
   align-items: center;

@@ -1,0 +1,245 @@
+.layout {
+  display: flex;
+  font-family: sans-serif;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.encabezado {
+  padding: 30px 30px 15px;
+}
+
+.titulo {
+  font-size: 26px;
+  font-weight: bold;
+  margin: 0 0 6px;
+}
+
+.subtitulo {
+  font-size: 12px;
+  font-weight: bold;
+  color: #8b949e;
+  margin: 0 0 14px;
+  letter-spacing: 1px;
+}
+
+.instruccion {
+  font-size: 14px;
+  color: #c9d1d9;
+}
+
+.contenido {
+  display: flex;
+  gap: 20px;
+  padding: 0 30px 30px;
+}
+
+.columnaIzquierda {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.editorCard {
+  background-color: #1e2a45;
+  border: 1px solid #2e3a55;
+  border-radius: 10px;
+  overflow: hidden;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.editorHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background-color: #19233a;
+  border-bottom: 1px solid #2e3a55;
+}
+
+.nombreArchivo {
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.editorAcciones {
+  display: flex;
+  align-items: center;
+}
+
+.botonEnviar {
+  background-color: #2e3a55;
+  border-radius: 10px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.botonEnviar:hover {
+  background-color: #3a4a6a;
+}
+
+.codigoArea {
+  padding: 20px;
+  font-size: 13px;
+  line-height: 1.6;
+  font-family: "Courier New", monospace;
+  min-height: 500px;
+}
+
+.zonaArchivo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 20px;
+  border: 2px dashed #3a4a6a;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.zonaArchivo:hover {
+  border-color: #5a7aaa;
+  background-color: #161e30;
+}
+
+.inputOculto {
+  display: none;
+}
+
+.iconoClip {
+  font-size: 26px;
+  opacity: 0.6;
+}
+
+.dropTexto {
+  font-size: 14px;
+  color: #8b949e;
+  margin: 0;
+  text-align: center;
+}
+
+.dropDestacado {
+  color: #c9d1d9;
+  font-weight: bold;
+}
+
+.dropSubtexto {
+  font-size: 12px;
+  color: #6a7480;
+  margin: 0;
+}
+
+.columnaDerecha {
+  width: 320px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: sticky;
+  top: 20px;
+}
+
+.card {
+  background-color: #161b27;
+  border: 1px solid #21283a;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cardTitulo {
+  font-size: 13px;
+  font-weight: bold;
+  text-align: center;
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+.pdfRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.pdfNombre {
+  background-color: #2a3450;
+  color: #c9d1d9;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 6px 12px;
+  border-radius: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 170px;
+}
+
+.btnDescargar {
+  background: none;
+  border: none;
+  color: #8b949e;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btnDescargar:hover {
+  color: #c9d1d9;
+}
+
+.sinContenido {
+  font-size: 13px;
+  color: #8b949e;
+  text-align: center;
+  margin: 20px 0;
+}
+
+.intentosList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.intentoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #21283a;
+}
+
+.intentoItem:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.intentoEstado {
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.intentoFecha {
+  font-size: 12px;
+  color: #6a7480;
+}
+
+.intentoError {
+  font-size: 12px;
+  color: #f44336;
+}

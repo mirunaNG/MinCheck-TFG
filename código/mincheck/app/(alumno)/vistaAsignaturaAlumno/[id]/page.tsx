@@ -1,6 +1,7 @@
 "use client";
 
 import { use } from "react";
+import { useRouter } from "next/navigation";
 import Sidebar from "../../../components/sidebar";
 import styles from "../vistaAsignaAlumno.module.css";
 import {asignaturas, temasDe, ejercicios, entregas, alumnosDe, ejerciciosCompletados} from "../../../lib/mockData";
@@ -13,6 +14,7 @@ export default function VistaAsignaturaAlumno({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  const router = useRouter();
   const asignaturaId = Number(id);
 
   const asignatura = asignaturas.find((a) => a.id === asignaturaId);
@@ -75,7 +77,6 @@ export default function VistaAsignaturaAlumno({
         <h1 className={styles.titulo}>{asignatura.nombre.toUpperCase()}</h1>
 
         <div className={styles.contenido}>
-          {/* Columna izquierda: temas y ejercicios */}
           <div className={styles.columnaIzquierda}>
             {temasConEjercicios.map((tema) => (
               <section key={tema.id} className={styles.seccionTema}>
@@ -146,9 +147,10 @@ export default function VistaAsignaturaAlumno({
                           <button
                             className={
                               ej.estado === "incorrecto"
-                                ? styles.btnReintentar
-                                : styles.btnIntentar
+                                ? styles.botonReintentar
+                                : styles.botonIntentar
                             }
+                            onClick={() => router.push(`/intentarEjercicio/${ej.id}`)}
                           >
                             {ej.estado === "incorrecto"
                               ? "REINTENTAR →"
@@ -163,7 +165,6 @@ export default function VistaAsignaturaAlumno({
             ))}
           </div>
 
-          {/* Columna derecha: ranking */}
           <div className={styles.columnaDerecha}>
             <div className={styles.rankingCard}>
               <h3 className={styles.rankingTitulo}>RANKING DE LA CLASE</h3>
