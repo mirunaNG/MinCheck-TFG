@@ -1,0 +1,27 @@
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager
+from config import ConfiguracionFlask
+
+db = SQLAlchemy()
+login_manager = LoginManager()
+jwt = JWTManager()
+
+
+def create_app() -> Flask:
+    app = Flask(__name__)
+    app.config.from_object(ConfiguracionFlask())
+
+    CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
+
+    db.init_app(app)
+    login_manager.init_app(app)
+    jwt.init_app(app)
+
+    with app.app_context():
+        from app import modelos
+        from app import rutas
+        rutas.registrar_rutas(app)
+    return app
