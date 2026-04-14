@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import {useState, useEffect} from "react";
 import { usePathname } from "next/navigation";
 import styles from "./sidebar.module.css";
 
@@ -26,15 +27,21 @@ export default function Sidebar({ rol }: { rol: TipoRol }) {
   const rutaActual = usePathname(); 
   const menuParaMostrar = rutasSegunRol[rol];
 
+  const [nombre, setNombre] = useState("");
+
+  useEffect(() => {
+    setNombre(localStorage.getItem("nombre") || "");
+  }, []);
+
   return (
     <aside className={styles.menuLateral}>
       <Link href="/" className={styles.logo}>MinCheck</Link>
 
       <div className={styles.perfilUsuario}>
         <div className={styles.fotoPerfil}>
-          <span className={styles.siglasAvatar}>PG</span>
+          <span className={styles.siglasAvatar}>{nombre.slice(0,2).toLocaleUpperCase()}</span>
         </div>
-        <span className={styles.nombreUsuario}>Prof. García</span>
+        <span className={styles.nombreUsuario}>{nombre}</span>
       </div>
 
       <nav className={styles.listaEnlaces}>

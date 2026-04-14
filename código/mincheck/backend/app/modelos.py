@@ -14,7 +14,7 @@ class Usuario(db.Model):
     correo: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
     contrasena_hash: Mapped[str] = mapped_column(String(256), nullable=False)
     rol: Mapped[str] = mapped_column(Text, nullable=False)
-    fecha_registro: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime, nullable=True)
+    fecha_creacion: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime, nullable=True)
 
     # Relaciones: un usuario puede ser profesor de muchas asignaturas,
     # estar matriculado en muchas asignaturas y tener muchas entregas

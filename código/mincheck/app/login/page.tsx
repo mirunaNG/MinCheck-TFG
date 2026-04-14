@@ -1,11 +1,59 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, use } from "react";
 import Link from "next/link";
 import styles from "./login.module.css";
+import { useRouter } from "next/navigation";
 
 export default function PaginaLogin() {
   const [recordarCuenta, setRecordarCuenta] = useState(false);
+  const router = useRouter();
+  const [correo, setCorreo] = useState("");
+  const [contrasena, setContrasena] = useState("");
+  const [error, setError] = useState("");
+  const [cargando, setCargando] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const rol = localStorage.getItem("rol");
+    
+    if (token && rol) {
+      router.push(rol === "profesor" ? "/dashboard" : "/dashboardAlumno");
+    }
+  }, []);
+
+  async function handleSubmit(e : {preventDefault(): void}){
+    e.preventDefault();
+    setError("");
+    setCargando(true);
+
+    try{
+      const respuesta = await fetch("http://localhost:5001/login", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({correo, contrasena}),
+      });
+
+      const datos = await respuesta.json();
+
+      if (!respuesta.ok){
+        setError(datos.mensaje);
+        return;
+      }
+
+      const storage = recordarCuenta ? localStorage : sessionStorage;
+      storage.setItem("token", datos.token);
+      storage.setItem("rol", datos.rol);
+      storage.setItem("nombre", datos.nombre);
+      storage.setItem("id", String(datos.id));
+
+      router.push(datos.rol === "profesor" ? "/dashboard" : "/dashboardAlumno");
+    } catch {
+        setError("No se pudo conectar con el servidor");
+    } finally {
+        setCargando(false);
+    }
+  }
 
   return (
     <div>
@@ -25,14 +73,16 @@ export default function PaginaLogin() {
         <div className={styles.card}>
           <h1 className={styles.tituloLogin}>¡BIENVENIDO DE NUEVO!</h1>
           {/* Formulario de inicio de sesion*/}
-          <form className={styles.formulario} onSubmit={(e) => e.preventDefault()}>
+          <form className={styles.formulario} onSubmit={handleSubmit}>
             <div >
               <label className={styles.etiquetaCampo}>Nombre de usuario</label>
               <div className={styles.grupoInput}>
                 <span className={styles.iconoEntrada}>👤</span>
                 <input
-                  type="text"
-                  placeholder="Introduce tu nombre de usuario"
+                  type="email"
+                  value={correo}
+                  onChange={(e) => setCorreo(e.target.value)}
+                  placeholder="Introduce tu correo"
                   className={styles.entrada}
                 />
               </div>
@@ -44,6 +94,8 @@ export default function PaginaLogin() {
                 <span className={styles.iconoEntrada}>🔒</span>
                 <input
                   type="password"
+                  value={contrasena}
+                  onChange={(e) => setContrasena(e.target.value)}
                   placeholder="Introduce tu contraseña"
                   className={styles.entrada}
                 />
@@ -63,8 +115,10 @@ export default function PaginaLogin() {
               <a href="#" className={styles.contrasenaOlvidada}>¿Olvidaste tu contraseña?</a>
             </div>
 
-            <button type="submit" className={styles.botonSubmitLogin}>
-              INICIAR SESIÓN
+            {error && <p style={{ color: "red" }}>{error}</p>}
+
+            <button type="submit" className={styles.botonSubmitLogin} disabled={cargando}>
+              {cargando ? "Iniciando sesion..." : "INICIAR SESIÓN"}
             </button>
           </form>
 

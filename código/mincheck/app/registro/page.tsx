@@ -1,13 +1,66 @@
 "use client";
 
-import { useState } from "react";
+import{ useState } from "react";
+import { useRouter } from "next/navigation";  //porque usamos /app
 import Link from "next/link";
 import styles from "./registro.module.css";
 
 type Rol = "estudiante" | "profesor";
 
 export default function PaginaRegistro() {
+  /*Cada campo del formulario necesita un sitio en memoria donde guardar lo que el usuario escribe.
+  cuando el usuario escribe, se llama al set con el nuevo valor */
   const [rol, setRol] = useState<Rol>("estudiante");
+  const router = useRouter();
+  const [nombre, setNombre] = useState("");
+  const [correo, setCorreo] = useState("");
+  const [contrasena, setContrasena] = useState("");
+  const [repetirContrasena, setRepetirContrasena] = useState("");
+  
+  /*para mostrar mensaje de error o desactivar el boton mientras carga */
+  const [error, setError] = useState("");
+  const [cargando, setCargando] = useState(false);
+
+  /*async obligatorio porque se usa await dentro de la funcion */
+  async function handleSubmit(e: {preventDefault():void}) {
+    e.preventDefault();
+    setError("");
+
+    if (contrasena !== repetirContrasena) {
+      setError("Las contraseñas no coinciden");
+      return;
+    }
+    
+    setCargando(true);
+    /*manda los datos del formulario al backend de Flask */
+    /*se usa await para esperar la respuesta del servidor */
+    try{
+      const respuesta = await fetch("http://localhost:5001/registro", {
+        method: "POST",
+        headers:{"Content-Type": "application/json"}, //le decimos al servidor que enviamos JSONs
+        body: JSON.stringify({nombre, correo, contrasena, rol}), //convertir datos a JSON
+      });
+
+      const datos = await respuesta.json();
+
+      if(!respuesta.ok){
+        setError(datos.mensaje || "Error al registrarse");
+        return;
+      }
+
+      localStorage.setItem("token", datos.token);
+      localStorage.setItem("rol", datos.rol);
+      localStorage.setItem("nombre", datos.nombre);
+      localStorage.setItem("id", String(datos.id));
+
+      router.push(rol === "profesor" ? "/dashboard" : "/dashboardAlumno");
+    } catch {
+      setError("No se pudo conectar con el servidor");
+    } finally {
+      setCargando(false);
+    }
+  }
+
 
   return (
     <div>
@@ -46,7 +99,7 @@ export default function PaginaRegistro() {
           </div>
 
           {/* Form */}
-          <form className={styles.formulario} onSubmit={(e) => e.preventDefault()}>
+          <form className={styles.formulario} onSubmit={handleSubmit}>
             <div className={styles.campoForm}>
               <label className={styles.etiquetaCampo}>Nombre de usuario</label>
               <div className={styles.grupoInput}>
@@ -54,6 +107,8 @@ export default function PaginaRegistro() {
                 <input
                   type="text"
                   placeholder="Introduce tu nombre de usuario"
+                  value = {nombre}
+                  onChange={(e) => setNombre(e.target.value)}
                   className={styles.entrada}
                 />
               </div>
@@ -66,6 +121,8 @@ export default function PaginaRegistro() {
                 <input
                   type="email"
                   placeholder="Introduce tu correo"
+                  value = {correo}
+                  onChange={(e) => setCorreo(e.target.value)}
                   className={styles.entrada}
                 />
               </div>
@@ -78,6 +135,8 @@ export default function PaginaRegistro() {
                 <input
                   type="password"
                   placeholder="Introduce tu contraseña"
+                  value = {contrasena}
+                  onChange={(e) => setContrasena(e.target.value)}
                   className={styles.entrada}
                 />
               </div>
@@ -90,6 +149,8 @@ export default function PaginaRegistro() {
                 <input
                   type="password"
                   placeholder="Repite tu contraseña"
+                  value = {repetirContrasena}
+                  onChange={(e) => setRepetirContrasena(e.target.value)}
                   className={styles.entrada}
                 />
               </div>
@@ -109,14 +170,12 @@ export default function PaginaRegistro() {
                 </div>
               </div>
             )}
+            
+            {error && <p style={{ color: "red" }}>{error}</p>}
 
-            {/* <button type="submit" className={styles.botonSubmitRegistro}>
-              REGISTRARSE
-            </button> */}
-            {/*Para probar ahora: el boton redirige al dashboard según el rol */}
-             <Link href={rol === "profesor" ? "/dashboard" : "/dashboardAlumno"} className={styles.botonSubmitRegistro}>
-              REGISTRARSE
-            </Link>
+            <button type="submit" className={styles.botonSubmitRegistro} disabled={cargando}>
+              {cargando ? "Registrando..." : "REGISTRARSE"}
+            </button>
 
           </form>
         </div>

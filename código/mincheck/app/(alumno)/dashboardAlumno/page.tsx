@@ -1,30 +1,38 @@
 "use client";
 
+import {useState, useEffect} from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "../../components/sidebar";
 import AsignaturaCard from "../../components/AsignaturaCard";
 import styles from "./dashAlumn.module.css";
 import {asignaturasDeAlumno, ultimasEntregasDeAlumno, usuarios} from "../../lib/mockData";
 
-// toDo: id del alumno autenticado vendrá de la sesión
-const ALUMNO_ID = 2;
-
-const asignaturas = asignaturasDeAlumno(ALUMNO_ID).map((a) => ({
-  ...a,
-  profesor: usuarios.find((u) => u.id === a.profesorId)?.nombreCompleto ?? "–",
-}));
-
-const ultimasEntregas = ultimasEntregasDeAlumno(ALUMNO_ID, 4);
 
 export default function PaginaDashboardAlumno() {
   const router = useRouter();
+  const [ALUMNO_ID, setAlumnoId] = useState(0);
+  const [nombre, setNombre] = useState("");
+
+  useEffect(() => {
+    setAlumnoId(Number(localStorage.getItem("id")));
+    setNombre(localStorage.getItem("nombre") ?? "");
+  }, []);
+
+  const asignaturas = asignaturasDeAlumno(ALUMNO_ID).map((a) => ({
+    ...a,
+    profesor: usuarios.find((u) => u.id === a.profesorId)?.nombreCompleto ?? "–",
+  }));
+
+  const ultimasEntregas = ultimasEntregasDeAlumno(ALUMNO_ID, 4);
+
+
   return (
     <div className={styles.layout}>
       <Sidebar rol="alumno"/>
 
       <main className={styles.main}>
         <header className={styles.encabezado}>
-          <h1 className={styles.bienvenida}>Hola {usuarios.find((u) => u.id === ALUMNO_ID)?.nombreCompleto} </h1>
+          <h1 className={styles.bienvenida}>Hola {nombre} </h1>
         </header>
 
         <div className={styles.contenidoPagina}>

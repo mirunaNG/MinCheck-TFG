@@ -24,7 +24,10 @@ class ConfiguracionFlask:
     # NO USAR EN PRODUCCION
     DEBUG = True
 
-    SQLALCHEMY_DATABASE_URI = f"postgresql+psycopg2://{os.environ.get('USER')}:{os.environ.get('PASSWORD')}" \
-                              f"@{os.environ.get('HOST')}/{os.environ.get('DATABASE')}"
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', '')
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True}
+
+    
 
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'dev-secret-cambiame-en-produccion')
