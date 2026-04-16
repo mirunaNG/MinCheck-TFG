@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import styles from "./login.module.css";
 import { useRouter } from "next/navigation";
@@ -13,14 +13,15 @@ export default function PaginaLogin() {
   const [error, setError] = useState("");
   const [cargando, setCargando] = useState(false);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    const rol = localStorage.getItem("rol");
+  //ver si el usuario tiene sesion inciada, lo probare cuando tenga el logout, que si no es imposible seguir avanzando
+  // useEffect(() => {
+  //   const token = localStorage.getItem("token");
+  //   const rol = localStorage.getItem("rol");
     
-    if (token && rol) {
-      router.push(rol === "profesor" ? "/dashboard" : "/dashboardAlumno");
-    }
-  }, []);
+  //   if (token && rol) {
+  //     router.push(rol === "profesor" ? "/dashboard" : "/dashboardAlumno");
+  //   }
+  // }, []);
 
   async function handleSubmit(e : {preventDefault(): void}){
     e.preventDefault();
@@ -41,11 +42,10 @@ export default function PaginaLogin() {
         return;
       }
 
-      const storage = recordarCuenta ? localStorage : sessionStorage;
-      storage.setItem("token", datos.token);
-      storage.setItem("rol", datos.rol);
-      storage.setItem("nombre", datos.nombre);
-      storage.setItem("id", String(datos.id));
+      localStorage.setItem("token", datos.token);
+      localStorage.setItem("rol", datos.rol);
+      localStorage.setItem("nombre", datos.nombre);
+      localStorage.setItem("id", String(datos.id));
 
       router.push(datos.rol === "profesor" ? "/dashboard" : "/dashboardAlumno");
     } catch {

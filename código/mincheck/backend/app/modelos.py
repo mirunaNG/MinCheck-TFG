@@ -143,7 +143,7 @@ class Entrega(db.Model):
     codigo_url: Mapped[str] = mapped_column(Text, nullable=False)
     codigo_lenguaje: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     resultado: Mapped[str] = mapped_column(Text, nullable=False)
-    error_principañ: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    error_principal: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     fecha_entrega: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime, nullable=True)
 
     # Relaciones: cada entrega pertenece a un alumno y a un ejercicio

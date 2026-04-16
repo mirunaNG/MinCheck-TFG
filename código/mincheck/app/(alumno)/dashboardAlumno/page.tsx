@@ -5,26 +5,32 @@ import { useRouter } from "next/navigation";
 import Sidebar from "../../components/sidebar";
 import AsignaturaCard from "../../components/AsignaturaCard";
 import styles from "./dashAlumn.module.css";
-import {asignaturasDeAlumno, ultimasEntregasDeAlumno, usuarios} from "../../lib/mockData";
-
 
 export default function PaginaDashboardAlumno() {
   const router = useRouter();
-  const [ALUMNO_ID, setAlumnoId] = useState(0);
   const [nombre, setNombre] = useState("");
+  const [asignaturas, setAsignaturas] = useState([] as any[]);
+  const [ultimasEntregas, setUltimasEntregas] = useState([] as any[]);
 
   useEffect(() => {
-    setAlumnoId(Number(localStorage.getItem("id")));
-    setNombre(localStorage.getItem("nombre") ?? "");
+    const id = localStorage.getItem("id");
+    const nombreGuardado = localStorage.getItem("nombre");
+    setNombre(nombreGuardado || "");
+
+    if (!id) return;
+
+    async function cargarDatos(){
+      const respuestaAsig = await fetch("http://localhost:5001/alumno/" + id + "/asignaturasAlumno");
+      const datosAsig = await respuestaAsig.json();
+      setAsignaturas(datosAsig);
+
+      const respuestaEntregas = await fetch("http://localhost:5001/alumno/" + id + "/historialEntregas?limite=4");
+      const datosEntregas = await respuestaEntregas.json();
+      setUltimasEntregas(datosEntregas);
+    }
+
+    cargarDatos();
   }, []);
-
-  const asignaturas = asignaturasDeAlumno(ALUMNO_ID).map((a) => ({
-    ...a,
-    profesor: usuarios.find((u) => u.id === a.profesorId)?.nombreCompleto ?? "–",
-  }));
-
-  const ultimasEntregas = ultimasEntregasDeAlumno(ALUMNO_ID, 4);
-
 
   return (
     <div className={styles.layout}>
@@ -43,7 +49,7 @@ export default function PaginaDashboardAlumno() {
               <a href="/asignaturasAlumno" className={styles.verTodas}>Ver todas →</a>
             </div>
             <div className={styles.asignaturasLista}>
-              {asignaturas.slice(0, 4).map((a) => (
+              {asignaturas && asignaturas.slice(0, 4).map((a) => (
                 <AsignaturaCard
                   key={a.id}
                   id={a.id}
@@ -59,7 +65,7 @@ export default function PaginaDashboardAlumno() {
           <section className={styles.zona}>
             <h2 className={styles.tituloZona}>Últimas entregas</h2>
             <div className={styles.entregasGrid}>
-              {ultimasEntregas.map((e) => (
+              {ultimasEntregas && ultimasEntregas.map((e) => (
                 <div key={e.id} className={styles.entregaCard}>
                   <div className={styles.entregaEncabezado}>
                     <span

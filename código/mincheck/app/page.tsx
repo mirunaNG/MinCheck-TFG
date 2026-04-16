@@ -1,7 +1,5 @@
 "use client";
 
-{/*toDo: Saber si la sesion esta iniciada o no, para que no vuelva a pedir iniciar sesion */}
-
 import Link from "next/link";
 import styles from "./init.module.css";
 

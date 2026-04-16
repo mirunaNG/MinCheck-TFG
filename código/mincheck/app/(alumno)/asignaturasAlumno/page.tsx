@@ -1,50 +1,57 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "../../components/sidebar";
 import Modal from "../../components/Modal";
 import AsignaturaCard from "../../components/AsignaturaCard";
 import styles from "./asignaturasAlumn.module.css";
-import { asignaturas, matriculas, asignaturasDeAlumno, totalAlumnosDe, totalEjerciciosDe} from "../../lib/mockData";
 
-const ALUMNO_ID = 2;
-
-function buildCard(a: ReturnType<typeof asignaturasDeAlumno>[number]) {
-  return {
-    ...a,
-    alumnos:    totalAlumnosDe(a.id),
-    ejercicios: totalEjerciciosDe(a.id),
-  };
-}
+type Asignatura = {
+  id: number;
+  nombre: string;
+  color: string;
+  profesor: string;
+  alumnos: number;
+  ejercicios: number;
+};
 
 export default function AsignaturasAlumno() {
   const router = useRouter();
 
-  const [misAsignaturas, setMisAsignaturas] = useState( () => asignaturasDeAlumno(ALUMNO_ID).map(buildCard));
+  const [misAsignaturas, setMisAsignaturas] = useState<Asignatura[]>([]);
   const [mostrarModal, setMostrarModal] = useState(false);
   const [codigo, setCodigo] = useState("");
   const [error, setError] = useState("");
 
-  function handlerAnadirAsignatura(e: React.SyntheticEvent<HTMLFormElement>) {
+  useEffect(() => {
+    const id = localStorage.getItem("id");
+    if (!id) return;
+    fetch("http://localhost:5001/alumno/" + id + "/asignaturasAlumno")
+      .then((res) => res.json())
+      .then((datos) => setMisAsignaturas(datos));
+  }, []);
+
+  async function handlerAnadirAsignatura(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     const codigoTrim = codigo.trim().toUpperCase();
     if (!codigoTrim) return;
 
-    const asignatura = asignaturas.find((a) => a.codigoAsignatura.toUpperCase() === codigoTrim);
-    if (!asignatura) {
-      setError("No existe ninguna asignatura con ese código.");
+    const id = localStorage.getItem("id");
+
+    const res = await fetch("http://localhost:5001/matriculas", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ alumno_id: Number(id), codigo_asignatura: codigoTrim })
+    });
+    const datos = await res.json();
+
+    if (!res.ok) {
+      setError(datos.mensaje);
       return;
     }
 
-    const yaMatriculado = matriculas.some( (m) => m.alumnoId === ALUMNO_ID && m.asignaturaId === asignatura.id);
-    if (yaMatriculado) {
-      setError("Ya estás matriculado en esa asignatura.");
-      return;
-    }
-
-    matriculas.push({ alumnoId: ALUMNO_ID, asignaturaId: asignatura.id });
-    setMisAsignaturas((prev) => [...prev, buildCard(asignatura)]);
+    setMisAsignaturas((prev) => [...prev, datos]);
     setCodigo("");
     setError("");
     setMostrarModal(false);

@@ -1,22 +1,11 @@
 "use client";
 
+import {useState, useEffect} from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "../../components/sidebar";
 import AsignaturaCard from "../../components/AsignaturaCard";
 import styles from "./dashProf.module.css";
-import { asignaturasDe, totalAlumnosDe, totalEjerciciosDe, usuarios} from "../../lib/mockData";
 
-// toDo: id del profesor autenticado vendrá de la sesión
-const PROFESOR_ID = 1;
-
-const asignaturas = asignaturasDe(PROFESOR_ID).map((a) => ({
-  ...a,
-  alumnos:    totalAlumnosDe(a.id),
-  ejercicios: totalEjerciciosDe(a.id),
-}));
-
-const totalEstudiantes = asignaturas.reduce((sum, a) => sum + a.alumnos, 0);
-const totalEjercicios  = asignaturas.reduce((sum, a) => sum + a.ejercicios, 0);
 
 const erroresComunes = [
   { ejercicio: "Quick sort", descripcion: "Condición incorrecta en loop", porcentaje: 78, color: "#4d7cfe" },
@@ -28,13 +17,36 @@ const erroresComunes = [
 
 export default function PaginaDashboardProfesor() {
   const router = useRouter();
+  const [nombre, setNombre] = useState("");
+  const [asignaturas, setAsignaturas] = useState([] as any[])
+
+  useEffect(() => {
+    const id = localStorage.getItem("id");
+    const nombreGuardado = localStorage.getItem("nombre");
+    setNombre(nombreGuardado || "");
+
+    if (!id) return;
+
+    async function cargarDatos(){
+      const respuesta = await fetch("http://localhost:5001/profesor/" + id + "/asignaturasProfesor");
+      const datos = await respuesta.json();
+
+      setAsignaturas(datos);
+    }
+
+    cargarDatos();
+  }, []);
+
+  const totalEstudiantes = asignaturas.reduce((sum, a) => sum + a.alumnos, 0);
+  const totalEjercicios = asignaturas.reduce((sum, a) => sum + a.ejercicios, 0);
+
   return (
     <div className={styles.layout}>
       <Sidebar rol="profesor" />
 
       <main className={styles.main}>
         <header className={styles.encabezado}>
-          <h1 className={styles.bienvenida}>Hola {usuarios.find((u) => u.id === PROFESOR_ID)?.nombreCompleto} </h1>
+          <h1 className={styles.bienvenida}>Hola {nombre} </h1>
           {/*Ya veré si añadir el boton de las notificaciones, de momento -> trabajo futuro */}
         </header>
 
