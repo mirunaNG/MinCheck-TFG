@@ -6,19 +6,11 @@ import Sidebar from "../../components/sidebar";
 import AsignaturaCard from "../../components/AsignaturaCard";
 import styles from "./dashProf.module.css";
 
-
-const erroresComunes = [
-  { ejercicio: "Quick sort", descripcion: "Condición incorrecta en loop", porcentaje: 78, color: "#4d7cfe" },
-  { ejercicio: "Quick sort", descripcion: "No maneja duplicados", porcentaje: 62, color: "#4d7cfe" },
-  { ejercicio: "Factorial rec.", descripcion: "Caso base fallante", porcentaje: 55, color: "#f0a500" },
-  { ejercicio: "Torres Hanói", descripcion: "Index out of bound", porcentaje: 48, color: "#9b5fe0" },
-  { ejercicio: "Búsqueda bin.", descripcion: "Condición parada incorrecta", porcentaje: 41, color: "#2ecc71" },
-];
-
 export default function PaginaDashboardProfesor() {
   const router = useRouter();
   const [nombre, setNombre] = useState("");
   const [asignaturas, setAsignaturas] = useState([] as any[])
+  const [erroresComunes, setErroresComunes] = useState([] as any[])
 
   useEffect(() => {
     const id = localStorage.getItem("id");
@@ -30,8 +22,11 @@ export default function PaginaDashboardProfesor() {
     async function cargarDatos(){
       const respuesta = await fetch("http://localhost:5001/profesor/" + id + "/asignaturasProfesor");
       const datos = await respuesta.json();
-
       setAsignaturas(datos);
+
+      const respuestaErrores = await fetch("http://localhost:5001/profesor/" + id + "/erroresComunes");
+      const datosErrores = await respuestaErrores.json();
+      setErroresComunes(datosErrores);
     }
 
     cargarDatos();

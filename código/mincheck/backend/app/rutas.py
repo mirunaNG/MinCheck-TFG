@@ -214,3 +214,63 @@ def registrar_rutas(app):
             'alumnos': 0,
             'ejercicios': 0,
         }), 201
+    
+    @app.route('/profesor/<int:profesor_id>/erroresComunes', methods=['GET'])
+    def errores_comunes_profesro(profesor_id):
+        from app.modelos import Ejercicio, Asignatura, Entrega
+        from sqlalchemy import func
+
+        asignaturas = Asignatura.query.filter_by(profesor_id=profesor_id).all()
+
+        ejericicos_ids = []
+        for a in asignaturas:
+            for tema in a.temas:
+                for ej in tema.ejercicios:
+                    ejericicos_ids.append(ej.id)
+
+        if not ejericicos_ids:
+            return jsonify({'mensaje': 'No hay datos suficientes'}), 200
+        
+        #cuantas entregas tiene cada error por ejercicio
+        contador = (
+            db.session.query(
+                Entrega.ejercicio_id, 
+                Entrega.error_principal,
+                func.count(Entrega.id).label('con_error')
+            )
+            .filter (
+                Entrega.ejercicio_id.in_(ejericicos_ids),
+                Entrega.error_principal != None,
+                Entrega.error_principal != ''
+            )
+            .group_by(Entrega.ejercicio_id, Entrega.error_principal)
+            .all()
+        )
+
+        entregas_totales = (
+            db.session.query(
+                Entrega.ejercicio_id,
+                func.count(Entrega.id).label('total')
+            )
+            .filter(Entrega.ejercicio_id.in_(ejericicos_ids))
+            .group_by(Entrega.ejercicio_id)
+            .all()
+        )
+        totales_dict = {t.ejercicio_id: t.total for t in entregas_totales}
+
+        res = []
+        for c in contador:
+            ejercicio = Ejercicio.query.get(c.ejercicio_id)
+            total = totales_dict.get(c.ejercicio_id, 1)
+            porcentaje = round((c.con_error / total) * 100)
+            color = ejercicio.tema.color or '#4d7cfe'
+
+            res.append({
+                'ejercicio': ejercicio.nombre,
+                'descripcion': c.error_principal,
+                'porcentaje': porcentaje,
+                'color': color,
+            })
+            res.sort(key=lambda x: x['porcentaje'], reverse=True)
+
+            return jsonify(res[:5]), 200
