@@ -176,7 +176,6 @@ def registrar_rutas(app):
                 'alumnos': total_alumnos,
                 'ejercicios': total_ejercios,
             })
-
         return jsonify(res), 201
         
     @app.route('/asignaturasProfesor', methods=['POST'])
@@ -273,4 +272,83 @@ def registrar_rutas(app):
             })
             res.sort(key=lambda x: x['porcentaje'], reverse=True)
 
-            return jsonify(res[:5]), 200
+        return jsonify(res[:5]), 200
+
+    @app.route('/asignatura/<int:asignatura_id>', methods=['GET'])
+    def detalle_asignatura(asignatura_id):
+        from app.modelos import Asignatura
+        asignatura = Asignatura.query.get(asignatura_id)
+        if not asignatura:
+            return jsonify({'mensaje': 'Asignatura no encontrada'}), 404
+        
+        return jsonify({
+            'id': asignatura.id,
+            'nombre': asignatura.nombre,
+            'curso': asignatura.curso,
+            'codigoAsignatura': asignatura.codigo_asignatura,
+            'color': asignatura.color or '#4d7cfe',
+            'profesor': asignatura.profesor.nombre_completo,
+        }), 200
+    
+    @app.route('/asignatura/<int:asignatura_id>/alumnos', methods=['GET'])
+    def alumnos_asignatura(asignatura_id):
+        from app.modelos import Matricula, Ejercicio, Entrega, Asignatura
+        asignatura = Asignatura.query.get(asignatura_id)
+        if not asignatura:
+            return jsonify({'mensaje': 'Asignatura no encontrada'}), 404
+        
+        tema_ids = [t.id for t in asignatura.temas]
+        total_ejercicios= Ejercicio.query.filter(Ejercicio.tema_id.in_(tema_ids)).count()
+        ejercicio_ids = [e.id for t in asignatura.temas for e in t.ejercicios]
+
+        matriculas = Matricula.query.filter_by(asignatura_id=asignatura_id).all()
+        res = []
+        for m in matriculas:
+            if ejercicio_ids:
+                completados = Entrega.query.filter(
+                    Entrega.alumno_id==m.alumno_id,
+                    Entrega.ejercicio_id.in_(ejercicio_ids),
+                    Entrega.resultado=='correcto'
+                ).count()
+            else:
+                completados=0
+            res.append({
+                'id': m.alumno_id,
+                'nombreCompleto': m.alumno.nombre_completo,
+                'completados': completados,
+                'total': total_ejercicios,
+            })
+
+        return jsonify({
+            'alumnos': res, 
+            'totalEjercicios': total_ejercicios
+        }), 200
+    
+    @app.route('/asignatura/<int:asignatura_id>/ultimasEntregas', methods=['GET'])
+    def ultimas_entregas_asignatura(asignatura_id):
+        from app.modelos import Entrega, Ejercicio, Asignatura
+        from sqlalchemy.orm import joinedload
+
+        asignatura = Asignatura.query.get(asignatura_id)
+        if not asignatura:
+            return jsonify({'mensaje': 'Asignatura no encontrada'}), 400
+
+        ejercicio_ids = [e.id for t in asignatura.temas for e in t.ejercicios]
+        entregas = (
+            Entrega.query.filter(Entrega.ejercicio_id.in_(ejercicio_ids))
+            .options(joinedload(Entrega.alumno), joinedload(Entrega.ejercicio))
+            .order_by(Entrega.fecha_hora.desc())
+            .limit(10)
+            .all()
+        )
+
+        res = []
+        for e in entregas:
+            res.append({
+                'id': e.id,
+                'alumno': e.alumno.nombre_completo,
+                'fechaHora': e.fecha_hora.strftime('%d/%m/%Y %H:%M') if e.fecha_entrega else '',
+                'correcto': e.resultado == 'correcto',
+            })
+        
+        return jsonify(res), 200

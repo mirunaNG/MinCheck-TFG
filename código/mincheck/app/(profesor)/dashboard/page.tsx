@@ -26,7 +26,7 @@ export default function PaginaDashboardProfesor() {
 
       const respuestaErrores = await fetch("http://localhost:5001/profesor/" + id + "/erroresComunes");
       const datosErrores = await respuestaErrores.json();
-      setErroresComunes(datosErrores);
+      setErroresComunes(Array.isArray(datosErrores) ? datosErrores : []);
     }
 
     cargarDatos();
@@ -92,7 +92,7 @@ export default function PaginaDashboardProfesor() {
 
           </div>
 
-          {/* Columna derecha — Errores */}
+          {/* Columna derecha —> Errores */}
           <div className={styles.ladoDerecho}>
             <div className={styles.erroresCard}>
               <h2 className={styles.tituloErrores}>Errores más comunes<br />por ejercicio</h2>

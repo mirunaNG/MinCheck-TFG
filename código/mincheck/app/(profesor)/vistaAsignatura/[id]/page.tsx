@@ -1,11 +1,33 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useEffect } from "react";
 import Link from "next/link";
 import Sidebar from "../../../components/sidebar";
 import Tabla from "../../../components/Tabla";
 import styles from "../vistaAsigProf.module.css";
-import { asignaturas, alumnosDe, ejerciciosCompletados, totalEjerciciosDe, ultimasEntregasDe } from "../../../lib/mockData";
+
+type Asignatura = {
+  id: number;
+  nombre: string;
+  codigoAsignatura: string;
+  curso: string;
+  color: string;
+}
+
+type Alumno = {
+  id: number;
+  nombreCompleto: string;
+  completados: string;
+  total: number;
+}
+
+type Entrega = {
+  id: number;
+  alumno: string;
+  ejercicio: string;
+  fechaHora: string;
+  correcto: boolean;
+}
 
 export default function VistaAsignaturaProfesor({
   params,
@@ -15,8 +37,32 @@ export default function VistaAsignaturaProfesor({
   const { id } = use(params);
   const asignaturaId = Number(id);
 
-  const asignatura = asignaturas.find((a) => a.id === asignaturaId);
+  const [asignatura, setAsignatura] = useState<Asignatura | null>(null);
+  const [alumnos, setAlumnos] = useState<Alumno[]>([]);
+  const [totalEjercicios, setTtotalEjercicios] = useState(0);
+  const[ultimasEntregas, setUltimasEntregas] = useState<Entrega[]>([]);
   const [verTodosAlumnos, setVerTodosAlumnos] = useState(false);
+
+  useEffect(() => {
+    Promise.all([
+      fetch(`http://localhost:5001/asignatura/` + id),
+      fetch('http://localhost:5001/asignatura/' + id + '/alumnos'),
+      fetch('http://localhost:5001/asignatura/'+ id+'/ultimasEntregas'),
+    ])
+      .then(async ([resA, resAl, resE]) => {
+        const datosAsignatura = await resA.json();
+        const datosAlumnos = await resAl.json();
+        const datosEntregas = await resE.json();
+        setAsignatura(datosAsignatura);
+        setAlumnos(datosAlumnos.alumnos);
+        setTtotalEjercicios(datosAlumnos.totalEjercicios);
+        setUltimasEntregas(datosEntregas);
+      })
+  }, [asignaturaId]);
+
+  function copiarCodigo() {
+    if (asignatura) navigator.clipboard.writeText(asignatura.codigoAsignatura);
+  }
 
   {/*Si la asignatura no existe, muestra mensaje de error */}
   if (!asignatura) {
@@ -28,16 +74,6 @@ export default function VistaAsignaturaProfesor({
         </main>
       </div>
     );
-  }
-
-  const alumnos = alumnosDe(asignaturaId);
-  const totalEjercicios = totalEjerciciosDe(asignaturaId);
-  const ultimas = ultimasEntregasDe(asignaturaId);
-  const codigo = asignatura.codigoAsignatura;
-
-  {/*Función para copiar el código de la asignatura al portapapeles */}
-  function copiarCodigo() {
-    navigator.clipboard.writeText(codigo);
   }
 
   return (
@@ -56,7 +92,7 @@ export default function VistaAsignaturaProfesor({
             </div>
           </div>
           <div className={styles.bannerCodigo}>
-            código: <span className={styles.codigoValor}>#{codigo}</span>
+            código: <span className={styles.codigoValor}>#{asignatura.codigoAsignatura}</span>
             <button
               className={styles.copiarBtn}
               onClick={copiarCodigo}
@@ -86,7 +122,7 @@ export default function VistaAsignaturaProfesor({
                     <div className={styles.alumnoAvatar} />
                     <span className={styles.alumnoNombre}>{a.nombreCompleto}</span>
                     <span className={styles.alumnoProgreso}>
-                      {ejerciciosCompletados(a.id, asignaturaId)}/{totalEjercicios} ejercicios completados
+                      {a.completados}/{totalEjercicios} ejercicios completados
                     </span>
                   </li>
                 ))}
@@ -96,7 +132,7 @@ export default function VistaAsignaturaProfesor({
             {/* Últimas entregas */}
               <h2 className={styles.tituloCard}>Últimas entregas</h2>
               <Tabla columnas={["Alumno", "Ejercicio", "Fecha/Hora", "Estado", "Revisar"]}>
-                  {ultimas.map((e) => (
+                  {ultimasEntregas.map((e) => (
                     <tr key={e.id}>
                       <td>{e.alumno}</td>
                       <td>{e.ejercicio}</td>
