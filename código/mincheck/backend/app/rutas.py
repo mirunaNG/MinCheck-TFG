@@ -352,3 +352,156 @@ def registrar_rutas(app):
             })
         
         return jsonify(res), 200
+    
+# TEMAS GESTION DE MATERIAL
+    @app.route('/asignatura/<int:asignatura_id>/temas', methods=['GET'])
+    def temas_asignatura(asignatura_id):
+        from app.modelos import Asignatura, Entrega
+        asignatura = Asignatura.query.get(asignatura_id)
+        if not asignatura:
+            return jsonify({'mensaje': 'Asignatura no encontrada'})
+        
+        res = []
+        for tema in asignatura.temas:
+            ejercicios = []
+            for ej in tema.ejercicios:
+                num_entregas = Entrega.query.filter_by(ejercicio_id=ej.id).count()
+                ejercicios.append({
+                    'id': ej.id,
+                    'nombre': ej.nombre,
+                    'entregas': num_entregas
+                })
+
+            res.append({
+                'id': tema.id,
+                'nombre': tema.nombre,
+                'color': tema.color,
+                'ejercicios': ejercicios
+            })
+        return jsonify(res), 200
+    
+    @app.route('/asignatura/<int:asignatura_id>/temas', methods=['POST'])
+    def crear_tema(asignatura_id):
+        from app.modelos import Asignatura, Tema
+        asignatura = Asignatura.query.get(asignatura_id)
+        if not asignatura:
+            return jsonify({'mensaje': 'Asignatura no encontrada'})
+        
+        datos = request.get_json()
+        nombre = datos.get('nombre')
+        color = datos.get('color')
+        if not nombre or not color:
+            return jsonify({'mensaje': 'Faltan campos'}), 400
+        
+        tema = Tema(asignatura_id=asignatura_id, nombre=nombre, color=color)
+        db.session.add(tema)
+        db.session.commit()
+
+        return jsonify({
+            'id': tema.id,
+            'nombre': tema.nombre,
+            'color': tema.color,
+            'ejercicios': []
+        }), 201
+    
+    @app.route('/tema/<int:tema_id>', methods=['DELETE'])
+    def eliminar_tema(tema_id):
+        from app.modelos import Tema
+        tema = Tema.query.get(tema_id)
+        if not tema:
+            return jsonify({'mensaje': 'Tema no encontrado'}), 404
+        
+        db.session.delete(tema)
+        db.session.commit()
+        return jsonify({'mensaje': 'Tema eliminado'}), 200
+    
+# EJERCICIOS POR TEMA EN GESTION DE MATERIAL
+    @app.route('/tema/<int:tema_id>/ejercicios', methods=['POST'])
+    def crear_ejercicio(tema_id):
+        from app.modelos import Ejercicio, Tema
+        import datetime, os
+        from werkzeug.utils import secure_filename
+
+        tema = Tema.query.get(tema_id)
+        if not tema:
+            return jsonify({'mensaje': 'Tema no encontrado'}), 404
+        
+        nombre = request.form.get('nombre')
+        if not nombre:
+            return jsonify({'mensaje': 'falta el nombre del tema '}), 400
+        
+        UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), '..', 'uploads')
+        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+        enunciado_nombre = None
+        enunciado_url = None
+        solucion_nombre = None
+        solucion_url = None
+
+        if 'enunciado' in request.files:
+            f = request.files['enunciado']
+            fname = secure_filename(f.filename)
+            f.save(os.path.join(UPLOAD_FOLDER, fname))
+            enunciado_nombre = fname
+            enunciado_url = f'/uploads/{fname}'
+
+        if 'solucion' in request.files:
+            f = request.files['solucion']
+            fname = secure_filename(f.filename)
+            f.save(os.path.join(UPLOAD_FOLDER, fname))
+            solucion_nombre = fname
+            solucion_url = f'/uploads/{fname}'
+
+
+        ejercicio = Ejercicio(
+            nombre=nombre,
+            tema_id=tema_id,
+            enunciado_nombre=enunciado_nombre,
+            enunciado_url=enunciado_url,
+            solucion_nombre=solucion_nombre,
+            solucion_url=solucion_url,
+            fecha_creacion=datetime.datetime.now()
+        )
+        
+        db.session.add(ejercicio)
+        db.session.commit()
+        return jsonify({
+            'id': ejercicio.id,
+            'nombre': ejercicio.nombre,
+            'entregas': 0,
+        }), 201
+    
+
+    @app.route('/ejercicio/<int:ejercicio_id>', methods=['DELETE'])
+    def eliminar_ejercicio_ruta(ejercicio_id):
+        from app.modelos import Ejercicio
+        ejercicio = Ejercicio.query.get(ejercicio_id)
+        if not ejercicio:
+            return jsonify({'mensaje': 'Ejercicio no encontrado'}), 404
+        
+        db.session.delete(ejercicio)
+        db.session.commit()
+        return jsonify({'mensaje': 'Ejercicio eliminado'}), 200   
+    
+
+    @app.route('/ejercicio/<int:ejercicio_id>/errores', methods=['GET'])
+    def errores_ejercicio(ejercicio_id):
+        from app.modelos import Ejercicio, Entrega
+        from sqlalchemy import func
+        ejercicio = Ejercicio.query.get(ejercicio_id)
+        if not ejercicio:
+            return jsonify({'mensaje': 'Ejercicio no encontrado'}), 404
+        total = Entrega.query.filter_by(ejercicio_id=ejercicio_id).count()
+        if total == 0:
+            return jsonify([]), 200
+        filas = (
+            db.session.query(Entrega.error_principal, func.count(Entrega.id).label('n'))
+            .filter(Entrega.ejercicio_id == ejercicio_id, Entrega.error_principal != None, Entrega.error_principal != '')
+            .group_by(Entrega.error_principal)
+            .order_by(func.count(Entrega.id).desc())
+            .all()
+        )
+        return jsonify([{'error': f.error_principal, 'porcentaje': round((f.n / total) * 100)} for f in filas]), 200
+
+
+

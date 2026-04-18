@@ -1,31 +1,39 @@
 "use client";
 
 import Link from "next/link";
-import { use, useState } from "react";
-import { useRouter } from "next/navigation";
+import { use, useState, useEffect } from "react";
 import Sidebar from "../../../components/sidebar";
 import Modal from "../../../components/Modal";
 import styles from "../gestionMat.module.css";
-import { asignaturas, temasDe, ejerciciosDeTema, totalAlumnosDe, erroresDe } from "../../../lib/mockData";
 
-type EjercicioUI = {
+const API = "http://localhost:5001";
+
+type Ejercicio= {
   id: number;
   nombre: string;
   entregas: number;
 };
 
-type TemaUI = {
+type Tema = {
   id: number;
   nombre: string;
   color: string;
-  ejercicios: EjercicioUI[];
+  ejercicios: Ejercicio[];
 };
-
-const COLORES_TEMA = ["#e38500", "#4caf50", "#4d7cfe", "#e53935", "#ab47bc", "#f9ca24", "#26c6da"];
 
 type ModalTipo = "ejercicio" | "tema" | null;
 
-type StatsEj = { id: number; nombre: string } | null;
+type StatsEj = {
+  'id':number;
+  'nombre': string
+} | null;
+
+type ErroreStat = {
+  'error': string,
+  'porcentaje': number
+}
+
+const COLORES_TEMA = ["#e38500", "#4caf50", "#4d7cfe", "#e53935", "#ab47bc", "#f9ca24", "#26c6da"];
 
 export default function GestionMaterial({
   params,
@@ -34,59 +42,66 @@ export default function GestionMaterial({
 }) {
   const { id } = use(params);
   const asignaturaId = Number(id);
-  const router = useRouter();
 
-  const asignatura = asignaturas.find((a) => a.id === asignaturaId);
-  const totalAlumnos = totalAlumnosDe(asignaturaId);
+  const [nombreAsignatura, setNombreAsignatura] = useState("");
+  const [totalAlumnos, setTotalAlumnos] = useState(0);
+  const [temas, setTemas] = useState<Tema[]>([]);
+  const [cargando, setCargando] = useState(true);
 
-  function colorEntregas(entregas: number): string {
-    if (totalAlumnos === 0) return "#7a1010";
-    const pct = entregas / totalAlumnos;
-    if (pct >= 0.66) return "#1e5c2d"; // >= 66 % → verde
-    if (pct >= 0.33) return "#7a4800"; // >= 33 % → naranja
-    return "#7a1010";                  //  < 33 % → rojo
-  }
-
-  function temasIniciales(): TemaUI[] {
-    return temasDe(asignaturaId).map((t) => ({
-      ...t,
-      ejercicios: ejerciciosDeTema(t.id).map((e) => ({
-        id: e.id,
-        nombre: e.nombre,
-        entregas: e.numEntregas,
-      })),
-    }));
-  }
-
-  const [temas, setTemas] = useState<TemaUI[]>(temasIniciales());
-
-  /*Estado modal*/
   const [modalAbierto, setModalAbierto] = useState<ModalTipo>(null);
-
-  /* Estado popup estadísticas */
   const [statsEj, setStatsEj] = useState<StatsEj>(null);
+  const [erroresStats, setErroresStats] = useState<ErroreStat[]>([]);
 
-  /* Estado formulario nuevo ejercicio*/
-  const [temaSeleccionado, setTemaSeleccionado] = useState<number>(temasIniciales()[0]?.id ?? 0);
+  const [temaSeleccionado, setTemaSeleccionado] = useState<number>(0);
   const [nombreEjercicio, setNombreEjercicio] = useState("");
   const [enunciadoFile, setEnunciadoFile] = useState<File | null>(null);
   const [solucionFile, setSolucionFile] = useState<File | null>(null);
-
-  /* Estado formulario nuevo tema */
   const [nombreTema, setNombreTema] = useState("");
   const [colorTema, setColorTema] = useState(COLORES_TEMA[2]);
+
+
+  useEffect(() => {
+    async function cargar() {
+      const [resAsignatura, resTema, resAlumno] = await Promise.all([
+        fetch(API + '/asignatura/'+ asignaturaId),
+        fetch(API + '/asignatura/'+ asignaturaId + '/temas'),
+        fetch(API + '/asignatura/'+ asignaturaId + '/alumnos'),
+      ]);
+      const datosAsignatura = await resAsignatura.json();
+      const datosTemas = await resTema.json();
+      const datosAlumnos = await resAlumno.json();
+
+      setNombreAsignatura(datosAsignatura.nombre ?? "");
+      setTemas(datosTemas);
+      setTotalAlumnos(datosAlumnos.alumnos?.length ?? 0);
+      setTemaSeleccionado(datosTemas[0]?.id ?? 0);
+      setCargando(false);
+    }
+    cargar();
+  }, [asignaturaId]);
+
+
+  function colorEntregas(entregas: number): string {
+    if (totalAlumnos === 0) return "#7a1010";
+    const porcentaje = entregas / totalAlumnos;
+    if (porcentaje >= 0.66) return "#1e5c2d"; // >= 66 % -> verde
+    if (porcentaje >= 0.33) return "#7a4800"; // >= 33 % -> naranja
+    return "#7a1010"; //  < 33 % -> rojo
+  }
 
   function abrirModalEjercicio(temaId?: number) {
     setTemaSeleccionado(temaId ?? temas[0]?.id);
     setNombreEjercicio("");
     setEnunciadoFile(null);
     setSolucionFile(null);
+
     setModalAbierto("ejercicio");
   }
 
   function abrirModalTema() {
     setNombreTema("");
     setColorTema(COLORES_TEMA[2]);
+
     setModalAbierto("tema");
   }
 
@@ -94,39 +109,61 @@ export default function GestionMaterial({
     setModalAbierto(null);
   }
 
-  function crearEjercicio() {
+  async function crearEjercicio() {
     if (!nombreEjercicio.trim()) return;
-    const nuevoId = Date.now();
-    setTemas(
-      temas.map((t) =>
-        t.id === temaSeleccionado
-          ? { ...t, ejercicios: [...t.ejercicios, { id: nuevoId, nombre: nombreEjercicio.trim(), entregas: 0 }] }
-          : t
-      )
-    );
+    const formData = new FormData();
+    formData.append("nombre", nombreEjercicio.trim());
+    if (enunciadoFile) formData.append("enunciado", enunciadoFile);
+    if (solucionFile) formData.append("solucion", solucionFile);
+
+    const res = await fetch(`${API}/tema/${temaSeleccionado}/ejercicios`, {
+      method: "POST",
+      body: formData,
+    });
+    if (!res.ok) return;
+    const nuevo: Ejercicio = await res.json();
+    setTemas(temas.map((t) =>
+      t.id === temaSeleccionado ? { ...t, ejercicios: [...t.ejercicios, nuevo] } : t
+    ));
     cerrarModal();
   }
 
-  function crearTema() {
+
+  async function crearTema() {
     if (!nombreTema.trim()) return;
-    const nuevoId = Date.now();
-    setTemas([...temas, { id: nuevoId, nombre: `Tema ${nombreTema.trim()}`, color: colorTema, ejercicios: [] }]);
+    const res = await fetch(API+'/asignatura/' + asignaturaId +'/temas', {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nombre: `Tema ${nombreTema.trim()}`, color: colorTema }),
+    });
+    if (!res.ok) return;
+    const nuevo: Tema = await res.json();
+    setTemas([...temas, nuevo]);
     cerrarModal();
   }
 
-  function eliminarTema(temaId: number) {
+  async function eliminarTema(temaId: number) {
+    const res = await fetch(API + '/tema/' +temaId, { method: "DELETE" });
+    if (!res.ok) return;
     setTemas(temas.filter((t) => t.id !== temaId));
   }
 
-  function eliminarEjercicio(temaId: number, ejercicioId: number) {
-    setTemas(
-      temas.map((t) =>
-        t.id === temaId
-          ? { ...t, ejercicios: t.ejercicios.filter((e) => e.id !== ejercicioId) }
-          : t
-      )
-    );
+  async function eliminarEjercicio(temaId: number, ejercicioId: number) {
+    const res = await fetch(API + '/ejercicio/' + ejercicioId, { method: "DELETE" });
+    if (!res.ok) return;
+    setTemas(temas.map((t) =>
+      t.id === temaId ? { ...t, ejercicios: t.ejercicios.filter((e) => e.id !== ejercicioId) } : t
+    ));
   }
+
+  async function abrirStats(ej: { id: number; nombre: string }) {
+    setStatsEj(ej);
+    const res = await fetch(`${API}/ejercicio/${ej.id}/errores`);
+    const data = await res.json();
+    setErroresStats(Array.isArray(data) ? data : []);
+  }
+
+  if (cargando) return <div className={styles.layout}><Sidebar rol="profesor" /><main className={styles.main}><p>Cargando...</p></main></div>;
 
   return (
     <div className={styles.layout}>
@@ -135,7 +172,7 @@ export default function GestionMaterial({
       <main className={styles.main}>
         <div className={styles.encabezado}>
           <div>
-            <h1 className={styles.tituloAsignatura}>{asignatura?.nombre.toUpperCase()}</h1>
+            <h1 className={styles.tituloAsignatura}>{nombreAsignatura.toUpperCase()}</h1>
             <p className={styles.subtitulo}>Gestiona aquí los temas y ejercicios de tu asignatura</p>
           </div>
           <button className={styles.botonNuevoEjercicio} onClick={() => abrirModalEjercicio()}>
@@ -336,16 +373,15 @@ export default function GestionMaterial({
 
       {/* Popup estadísticas de errores */}
       {statsEj && (() => {
-        const errores = erroresDe(statsEj.id);
         return (
           <div className={styles.statsOverlay} onClick={() => setStatsEj(null)}>
             <div className={styles.statsCard} onClick={(e) => e.stopPropagation()}>
               <p className={styles.statsTitulo}>Estadísticas de errores en {statsEj.nombre}</p>
-              {errores.length === 0 ? (
+              {erroresStats.length === 0 ? (
                 <p className={styles.statsVacio}>No hay errores registrados para este ejercicio.</p>
               ) : (
                 <div className={styles.statsLista}>
-                  {errores.map(({ error, porcentaje }) => (
+                  {erroresStats.map(({ error, porcentaje }) => (
                     <div key={error}>
                       <div className={styles.statsFilaLabel}>
                         <span>{error}</span>

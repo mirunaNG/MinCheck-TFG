@@ -42,6 +42,8 @@ export default function VistaAsignaturaProfesor({
   const [totalEjercicios, setTtotalEjercicios] = useState(0);
   const[ultimasEntregas, setUltimasEntregas] = useState<Entrega[]>([]);
   const [verTodosAlumnos, setVerTodosAlumnos] = useState(false);
+  // necesario porque asignatura es null hasta que carga, entonces muestra por un momento 'asignatura no encontrada'
+  const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
     Promise.all([
@@ -57,11 +59,24 @@ export default function VistaAsignaturaProfesor({
         setAlumnos(datosAlumnos.alumnos);
         setTtotalEjercicios(datosAlumnos.totalEjercicios);
         setUltimasEntregas(datosEntregas);
+
+        setCargando(false);
       })
   }, [asignaturaId]);
 
   function copiarCodigo() {
     if (asignatura) navigator.clipboard.writeText(asignatura.codigoAsignatura);
+  }
+
+  if (cargando){
+    return (
+      <div className={styles.layout}>
+        <Sidebar rol="profesor" />
+        <main className={styles.main}>
+          <p className={styles.notFound}>Cargando...</p>
+        </main>
+      </div>
+    );
   }
 
   {/*Si la asignatura no existe, muestra mensaje de error */}
