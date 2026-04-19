@@ -13,15 +13,14 @@ export default function PaginaLogin() {
   const [error, setError] = useState("");
   const [cargando, setCargando] = useState(false);
 
-  //ver si el usuario tiene sesion inciada, lo probare cuando tenga el logout, que si no es imposible seguir avanzando
-  // useEffect(() => {
-  //   const token = localStorage.getItem("token");
-  //   const rol = localStorage.getItem("rol");
-    
-  //   if (token && rol) {
-  //     router.push(rol === "profesor" ? "/dashboard" : "/dashboardAlumno");
-  //   }
-  // }, []);
+  useEffect(() => {
+    const correoGuardado = localStorage.getItem("correoRecordado");
+    if (correoGuardado) {
+      setCorreo(correoGuardado);
+      setRecordarCuenta(true);
+    }
+  }, []);
+
 
   async function handleSubmit(e : {preventDefault(): void}){
     e.preventDefault();
@@ -46,6 +45,12 @@ export default function PaginaLogin() {
       localStorage.setItem("rol", datos.rol);
       localStorage.setItem("nombre", datos.nombre);
       localStorage.setItem("id", String(datos.id));
+
+      if (recordarCuenta) {
+        localStorage.setItem("correoRecordado", correo);
+      } else {
+        localStorage.removeItem("correoRecordado");
+      }
 
       router.push(datos.rol === "profesor" ? "/dashboard" : "/dashboardAlumno");
     } catch {
