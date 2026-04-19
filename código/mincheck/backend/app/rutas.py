@@ -800,7 +800,44 @@ def registrar_rutas(app):
         return jsonify({'mensaje': 'Contraseña actualizada'}), 200
 
         
+    @app.route('/alumno/<int:alumno_id>/historialEntregas', methods=['GET'])
+    def historial_entregas_alumno(alumno_id):
+        from app.modelos import Matricula, Entrega
+        from sqlalchemy.orm import joinedload
 
+        matriculas = Matricula.query.filter_by(alumno_id=alumno_id).all()
+        res = []
+        for m in matriculas:
+            a = m.asignatura
+            ejercicio_ids = [e.id for t in a.temas for e in t.ejercicios]
+            if not ejercicio_ids:
+                continue
+            entregas = (
+                Entrega.query
+                .filter(Entrega.alumno_id == alumno_id, Entrega.ejercicio_id.in_(ejercicio_ids))
+                .options(joinedload(Entrega.ejercicio))
+                .order_by(Entrega.fecha_hora.desc())
+                .all()
+            )
+            if not entregas:
+                continue
+            res.append({
+                'asignatura': {
+                    'id': a.id,
+                    'nombre': a.nombre,
+                    'color': a.color or '#4d7cfe',
+                },
+                'entregas': [
+                    {
+                        'id': e.id,
+                        'ejercicio': e.ejercicio.nombre,
+                        'fechaHora': e.fecha_hora.strftime('%d/%m/%Y %H:%M') if e.fecha_hora else '-',
+                        'resultado': e.resultado,
+                    }
+                    for e in entregas
+                ],
+            })
+        return jsonify(res), 200
 
         
 

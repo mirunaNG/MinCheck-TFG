@@ -1,20 +1,33 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Sidebar from "../../components/sidebar";
 import Tabla from "../../components/Tabla";
 import styles from "./historial.module.css";
-import { entregasAgrupadasPorAsignatura, temas } from "../../lib/mockData";
 
-const ALUMNO_ID = 2;
+type Entrega = {
+  id: number;
+  ejercicio: string;
+  fechaHora: string;
+  resultado: string;
+};
 
-function colorCabecera(asignaturaId: number): string {
-  const primerTema = temas.find((t) => t.asignaturaId === asignaturaId);
-  return primerTema?.color ?? "#4d7cfe";
-}
-
-const grupos = entregasAgrupadasPorAsignatura(ALUMNO_ID);
+type Grupo = {
+  asignatura: { id: number; nombre: string; color: string };
+  entregas: Entrega[];
+};
 
 export default function PaginaHistorialEntregas() {
+  const [grupos, setGrupos] = useState<Grupo[]>([]);
+
+  useEffect(() => {
+    const id = localStorage.getItem("id");
+    if (!id) return;
+    fetch("http://localhost:5001/alumno/" + id + "/historialEntregas")
+      .then((res) => res.json())
+      .then((datos) => setGrupos(datos));
+  }, []);
+
   return (
     <div className={styles.layout}>
       <Sidebar rol="alumno" />
@@ -29,7 +42,7 @@ export default function PaginaHistorialEntregas() {
             <div key={asignatura.id} className={styles.bloqueAsignatura}>
               <div
                 className={styles.cabeceraAsignatura}
-                style={{ backgroundColor: colorCabecera(asignatura.id) }}
+                style={{ backgroundColor: asignatura.color }}
               >
                 <p className={styles.nombreAsignatura}>
                   {asignatura.nombre.toUpperCase()}
