@@ -15,6 +15,8 @@ class Usuario(db.Model):
     contrasena_hash: Mapped[str] = mapped_column(String(256), nullable=False)
     rol: Mapped[str] = mapped_column(Text, nullable=False)
     fecha_creacion: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime, nullable=True)
+    universidad: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    notificaciones_ayuda: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True)
 
     # Relaciones: un usuario puede ser profesor de muchas asignaturas,
     # estar matriculado en muchas asignaturas y tener muchas entregas
@@ -56,7 +58,7 @@ class Asignatura(db.Model):
     # Relaciones: cada asignatura pertenece a un profesor,
     # tiene muchos temas y muchas matrículas
     profesor: Mapped["Usuario"] = relationship(back_populates="asignaturas_profesor")
-    temas: Mapped[List["Tema"]] = relationship(back_populates="asignatura")
+    temas: Mapped[List["Tema"]] = relationship(back_populates="asignatura", cascade="all, delete-orphan")
     matriculas: Mapped[List["Matricula"]] = relationship(back_populates="asignatura")
 
     def __repr__(self):
@@ -73,7 +75,7 @@ class Tema(db.Model):
 
     # Relaciones: cada tema pertenece a una asignatura y tiene muchos ejercicios
     asignatura: Mapped["Asignatura"] = relationship(back_populates="temas")
-    ejercicios: Mapped[List["Ejercicio"]] = relationship(back_populates="tema")
+    ejercicios: Mapped[List["Ejercicio"]] = relationship(back_populates="tema", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f'<Tema {self.nombre}>'
@@ -110,9 +112,9 @@ class Ejercicio(db.Model):
     # Relaciones: cada ejercicio pertenece a un tema, tiene muchos casos de prueba,
     # muchas entregas y una configuración de feedback
     tema: Mapped["Tema"] = relationship(back_populates="ejercicios")
-    casos_prueba: Mapped[List["Caso_Prueba"]] = relationship(back_populates="ejercicio")
-    entregas: Mapped[List["Entrega"]] = relationship(back_populates="ejercicio")
-    configuracion_feedback: Mapped[Optional["Configuracion_feedback"]] = relationship(back_populates="ejercicio")
+    casos_prueba: Mapped[List["Caso_Prueba"]] = relationship(back_populates="ejercicio", cascade="all, delete-orphan")
+    entregas: Mapped[List["Entrega"]] = relationship(back_populates="ejercicio", cascade="all, delete-orphan")
+    configuracion_feedback: Mapped[Optional["Configuracion_feedback"]] = relationship(back_populates="ejercicio", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f'<Ejercicio {self.nombre}>'

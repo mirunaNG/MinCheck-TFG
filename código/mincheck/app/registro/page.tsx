@@ -5,12 +5,12 @@ import { useRouter } from "next/navigation";  //porque usamos /app
 import Link from "next/link";
 import styles from "./registro.module.css";
 
-type Rol = "estudiante" | "profesor";
+type Rol = "alumno" | "profesor";
 
 export default function PaginaRegistro() {
   /*Cada campo del formulario necesita un sitio en memoria donde guardar lo que el usuario escribe.
   cuando el usuario escribe, se llama al set con el nuevo valor */
-  const [rol, setRol] = useState<Rol>("estudiante");
+  const [rol, setRol] = useState<Rol>("alumno");
   const router = useRouter();
   const [nombre, setNombre] = useState("");
   const [correo, setCorreo] = useState("");
@@ -83,11 +83,11 @@ export default function PaginaRegistro() {
           {/*Zona roles*/}
           <div className={styles.zonaRoles}>
             <button
-              className={`${styles.rol} ${rol === "estudiante" ? styles.rolSeleccionado : ""}`}
-              onClick={() => setRol("estudiante")}
+              className={`${styles.rol} ${rol === "alumno" ? styles.rolSeleccionado : ""}`}
+              onClick={() => setRol("alumno")}
             >
               <span className={styles.iconoRol}>🎓</span>
-              Estudiante
+              Alumno
             </button>
             <button
               className={`${styles.rol} ${rol === "profesor" ? styles.rolSeleccionado : ""}`}

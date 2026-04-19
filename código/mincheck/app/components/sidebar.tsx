@@ -25,7 +25,7 @@ type TipoRol = keyof typeof rutasSegunRol;
 
 export default function Sidebar({ rol }: { rol: TipoRol }) {
   const rutaActual = usePathname(); 
-  const menuParaMostrar = rutasSegunRol[rol];
+  const menuParaMostrar = rutasSegunRol[rol] ?? [];
 
   const [nombre, setNombre] = useState("");
 

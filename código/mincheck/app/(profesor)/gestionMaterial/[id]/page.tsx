@@ -116,7 +116,7 @@ export default function GestionMaterial({
     if (enunciadoFile) formData.append("enunciado", enunciadoFile);
     if (solucionFile) formData.append("solucion", solucionFile);
 
-    const res = await fetch(`${API}/tema/${temaSeleccionado}/ejercicios`, {
+    const res = await fetch(API + '/tema/' + temaSeleccionado + '/ejercicios', {
       method: "POST",
       body: formData,
     });
@@ -134,7 +134,7 @@ export default function GestionMaterial({
     const res = await fetch(API+'/asignatura/' + asignaturaId +'/temas', {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nombre: 'Tema ${nombreTema.trim()}', color: colorTema }),
+      body: JSON.stringify({ nombre: 'Tema ' + nombreTema.trim(), color: colorTema }),
     });
     if (!res.ok) return;
     const nuevo: Tema = await res.json();

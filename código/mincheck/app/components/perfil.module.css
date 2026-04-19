@@ -1,0 +1,207 @@
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 30px;
+  border-bottom: 1px solid #1e2a3a;
+}
+.bienvenida {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.contenido {
+  display: flex;
+  gap: 40px;
+  padding: 30px;
+  align-items: flex-start;
+}
+.izquierda {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.derecha {
+  width: 340px;
+  flex-shrink: 0;
+}
+.fotoZona {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #4d7cfe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.rolTexto {
+  font-size: 12px;
+  color: #8b949e;
+  margin: 0 0 4px 0;
+}
+.nombrePerfil {
+  font-size: 18px;
+  font-weight: bold;
+}
+.fotoHint {
+  font-size: 12px;
+  color: #8b949e;
+}
+.campoGrupo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.label {
+  font-size: 14px;
+  font-weight: 600;
+}
+.input {
+  background-color: #1e2535;
+  border: 1px solid #21283a;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+.input:focus {
+  border-color: #4d7cfe;
+}
+.toggleFila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.toggleTexto {
+  font-size: 14px;
+}
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+.toggleCheckbox {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.toggleCheckbox:checked + .slider {
+  background-color: #4d7cfe;
+}
+.toggleCheckbox:checked + .slider::before {
+  transform: translateX(20px);
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #21283a;
+  border-radius: 24px;
+  transition: 0.3s;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+.btnGuardarPerfil {
+  background-color: #4d7cfe;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  width: fit-content;
+}
+.btnGuardarPerfil:hover {
+  opacity: 0.85;
+}
+.btnCerrar {
+  background-color: #e6a817;
+  color: #0b0f1a;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  width: fit-content;
+}
+.btnCerrar:hover {
+  opacity: 0.85;
+}
+.cardContrasena {
+  background-color: #161b27;
+  border: 1px solid #21283a;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.tituloCard {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 0;
+}
+.btnGuardar {
+  background-color: #4d7cfe;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  width: 100%;
+}
+.btnGuardar:hover {
+  opacity: 0.85;
+}
+.mensajeOk {
+  font-size: 13px;
+  color: #2ecc71;
+  margin: 0;
+}
+.error {
+  font-size: 13px;
+  color: #e74c3c;
+  margin: 0;
+}
