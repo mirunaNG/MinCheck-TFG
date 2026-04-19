@@ -637,7 +637,49 @@ def registrar_rutas(app):
         db.session.commit()
         return jsonify({'mensaje': 'Archivos actualizados'}), 200
     
+    @app.route('/asignatura/<int:asignatura_id>/alumno/<int:alumno_id>/temas', methods=['GET'])
+    def temas_asignatura_alumno(asignatura_id, alumno_id):
+        from app.modelos import Asignatura, Entrega
+
+        asignatura = Asignatura.query.get(asignatura_id)
+        if not asignatura:
+            return jsonify({'mensaje': 'Asignatura no encontrada'}), 404
+        
+        res = []
+        for tema in asignatura.temas:
+            ejercicios_tema = []
+            resueltos = 0
+            for ej in tema.ejercicios:
+                entregas_ej = (
+                    Entrega.query
+                    .filter_by(alumno_id=alumno_id, ejercicio_id=ej.id)
+                    .order_by(Entrega.id.desc())
+                    .all()
+                )
+                intentos = len(entregas_ej)
+                ultima_entrega = entregas_ej[0] if entregas_ej else None
+                estado = ultima_entrega.resultado if ultima_entrega else 'pendiente'
+                if estado == 'correcto':
+                    resueltos +=1
+                ejercicios_tema.append({
+                    'id': ej.id,
+                    'nombre': ej.nombre,
+                    'estado': estado,
+                    'intentos': intentos,
+                })
+
+            res.append({
+                'id': tema.id,
+                'nombre': tema.nombre,
+                'color': tema.color or '#4d7cfe',
+                'ejercicios': ejercicios_tema,
+                'resueltos': resueltos,
+                'total': len(ejercicios_tema),
+            })
+
+        return jsonify(res), 200
     
+
 
         
 

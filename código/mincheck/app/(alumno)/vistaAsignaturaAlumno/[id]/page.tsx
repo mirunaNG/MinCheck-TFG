@@ -1,12 +1,38 @@
 "use client";
 
-import { use } from "react";
+import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "../../../components/sidebar";
 import styles from "../vistaAsignaAlumno.module.css";
-import {asignaturas, temasDe, ejercicios, entregas, alumnosDe, ejerciciosCompletados} from "../../../lib/mockData";
 
-const ALUMNO_ID = 2;
+type Asignatura = {
+  id: number;
+  nombre: string;
+  color: string;
+};
+
+type EjercicioConEstado = {
+  id: number;
+  nombre: string;
+  estado: "correcto" | "incorrecto" | "pendiente";
+  intentos: number;
+};
+
+type TemaConEjercicios = {
+  id: number;
+  nombre: string;
+  color: string;
+  ejercicios: EjercicioConEstado[];
+  resueltos: number;
+  total: number;
+};
+
+type AlumnoRanking = {
+  id: number;
+  nombreCompleto: string;
+  completados: number;
+};
+
 
 export default function VistaAsignaturaAlumno({
   params,
@@ -15,9 +41,48 @@ export default function VistaAsignaturaAlumno({
 }) {
   const { id } = use(params);
   const router = useRouter();
-  const asignaturaId = Number(id);
 
-  const asignatura = asignaturas.find((a) => a.id === asignaturaId);
+  const [asignatura, setAsignatura] = useState<Asignatura | null>(null);
+  const [temas, setTemas] = useState<TemaConEjercicios[]>([]);
+  const [ranking, setRanking] = useState<AlumnoRanking[]>([]);
+  const [alumnoId, setAlumnoId] = useState<number | null>(null);
+  const [cargando, setCargando] = useState(true);
+
+  useEffect(() => {
+    const idGuardado = localStorage.getItem("id");
+    if (!idGuardado) return;
+
+    const alumnoId = Number(idGuardado);
+    setAlumnoId(alumnoId);
+
+    Promise.all([
+      fetch('http://localhost:5001/asignatura/' + id),
+      fetch('http://localhost:5001/asignatura/' + id + '/alumno/' + alumnoId + '/temas'),
+      fetch('http://localhost:5001/asignatura/' + id + '/alumnos'),
+    ])
+      .then(async ([resultadoAsignatura, resultadoTema, resultadoRank]) => {
+        const datosAsignatura = await resultadoAsignatura.json();
+        const datosTemas = await resultadoTema.json();
+        const datosRanking = await resultadoRank.json();
+        setAsignatura(datosAsignatura);
+        setTemas(datosTemas);
+        setRanking(
+          [...datosRanking.alumnos].sort((a: AlumnoRanking, b: AlumnoRanking) => b.completados - a.completados)
+        );
+        setCargando(false);
+      });
+  }, [id]);
+
+  if (cargando) {
+    return (
+      <div className={styles.layout}>
+        <Sidebar rol="alumno" />
+        <main className={styles.main}>
+          <p style={{ padding: 40, color: "#8b949e", textAlign: "center" }}>Cargando...</p>
+        </main>
+      </div>
+    );
+  }
 
   if (!asignatura) {
     return (
@@ -32,43 +97,6 @@ export default function VistaAsignaturaAlumno({
     );
   }
 
-  const temas = temasDe(asignaturaId);
-
-  const ranking = alumnosDe(asignaturaId)
-    .map((a) => ({
-      id: a.id,
-      nombre: a.nombreCompleto,
-      completados: ejerciciosCompletados(a.id, asignaturaId),
-    }))
-    .sort((a, b) => b.completados - a.completados);
-
-  const temasConEjercicios = temas.map((tema) => {
-    const ejerciciosTema = ejercicios.filter((e) => e.temaId === tema.id);
-    const ejerciciosConEstado = ejerciciosTema.map((ej) => {
-      const entregasAlumno = entregas
-        .filter((en) => en.alumnoId === ALUMNO_ID && en.ejercicioId === ej.id)
-        .sort((a, b) => a.id - b.id);
-      const ultima = entregasAlumno[entregasAlumno.length - 1] ?? null;
-      return {
-        ...ej,
-        estado: (ultima?.resultado ?? "pendiente") as
-          | "correcto"
-          | "incorrecto"
-          | "pendiente",
-        intentos: ultima?.intentos ?? 0,
-      };
-    });
-    const resueltos = ejerciciosConEstado.filter(
-      (e) => e.estado === "correcto"
-    ).length;
-    return {
-      ...tema,
-      ejercicios: ejerciciosConEstado,
-      resueltos,
-      total: ejerciciosTema.length,
-    };
-  });
-
   return (
     <div className={styles.layout}>
       <Sidebar rol="alumno" />
@@ -78,7 +106,12 @@ export default function VistaAsignaturaAlumno({
 
         <div className={styles.contenido}>
           <div className={styles.columnaIzquierda}>
-            {temasConEjercicios.map((tema) => (
+            {temas.length === 0 && (
+              <p style={{ color: "#8b949e", padding: "20px 0" }}>
+                Aún no hay temas subidos en esta asignatura.
+              </p>
+            )}
+            {temas.map((tema) => (
               <section key={tema.id} className={styles.seccionTema}>
                 <div className={styles.encabezadoTema}>
                   <span
@@ -86,7 +119,7 @@ export default function VistaAsignaturaAlumno({
                     style={{ backgroundColor: tema.color }}
                   />
                   <span className={styles.nombreTema}>
-                    TEMA {tema.nombre.toUpperCase()}
+                   TEMA: {tema.nombre.toUpperCase()}
                   </span>
                   <div className={styles.barraProg}>
                     <div
@@ -105,6 +138,11 @@ export default function VistaAsignaturaAlumno({
                 <hr className={styles.separador} />
 
                 <div className={styles.ejerciciosGrid}>
+                  {tema.ejercicios.length === 0 && (
+                    <p style={{ color: "#8b949e", fontSize: "13px" }}>
+                      Aún no hay ejercicios en este tema.
+                    </p>
+                  )}
                   {tema.ejercicios.map((ej) => (
                     <div
                       key={ej.id}
@@ -173,10 +211,10 @@ export default function VistaAsignaturaAlumno({
                   <li
                     key={alumno.id}
                     className={`${styles.rankingItem} ${
-                      alumno.id === ALUMNO_ID ? styles.rankingYo : ""
+                      alumno.id === alumnoId ? styles.rankingYo : ""
                     }`}
                   >
-                    {i + 1}. {alumno.nombre}
+                    {i + 1}. {alumno.nombreCompleto}
                   </li>
                 ))}
               </ul>
