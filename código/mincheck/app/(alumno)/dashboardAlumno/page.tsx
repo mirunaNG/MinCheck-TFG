@@ -24,7 +24,7 @@ export default function PaginaDashboardAlumno() {
       const datosAsig = await respuestaAsig.json();
       setAsignaturas(datosAsig);
 
-      const respuestaEntregas = await fetch("http://localhost:5001/alumno/" + id + "/historialEntregas?limite=4");
+      const respuestaEntregas = await fetch("http://localhost:5001/alumno/" + id + "/entregas?limite=4");
       const datosEntregas = await respuestaEntregas.json();
       setUltimasEntregas(datosEntregas);
     }

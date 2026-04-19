@@ -105,7 +105,7 @@ def registrar_rutas(app):
         entregas = (
             Entrega.query.filter_by(alumno_id = alumno_id)
             .options(joinedload(Entrega.ejercicio))
-            .order_by(Entrega.fecha_entrega.desc())
+            .order_by(Entrega.fecha_hora.desc())
             .limit(limite)
             .all()
         )
@@ -679,6 +679,79 @@ def registrar_rutas(app):
 
         return jsonify(res), 200
     
+    @app.route('/ejercicio/<int:ejercicio_id>/alumno/<int:alumno_id>/intentos', methods=['GET'])
+    def intentos_alumno_ejercicio(ejercicio_id, alumno_id):
+        from app.modelos import Ejercicio, Entrega
+        ejercicio = Ejercicio.query.get(ejercicio_id)
+        if not ejercicio:
+            return jsonify({'mensaje': 'Ejercicio no encontrado'}), 404
+        
+        tema = ejercicio.tema
+        entregas = (
+            Entrega.query
+            .filter_by(alumno_id=alumno_id, ejercicio_id=ejercicio_id)
+            .order_by(Entrega.fecha_hora.desc())
+            .all()
+        )
+
+        intentos = []
+        for e in entregas:
+            intentos.append({
+                'id': e.id,
+                'resultado': e.resultado,
+                'fechaHora': e.fecha_hora.strftime('%d/%m/%Y %H:%M') if e.fecha_hora else '-',
+                'errorPrincipal': e.error_principal,
+            })
+        
+        ultimo_codigo=entregas[0].codigo_url if entregas else None
+
+        return jsonify({
+            'ejercicio': {
+                'id': ejercicio.id,
+                'nombre': ejercicio.nombre,
+                'tema': tema.nombre,
+                'enunciadoNombre': ejercicio.enunciado_nombre,
+                'enunciadoURL': ejercicio.enunciado_url,
+            },
+            'intentos': intentos,
+            'ultimoCodigo': ultimo_codigo,
+        }), 200
+    
+    #RESULTADO SE TIENE QUE SACAR DE LA LOGICA
+    @app.route('/ejercicio/<int:ejercicio_id>/entregas', methods=['POST'])
+    def guardar_entrega(ejercicio_id):
+        from app.modelos import Ejercicio, Entrega
+        import datetime
+        ejercicio = Ejercicio.query.get(ejercicio_id)
+        if not ejercicio:
+            return jsonify({'mensaje': 'Ejercicio no encontrado'}), 404
+        
+        datos = request.get_json()
+        alumno_id = datos.get('alumnoId')
+        codigo = datos.get('codigo', '')
+
+        if not alumno_id:
+            return jsonify({'mensaje': 'Faltan datos'}), 400
+        
+        entrega = Entrega(
+            alumno_id=alumno_id,
+            ejercicio_id=ejercicio_id,
+            codigo_url=codigo,
+            resultado='correcto',
+            fecha_hora = datetime.datetime.now(),
+        )
+        db.session.add(entrega)
+        db.session.commit()
+
+        return jsonify({
+            'id': entrega.id,
+            'resultado': entrega.resultado,
+            'fechaHora': entrega.fecha_hora.strftime('%d/%m/%Y %H:%M'),
+            'errorPrincipal': None,
+        }), 201
+
+
+        
 
 
         

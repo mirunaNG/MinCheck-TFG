@@ -1,48 +1,23 @@
 "use client";
 
-import { use, useState, useCallback } from "react";
+import { use, useState, useEffect, useCallback } from "react";
 import Sidebar from "../../../components/sidebar";
 import styles from "../intentarEjercicio.module.css";
-import { ejercicios, temas, entregas, Entrega } from "../../../lib/mockData";
 
-const ALUMNO_ID = 2;
+type IntentoPrevio = {
+  id: number;
+  resultado: "correcto" | "incorrecto" | "pendiente";
+  fechaHora: string;
+  errorPrincipal: string | null;
+};
 
-// Código del último intento (mock — en producción vendría del backend)
-const CODIGO_ULTIMO_INTENTO = `#include <iostream>
-#include <vector>
-
-using namespace std;
-
-void quickSort(vector<int>& arr, int low, int high) {
-    if (low >= high) return;
-    int pivot = arr[high]; // Elegimos el último como pivote
-    int i = low;           // Puntero para los elementos menores
-    for (int j = low; j < high; j++) {
-        if (arr[j] <= pivot) {
-            i++;
-            swap(arr[i], arr[j]);
-        }
-    }
-    // Colocar el pivote en su posición final
-    int temp = arr[i];
-    arr[i] = arr[high];
-    arr[high] = temp;
-    quickSort(arr, low, i - 1);
-    quickSort(arr, i + 1, high);
-}
-
-int main() {
-    int n;
-    cin >> n;
-    vector<int> arr(n);
-    for (int& x : arr) cin >> x;
-    quickSort(arr, 0, n - 1);
-    for (int i = 0; i < n; i++) {
-        if (i) cout << " ";
-        cout << arr[i];
-    }
-    cout << endl;
-}`;
+type EjercicioInfo = {
+  id: number;
+  nombre: string;
+  tema: string;
+  enunciadoNombre: string | null;
+  enunciadoURL: string | null;
+};
 
 export default function IntentarEjercicio({
   params,
@@ -50,27 +25,38 @@ export default function IntentarEjercicio({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const ejercicioId = Number(id);
 
-  const ejercicio = ejercicios.find((e) => e.id === ejercicioId);
-  const tema = ejercicio ? temas.find((t) => t.id === ejercicio.temaId) : null;
-
-  const intentosPrevios = entregas
-    .filter((en) => en.alumnoId === ALUMNO_ID && en.ejercicioId === ejercicioId)
-    .sort((a, b) => b.id - a.id);
-
-  const esReintento = intentosPrevios.length > 0;
-
-  const [archivoNombre, setArchivoNombre] = useState<string | null>(
-    esReintento
-      ? `${ejercicio?.nombre.toLowerCase().replace(/ /g, "_") ?? "solucion"}_sol.cpp`
-      : null
-  );
-  const [codigo, setCodigo] = useState<string>(
-    esReintento ? CODIGO_ULTIMO_INTENTO : ""
-  );
+  const [alumnoId, setAlumnoId] = useState<number | null>(null);
+  const [ejercicio, setEjercicio] = useState<EjercicioInfo | null>(null);
+  const [intentosPrevios, setIntentosPrevios] = useState<IntentoPrevio[]>([]);
+  const [codigo, setCodigo] = useState("");
+  const [archivoNombre, setArchivoNombre] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
-  const [intentosLocales, setIntentosLocales] = useState<Entrega[]>([]);
+  const [cargando, setCargando] = useState(true);
+  const [enviando, setEnviando] = useState(false);
+
+  useEffect(() => {
+    const idGuardado = localStorage.getItem("id");
+    if (!idGuardado) return;
+
+    const aId = Number(idGuardado);
+    setAlumnoId(aId);
+
+    fetch('http://localhost:5001/ejercicio/' + id + '/alumno/' + aId + '/intentos')
+      .then((r) => r.json())
+      .then((datos) => {
+        setEjercicio(datos.ejercicio);
+        setIntentosPrevios(datos.intentos);
+        if (datos.ultimoCodigo) {
+          setCodigo(datos.ultimoCodigo);
+          setArchivoNombre(
+            `${datos.ejercicio.nombre.toLowerCase().replace(/ /g, "_")}_sol.cpp`
+          );
+        }
+        setCargando(false);
+      });
+  }, [id]);
+
 
   const handleFile = (file: File) => {
     setArchivoNombre(file.name);
@@ -91,21 +77,35 @@ export default function IntentarEjercicio({
     if (file) handleFile(file);
   };
 
-  const handleEnviar = () => {
-    const nuevoIntento: Entrega = {
-      id: Date.now(),
-      alumnoId: ALUMNO_ID,
-      ejercicioId,
-      resultado: "pendiente",
-      fechaHora: "Ahora",
-      intentos: intentosPrevios.length + intentosLocales.length + 1,
-      errorPrincipal: null,
-    };
-    setIntentosLocales((prev) => [nuevoIntento, ...prev]);
-    // toDo: navegar a la vista de veredicto (correcto / incorrecto)
+ const handleEnviar = async () => {
+    if (!alumnoId) return;
+    setEnviando(true);
+
+    const res = await fetch('http://localhost:5001/ejercicio/' + id + '/entregas', {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ alumnoId, codigo }),
+    });
+
+    if (res.ok) {
+      const nuevo = await res.json();
+      setIntentosPrevios((prev) => [nuevo, ...prev]);
+    }
+    setEnviando(false);
   };
 
-  const todosLosIntentos = [...intentosLocales, ...intentosPrevios];
+  if (cargando) {
+    return (
+      <div className={styles.layout}>
+        <Sidebar rol="alumno" />
+        <main className={styles.main}>
+          <p style={{ padding: 40, color: "#8b949e", textAlign: "center" }}>
+            Cargando...
+          </p>
+        </main>
+      </div>
+    );
+  }
 
   if (!ejercicio) {
     return (
@@ -127,16 +127,13 @@ export default function IntentarEjercicio({
       <main className={styles.main}>
         <div className={styles.encabezado}>
           <h1 className={styles.titulo}>{ejercicio.nombre.toUpperCase()}</h1>
-          {tema && (
-            <p className={styles.subtitulo}>TEMA {tema.nombre.toUpperCase()}</p>
-          )}
+          <p className={styles.subtitulo}>TEMA {ejercicio.tema.toUpperCase()}</p>
           <p className={styles.instruccion}>
             Sube aquí tu solución o escribe el código directamente
           </p>
         </div>
 
         <div className={styles.contenido}>
-          {/* Columna izquierda: editor + drop zone */}
           <div className={styles.columnaIzquierda}>
             <div className={styles.editorCard}>
               <div className={styles.editorHeader}>
@@ -152,7 +149,7 @@ export default function IntentarEjercicio({
                 value={codigo}
                 onChange={(e) => setCodigo(e.target.value)}
                 placeholder={
-                  esReintento
+                  intentosPrevios.length > 0
                     ? ""
                     : "Escribe aquí tu solución o sube un archivo..."
                 }
@@ -188,14 +185,13 @@ export default function IntentarEjercicio({
             </label>
           </div>
 
-          {/* Columna derecha: enunciado + intentos */}
           <div className={styles.columnaDerecha}>
             <div className={styles.card}>
               <h3 className={styles.cardTitulo}>ENUNCIADO</h3>
-              {ejercicio.enunciadoPdf ? (
+              {ejercicio.enunciadoNombre ? (
                 <div className={styles.pdfRow}>
                   <span className={styles.pdfNombre}>
-                    {ejercicio.enunciadoPdf.nombre}
+                    {ejercicio.enunciadoNombre}
                   </span>
                   <button className={styles.btnDescargar}>Descargar pdf</button>
                 </div>
@@ -206,13 +202,13 @@ export default function IntentarEjercicio({
 
             <div className={styles.card}>
               <h3 className={styles.cardTitulo}>INTENTOS ANTERIORES</h3>
-              {todosLosIntentos.length === 0 ? (
+              {intentosPrevios.length === 0 ? (
                 <p className={styles.sinContenido}>
                   ¡Vaya! Aún no tienes ningún intento
                 </p>
               ) : (
                 <ul className={styles.intentosList}>
-                  {todosLosIntentos.map((en) => (
+                  {intentosPrevios.map((en) => (
                     <li key={en.id} className={styles.intentoItem}>
                       <span
                         className={styles.intentoEstado}
