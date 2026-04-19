@@ -16,6 +16,8 @@ type EjercicioConEstado = {
   nombre: string;
   estado: "correcto" | "incorrecto" | "pendiente";
   intentos: number;
+  cerrado: boolean;
+  fechaLimite: string | null;
 };
 
 type TemaConEjercicios = {
@@ -69,6 +71,9 @@ export default function VistaAsignaturaAlumno({
         setRanking(
           [...datosRanking.alumnos].sort((a: AlumnoRanking, b: AlumnoRanking) => b.completados - a.completados)
         );
+        setCargando(false);
+      })
+      .catch(() => {
         setCargando(false);
       });
   }, [id]);
@@ -149,11 +154,10 @@ export default function VistaAsignaturaAlumno({
                       className={styles.ejercicioCard}
                       style={{
                         borderLeft: `4px solid ${
-                          ej.estado === "correcto"
-                            ? "#4caf50"
-                            : ej.estado === "incorrecto"
-                            ? "#f44336"
-                            : "#e38500"
+                          ej.estado === "correcto" ? "#4caf50"
+                          : ej.cerrado ? "#8b949e"
+                          : ej.estado === "incorrecto" ? "#f44336"
+                          : "#e38500"
                         }`,
                       }}
                     >
@@ -181,19 +185,21 @@ export default function VistaAsignaturaAlumno({
                             {ej.intentos} intento{ej.intentos !== 1 ? "s" : ""}
                           </span>
                         )}
-                        {ej.estado !== "correcto" && (
+                        {ej.estado !== "correcto" && !ej.cerrado && (
                           <button
-                            className={
-                              ej.estado === "incorrecto"
-                                ? styles.botonReintentar
-                                : styles.botonIntentar
-                            }
+                            className={ej.estado === "incorrecto" ? styles.botonReintentar : styles.botonIntentar}
                             onClick={() => router.push(`/intentarEjercicio/${ej.id}`)}
                           >
-                            {ej.estado === "incorrecto"
-                              ? "REINTENTAR →"
-                              : "intentar →"}
+                            {ej.estado === "incorrecto" ? "REINTENTAR →" : "intentar →"}
                           </button>
+                        )}
+                        {ej.cerrado && ej.estado !== "correcto" && (
+                          <span style={{ fontSize: 11, color: "#8b949e" }}>plazo cerrado</span>
+                        )}
+                        {ej.fechaLimite && (
+                          <span style={{ fontSize: 11, color: "#8b949e" }}>
+                            Límite: {new Date(ej.fechaLimite).toLocaleDateString("es-ES")}
+                          </span>
                         )}
                       </div>
                     </div>

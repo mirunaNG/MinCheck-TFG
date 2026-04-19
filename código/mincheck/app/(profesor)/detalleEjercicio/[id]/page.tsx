@@ -38,6 +38,8 @@ type EjercicioDetalle = {
   solucionURL: string | null;
   casosPrueba: CasoPrueba[];
   entregas: EntregaDetalle[];
+  visible: boolean;
+  fechaLimite: string | null;
 };
 
 type ConfigFeedback = {
@@ -81,6 +83,7 @@ export default function DetalleEjercicio({
   const [pestaña, setPestaña] = useState<PestañaActiva>("material");
   const [visibleAlumnos, setVisibleAlumnos]= useState(true);
   const [fechaLimiteActiva, setFechaLimiteActiva] = useState(false);
+  const [fechaLimiteValor, setFechaLimiteValor] = useState("");
   const [enunciadoFile, setEnunciadoFile] = useState<ArchivoEjercicio | null>(null);
   const [solucionFile, setSolucionFile] = useState<ArchivoEjercicio | null>(null);
  
@@ -106,6 +109,10 @@ export default function DetalleEjercicio({
         if (data.solucionNombre) {
           setSolucionFile({ nombre: data.solucionNombre, tamaño: "", fecha: "" });
         }
+        setVisibleAlumnos(data.visible);
+        setFechaLimiteActiva(data.fechaLimite !== null);
+        if (data.fechaLimite) setFechaLimiteValor(data.fechaLimite.slice(0, 16));
+
         setCargando(false);
       })
       .catch(() => setCargando(false));
@@ -200,6 +207,18 @@ export default function DetalleEjercicio({
       setGuardandoFeedback(false);
     }
   }
+
+  async function handleGuardarConfiguracion() {
+    await fetch('http://localhost:5001/ejercicio/' + ejercicioId + '/configuracion', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        visible: visibleAlumnos,
+        fechaLimite: fechaLimiteActiva && fechaLimiteValor ? fechaLimiteValor : null,
+      }),
+    });
+  }
+
 
   const entregasEjercicio = datos?.entregas ?? [];
   const totalEntregas = entregasEjercicio.length;
@@ -382,16 +401,37 @@ export default function DetalleEjercicio({
                   </div>
 
                   <div className={styles.configItem}>
-                    <div className={styles.configTexto}>
-                      <span className={styles.configNombre}>Fecha límite</span>
-                      <span className={styles.configDesc}>20 mar 2025 · 23:59</span>
-                    </div>
-                    <button
-                      className={`${styles.toggle} ${fechaLimiteActiva ? styles.toggleOn : ""}`}
-                      onClick={() => setFechaLimiteActiva(!fechaLimiteActiva)}
-                      role="switch" aria-checked={fechaLimiteActiva}
-                    />
+                  <div className={styles.configTexto}>
+                    <span className={styles.configNombre}>Fecha límite</span>
+                    {fechaLimiteActiva && (
+                      <>
+                        <span style={{ fontSize: 12, color: "#f6ad55", marginTop: 2 }}>
+                          {fechaLimiteValor
+                            ? new Date(fechaLimiteValor).toLocaleString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })
+                            : "Sin fecha"}
+                        </span>
+                        <input
+                          type="datetime-local"
+                          value={fechaLimiteValor}
+                          onChange={(e) => setFechaLimiteValor(e.target.value)}
+                          style={{ marginTop: 4, background: '#1a1f2e', color: '#c9d1d9', border: '1px solid #30363d', borderRadius: 4, padding: '2px 6px', fontSize: 12 }}
+                        />
+                      </>
+                    )}
                   </div>
+                  <button
+                    className={`${styles.toggle} ${fechaLimiteActiva ? styles.toggleOn : ""}`}
+                    onClick={() => setFechaLimiteActiva(!fechaLimiteActiva)}
+                    role="switch" aria-checked={fechaLimiteActiva}
+                  />
+                </div>
+                <button
+                  onClick={handleGuardarConfiguracion}
+                  style={{ marginTop: 10, width: '100%', padding: '8px', background: '#4d7cfe', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}
+                >
+                  Guardar configuración
+                </button>
+
                 </div>
 
                 <button

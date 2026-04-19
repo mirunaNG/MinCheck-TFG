@@ -22,6 +22,7 @@ def registrar_rutas(app):
         correo = datos.get('correo')
         contrasena = datos.get('contrasena')
         rol = datos.get('rol')
+        centro = datos.get('centro')
 
         #si falta alguno de los campos requeridos, se devuelve un error
         if not nombre or not correo or not contrasena or not rol:
@@ -35,7 +36,7 @@ def registrar_rutas(app):
                 {'mensaje': 'El correo ya está registrado'}
             ), 400
         
-        usuario = Usuario(nombre_completo=nombre, correo=correo, rol=rol, fecha_creacion=datetime.datetime.now())
+        usuario = Usuario(nombre_completo=nombre, correo=correo, rol=rol, fecha_creacion=datetime.datetime.now(), universidad = centro)
         usuario.password = contrasena  # Esto activa el setter de password
 
         db.session.add(usuario)
@@ -545,7 +546,24 @@ def registrar_rutas(app):
             'solucionURL': ejercicio.solucion_url,
             'casosPrueba': casos_prueba,
             'entregas': entregas,
+            'visible': ejercicio.visible,
+            'fechaLimite': ejercicio.fecha_limite.isoformat() if ejercicio.fecha_limite else None,
         }), 200
+    
+    @app.route('/ejercicio/<int:ejercicio_id>/configuracion', methods=['PUT'])
+    def guardar_configuracion_ejercicio(ejercicio_id):
+        from app.modelos import Ejercicio
+        import datetime
+        ejercicio = Ejercicio.query.get(ejercicio_id)
+        if not ejercicio:
+            return jsonify({'mensaje': 'Ejercicio no encontrado'}), 404
+        datos = request.get_json()
+        ejercicio.visible = datos.get('visible', ejercicio.visible)
+        fecha_str = datos.get('fechaLimite')
+        ejercicio.fecha_limite = datetime.datetime.fromisoformat(fecha_str) if fecha_str else None
+        db.session.commit()
+        return jsonify({'mensaje': 'Configuración guardada'}), 200
+
     
     @app.route('/ejercicio/<int:ejercicio_id>/feedback', methods=['GET'])
     def cargar_feedback_ejercicio(ejercicio_id):
@@ -640,6 +658,7 @@ def registrar_rutas(app):
     @app.route('/asignatura/<int:asignatura_id>/alumno/<int:alumno_id>/temas', methods=['GET'])
     def temas_asignatura_alumno(asignatura_id, alumno_id):
         from app.modelos import Asignatura, Entrega
+        import datetime
 
         asignatura = Asignatura.query.get(asignatura_id)
         if not asignatura:
@@ -650,6 +669,10 @@ def registrar_rutas(app):
             ejercicios_tema = []
             resueltos = 0
             for ej in tema.ejercicios:
+                if not ej.visible:
+                    continue
+                ahora = datetime.datetime.now()
+                cerrado = ej.fecha_limite is not None and ahora.date() > ej.fecha_limite
                 entregas_ej = (
                     Entrega.query
                     .filter_by(alumno_id=alumno_id, ejercicio_id=ej.id)
@@ -660,13 +683,16 @@ def registrar_rutas(app):
                 ultima_entrega = entregas_ej[0] if entregas_ej else None
                 estado = ultima_entrega.resultado if ultima_entrega else 'pendiente'
                 if estado == 'correcto':
-                    resueltos +=1
+                    resueltos += 1
                 ejercicios_tema.append({
                     'id': ej.id,
                     'nombre': ej.nombre,
                     'estado': estado,
                     'intentos': intentos,
+                    'cerrado': cerrado,
+                    'fechaLimite': ej.fecha_limite.isoformat() if ej.fecha_limite else None,
                 })
+
 
             res.append({
                 'id': tema.id,

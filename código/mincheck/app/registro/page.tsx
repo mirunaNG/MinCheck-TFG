@@ -16,6 +16,7 @@ export default function PaginaRegistro() {
   const [correo, setCorreo] = useState("");
   const [contrasena, setContrasena] = useState("");
   const [repetirContrasena, setRepetirContrasena] = useState("");
+  const [centro, setCentro] = useState("");
   
   /*para mostrar mensaje de error o desactivar el boton mientras carga */
   const [error, setError] = useState("");
@@ -38,7 +39,7 @@ export default function PaginaRegistro() {
       const respuesta = await fetch("http://localhost:5001/registro", {
         method: "POST",
         headers:{"Content-Type": "application/json"}, //le decimos al servidor que enviamos JSONs
-        body: JSON.stringify({nombre, correo, contrasena, rol}), //convertir datos a JSON
+        body: JSON.stringify({nombre, correo, contrasena, rol, centro}), //convertir datos a JSON
       });
 
       const datos = await respuesta.json();
@@ -165,8 +166,11 @@ export default function PaginaRegistro() {
                   <input
                     type="text"
                     placeholder="Introduce el centro en el que impartes"
+                    value={centro}
+                    onChange={(e) => setCentro(e.target.value)}
                     className={styles.entrada}
                   />
+
                 </div>
               </div>
             )}

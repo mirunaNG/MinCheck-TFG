@@ -108,6 +108,8 @@ class Ejercicio(db.Model):
     solucion_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     solucion_nombre: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     fecha_creacion: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime, nullable=True)
+    visible: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    fecha_limite: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime, nullable=True)
 
     # Relaciones: cada ejercicio pertenece a un tema, tiene muchos casos de prueba,
     # muchas entregas y una configuración de feedback
