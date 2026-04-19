@@ -1,14 +1,44 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useEffect } from "react";
 import Sidebar from "../../../components/sidebar";
 import Tabla from "../../../components/Tabla";
 import styles from "../detalleEj.module.css";
-import { ejercicios, temas, asignaturas, entregas, usuarios, ArchivoEjercicio, CasoPrueba, casosDe } from "../../../lib/mockData";
 
 type PestañaActiva = "material" | "entregas" | "feedback";
 
-type ArchivoMock = ArchivoEjercicio;
+type ArchivoEjercicio = {
+  nombre: string;
+  tamaño: string;
+  fecha: string;
+};
+
+type CasoPrueba = {
+  id: number;
+  input: string;
+  outputEsperado: string;
+};
+
+type EntregaDetalle = {
+  id: number;
+  alumno: string;
+  fechaHora: string;
+  resultado: "correcto" | "incorrecto" | "pendiente";
+  errorPrincipal: string | null;
+};
+
+type EjercicioDetalle = {
+  id: number;
+  nombre: string;
+  tema : {id:number; nombre: string};
+  asignatura: {id:number; nombre: string} | null;
+  enunciadoNombre: string | null;
+  enuncdiadoURL: string | null;
+  solucionNombre: string | null;
+  solucionURL: string | null;
+  casosPrueba: CasoPrueba[];
+  entregas: EntregaDetalle[];
+};
 
 type ConfigFeedback = {
   tipoError: boolean;
@@ -17,6 +47,24 @@ type ConfigFeedback = {
   comparacionSalidas: boolean;
   contraejemplo: boolean;
   visualizacionEstructuras: boolean;
+  activarPistas: boolean;
+  textoPista: string;
+  mostrarTras: number;
+};
+
+type FeedbackBoolKey = "tipoError" | "lineaFallo" | "mensajeExplicativo" | "comparacionSalidas" | "contraejemplo" | "visualizacionEstructuras";
+
+
+const FEEDBACK_DEFAULT: ConfigFeedback = {
+  tipoError: true,
+  lineaFallo: true,
+  mensajeExplicativo: false,
+  comparacionSalidas: true,
+  contraejemplo: true,
+  visualizacionEstructuras: true,
+  activarPistas: true,
+  textoPista: "",
+  mostrarTras: 3,
 };
 
 export default function DetalleEjercicio({
@@ -27,52 +75,66 @@ export default function DetalleEjercicio({
   const { id } = use(params);
   const ejercicioId = Number(id);
 
-  const ejercicio = ejercicios.find((e) => e.id === ejercicioId);
-  const tema = temas.find((t) => t.id === ejercicio?.temaId);
-  const asignatura = asignaturas.find((a) => a.id === tema?.asignaturaId);
+  const [datos, setDatos] = useState<EjercicioDetalle | null>(null);
+  const [cargando, setCargando] = useState(true);
 
-  /* ── Estado pestañas y material ── */
-  const [pestaña, setPestaña]                    = useState<PestañaActiva>("material");
-  const [visibleAlumnos, setVisibleAlumnos]       = useState(true);
+  const [pestaña, setPestaña] = useState<PestañaActiva>("material");
+  const [visibleAlumnos, setVisibleAlumnos]= useState(true);
   const [fechaLimiteActiva, setFechaLimiteActiva] = useState(false);
-  const [enunciadoFile, setEnunciadoFile]         = useState<ArchivoMock | null>(ejercicio?.enunciadoPdf ?? null);
-  const [solucionFile, setSolucionFile]           = useState<ArchivoMock | null>(ejercicio?.codigoSolucion ?? null);
+  const [enunciadoFile, setEnunciadoFile] = useState<ArchivoEjercicio | null>(null);
+  const [solucionFile, setSolucionFile] = useState<ArchivoEjercicio | null>(null);
+ 
+  const [configFeedback, setConfigFeedback]   = useState<ConfigFeedback>(FEEDBACK_DEFAULT);
+  const [guardandoFeedback, setGuardandoFeedback] = useState(false);
+  const [feedbackGuardado, setFeedbackGuardado]   = useState(false);
 
-  /* ── Estado feedback ── */
-  const [configFeedback, setConfigFeedback] = useState<ConfigFeedback>({
-    tipoError:               true,
-    lineaFallo:              true,
-    mensajeExplicativo:      false,
-    comparacionSalidas:      true,
-    contraejemplo:           true,
-    visualizacionEstructuras: true,
-  });
-  const [activarPistas, setActivarPistas] = useState(true);
-  const [textoPista, setTextoPista]       = useState("");
-  const [mostrarTras, setMostrarTras]     = useState(3);
-
-  /* ── Estado casos de prueba ── */
   const [casos, setCasos]             = useState<CasoPrueba[]>([]);
   const [generando, setGenerando]     = useState(false);
   const [modalAñadir, setModalAñadir] = useState(false);
   const [nuevoInput, setNuevoInput]   = useState("");
   const [nuevoOutput, setNuevoOutput] = useState("");
 
-  function handleGenerar() {
+  /*Cargar ejercicio */
+  useEffect(() => {
+    fetch('http://localhost:5001/ejercicio/' +ejercicioId)
+      .then((r) => r.json())
+      .then((data: EjercicioDetalle) => {
+        setDatos(data);
+        if (data.enunciadoNombre) {
+          setEnunciadoFile({ nombre: data.enunciadoNombre, tamaño: "", fecha: "" });
+        }
+        if (data.solucionNombre) {
+          setSolucionFile({ nombre: data.solucionNombre, tamaño: "", fecha: "" });
+        }
+        setCargando(false);
+      })
+      .catch(() => setCargando(false));
+  }, [ejercicioId]);
+
+  /*Cargar configuracion del feedback */
+  useEffect(() => {
+    fetch('http://localhost:5001/ejercicio/' + ejercicioId + '/feedback')
+      .then((r) => r.json())
+      .then((data: ConfigFeedback) => setConfigFeedback(data))
+      .catch(() => {});
+  }, [ejercicioId]);
+
+  /*ESTO HAY QUE HACER LA LOGICA  AÚN:)) */
+  function handleGenerar(){
     setGenerando(true);
-    // Simula llamada al backend (analizaría el código solución y ejecutaría los casos)
     setTimeout(() => {
-      setCasos(casosDe(ejercicioId).map((c) => ({ ...c })));
+      setCasos((datos?.casosPrueba ?? []).map((c) => ({...c})));
       setGenerando(false);
     }, 900);
   }
 
-  function handleAñadirManual() {
+  function handleAñadirManual(){
     if (!nuevoInput.trim()) return;
     setCasos((prev) => [
       ...prev,
-      { id: Date.now(), ejercicioId, input: nuevoInput.trim(), outputEsperado: nuevoOutput.trim() },
+      {id:Date.now(), input:nuevoInput.trim(), outputEsperado: nuevoOutput.trim()},
     ]);
+
     setNuevoInput("");
     setNuevoOutput("");
     setModalAñadir(false);
@@ -82,42 +144,80 @@ export default function DetalleEjercicio({
     setCasos((prev) => prev.filter((c) => c.id !== id));
   }
 
-  function handleDescargar() {
-  const contenido = casos.map((c) => `${c.input}\n${c.outputEsperado}`).join("\n\n");
-  const a = document.createElement("a");
-  a.href = "data:text/plain;charset=utf-8," + encodeURIComponent(contenido);
-  a.download = "casos_generados.txt";
-  a.click();
+  function handleDescargar(){
+    const contenido = casos.map((c) => c.input + ' ' + c.outputEsperado + '\n').join();
+    const a = document.createElement("a");
+    a.href = "data:text/plain;charset=utf-8," + encodeURIComponent(contenido);
+    a.download = "casos_generados.txt";
+    a.click();
   }
-  /* ── Entregas para este ejercicio ── */
-  const entregasEjercicio = entregas
-    .filter((en) => en.ejercicioId === ejercicioId)
-    .map((en) => ({
-      ...en,
-      alumnoNombre: usuarios.find((u) => u.id === en.alumnoId)?.nombreCompleto ?? "–",
-    }));
 
+  function toggleFeedback(key: FeedbackBoolKey) {
+    setConfigFeedback((prev) => ({ ...prev, [key]: !prev[key] }));
+  }
+
+  function handleNuevoEnunciado(file: File) {
+    setEnunciadoFile({
+      nombre: file.name,
+      tamaño: (file.size / 1024).toFixed(0) + 'KB',
+      fecha: "Hoy",
+    });
+    const form = new FormData();
+    form.append('enunciado', file);
+    fetch('http://localhost:5001/ejercicio/' + ejercicioId + '/archivos', {
+      method: 'PUT',
+      body: form,
+    });
+  }
+
+
+  function handleNuevaSolucion(file: File) {
+    setSolucionFile({
+      nombre: file.name,
+      tamaño: (file.size / 1024).toFixed(0) + 'KB',
+      fecha: "Hoy",
+    });
+    const form = new FormData();
+    form.append('solucion', file);
+    fetch('http://localhost:5001/ejercicio/' + ejercicioId + '/archivos', {
+      method: 'PUT',
+      body: form,
+    });
+  }
+
+
+  async function handleGuardarFeedback(){
+    setGuardandoFeedback(true);
+    try {
+      await fetch('http://localhost:5001/ejercicio/' + ejercicioId + '/feedback', {
+        method:"PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(configFeedback),
+      });
+      setFeedbackGuardado(true);
+      setTimeout(() => setFeedbackGuardado(false), 2500);
+    } finally {
+      setGuardandoFeedback(false);
+    }
+  }
+
+  const entregasEjercicio = datos?.entregas ?? [];
   const totalEntregas = entregasEjercicio.length;
   const correctas = entregasEjercicio.filter((e) => e.resultado === "correcto").length;
   const conErrores = entregasEjercicio.filter((e) => e.resultado === "incorrecto").length;
 
-  function toggleFeedback(key: keyof ConfigFeedback) {
-    setConfigFeedback((configAnterior) => {
-    const configNueva = { ...configAnterior };
-    configNueva[key] = !configAnterior[key];
-    return configNueva;
-  });
-}
-
-  function handleNuevoEnunciado(file: File) {
-    setEnunciadoFile({ nombre: file.name, tamano: `${(file.size / 1024).toFixed(0)} KB`, fecha: "Hoy" });
+  if (cargando) {
+    return (
+      <div className={styles.layout}>
+        <Sidebar rol="profesor" />
+        <main className={styles.main}>
+          <p style={{ padding: 32, color: "#8b949e" }}>Cargando...</p>
+        </main>
+      </div>
+    );
   }
 
-  function handleNuevaSolucion(file: File) {
-    setSolucionFile({ nombre: file.name, tamano: `${(file.size / 1024).toFixed(0)} KB`, fecha: "Hoy" });
-  }
-
-  if (!ejercicio) {
+  if (!datos) {
     return (
       <div className={styles.layout}>
         <Sidebar rol="profesor" />
@@ -133,16 +233,14 @@ export default function DetalleEjercicio({
       <Sidebar rol="profesor" />
 
       <main className={styles.main}>
-
-        {/* ── Cabecera ── */}
         <div className={styles.header}>
           <div>
-            <h1 className={styles.titulo}>{ejercicio.nombre}</h1>
-            <p className={styles.subtitulo}>{tema?.nombre}{asignatura ? ` · ${asignatura.nombre}` : ""}</p>
+            <h1 className={styles.titulo}>{datos.nombre}</h1>
+            <p className={styles.subtitulo}>{datos.tema.nombre}·{datos.asignatura?.nombre}</p>
           </div>
         </div>
 
-        {/* ── Pestañas ── */}
+        {/*Pestañas apartados */}
         <div className={styles.tabs}>
           <button
             className={`${styles.tab} ${pestaña === "material" ? styles.tabActivo : ""}`}
@@ -164,10 +262,9 @@ export default function DetalleEjercicio({
           </button>
         </div>
 
-        {/* ── Contenido ── */}
         <div className={styles.content}>
 
-          {/* ─── MATERIAL ─── */}
+          {/*MATERIAL*/}
           {pestaña === "material" && (
             <div className={styles.materialLayout}>
 
@@ -180,7 +277,7 @@ export default function DetalleEjercicio({
                       <span className={styles.archivoIcono}>📄</span>
                       <div className={styles.archivoInfo}>
                         <span className={styles.archivoNombre}>{enunciadoFile.nombre}</span>
-                        <span className={styles.archivoMeta}>{enunciadoFile.fecha} · {enunciadoFile.tamano}</span>
+                        <span className={styles.archivoMeta}>{enunciadoFile.fecha} · {enunciadoFile.tamaño}</span>
                       </div>
                       <button className={styles.eliminarBtn} onClick={() => setEnunciadoFile(null)} title="Eliminar">🗑</button>
                     </div>
@@ -203,7 +300,7 @@ export default function DetalleEjercicio({
                       <span className={styles.archivoIcono}>💻</span>
                       <div className={styles.archivoInfo}>
                         <span className={styles.archivoNombre}>{solucionFile.nombre}</span>
-                        <span className={styles.archivoMeta}>{solucionFile.fecha} · {solucionFile.tamano}</span>
+                        <span className={styles.archivoMeta}>{solucionFile.fecha} · {solucionFile.tamaño}</span>
                       </div>
                       <button className={styles.eliminarBtn} onClick={() => setSolucionFile(null)} title="Eliminar">🗑</button>
                     </div>
@@ -219,7 +316,7 @@ export default function DetalleEjercicio({
                   </label>
                 </section>
 
-                {/* ── Casos de prueba ── */}
+                {/*Casos de prueba */}
                 <section className={styles.seccion}>
                   <div className={styles.casosHeader}>
                     <h2 className={styles.seccionTitulo}>
@@ -313,11 +410,10 @@ export default function DetalleEjercicio({
             </div>
           )}
 
-          {/* ─── ENTREGAS ─── */}
+          {/*ENTREGAS */}
           {pestaña === "entregas" && (
             <div className={styles.entregasContent}>
 
-              {/* Tarjetas de resumen */}
               <div className={styles.statsRow}>
                 <div className={styles.statCard}>
                   <span className={styles.statNumero}>{totalEntregas}</span>
@@ -335,7 +431,6 @@ export default function DetalleEjercicio({
                 </div>
               </div>
 
-              {/* Tabla */}
               {entregasEjercicio.length === 0 ? (
                 <p className={styles.sinEntregas}>No hay entregas para este ejercicio todavía.</p>
               ) : (
@@ -352,12 +447,12 @@ export default function DetalleEjercicio({
                     <tr key={en.id}>
                       <td>
                         <div className={styles.alumnoCell}>
-                          <span className={styles.alumnoNombre}>{en.alumnoNombre}</span>
+                          <span className={styles.alumnoNombre}>{en.alumno}</span>
                           <button className={styles.codigoBtn}>código</button>
                         </div>
                       </td>
                       <td>{en.fechaHora}</td>
-                      <td>{en.intentos}</td>
+                      {/* <td>{en.intentos}</td> */}
                       <td>
                         {en.resultado === "correcto"
                           ? <span className={styles.check}>✓</span>
@@ -371,11 +466,10 @@ export default function DetalleEjercicio({
             </div>
           )}
 
-          {/* ─── FEEDBACK ─── */}
+          {/*FEEDBACK */}
           {pestaña === "feedback" && (
             <div className={styles.feedbackLayout}>
 
-              {/* Izquierda: qué ve el alumno */}
               <div className={styles.feedbackCard}>
                 <h2 className={styles.feedbackCardTitulo}>QUÉ VE EL ALUMNO</h2>
 
@@ -387,7 +481,7 @@ export default function DetalleEjercicio({
                     { key: "comparacionSalidas", label: "Comparación de salidas", desc: "Muestra salida esperada vs obtenida" },
                     { key: "contraejemplo", label: "Contraejemplo mínimo", desc: "La entrada más simple que falla" },
                     { key: "visualizacionEstructuras", label: "Visualización de estructuras de datos", desc: "Muestra como evoluciona las estructuras de datos y su contenido" },
-                  ] as { key: keyof ConfigFeedback; label: string; desc: string }[]
+                  ] as { key: FeedbackBoolKey; label: string; desc: string }[]
                 ).map(({ key, label, desc }) => (
                   <div key={key} className={styles.feedbackItem}>
                     <div className={styles.feedbackItemTexto}>
@@ -403,7 +497,6 @@ export default function DetalleEjercicio({
                 ))}
               </div>
 
-              {/* Derecha: sistema de pistas */}
               <div className={styles.feedbackCard}>
                 <h2 className={styles.feedbackCardTitulo}>SISTEMA DE PISTAS</h2>
 
@@ -413,9 +506,9 @@ export default function DetalleEjercicio({
                     <span className={styles.feedbackItemDesc}>El alumno ve una pista antes del feedback completo</span>
                   </div>
                   <button
-                    className={`${styles.toggle} ${activarPistas ? styles.toggleOn : ""}`}
-                    onClick={() => setActivarPistas(!activarPistas)}
-                    role="switch" aria-checked={activarPistas}
+                    className={`${styles.toggle} ${configFeedback.activarPistas ? styles.toggleOn : ""}`}
+                    onClick={() => setConfigFeedback((prev) => ({ ...prev, activarPistas: !prev.activarPistas }))}
+                    role="switch" aria-checked={configFeedback.activarPistas}
                   />
                 </div>
 
@@ -424,8 +517,8 @@ export default function DetalleEjercicio({
                   <textarea
                     className={styles.pistaTextarea}
                     placeholder="Escribe aquí el texto que quieres que aparezca como pista para los alumnos"
-                    value={textoPista}
-                    onChange={(e) => setTextoPista(e.target.value)}
+                    value={configFeedback.textoPista}
+                    onChange={(e) => setConfigFeedback((prev) => ({ ...prev, textoPista: e.target.value }))}
                     rows={4}
                   />
                 </div>
@@ -435,20 +528,33 @@ export default function DetalleEjercicio({
                   <input
                     type="range"
                     min={1} max={10}
-                    value={mostrarTras}
-                    onChange={(e) => setMostrarTras(Number(e.target.value))}
+                    value={configFeedback.mostrarTras}
+                    onChange={(e) => setConfigFeedback((prev) => ({ ...prev, mostrarTras: Number(e.target.value) }))}
                     className={styles.slider}
                   />
-                  <span className={styles.mostrarTrasValor}>{mostrarTras}</span>
+                  <span className={styles.mostrarTrasValor}>{configFeedback.mostrarTras}</span>
                 </div>
               </div>
+
+              <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 24 }}>
+              <button
+                className={styles.generarBtn}
+                onClick={handleGuardarFeedback}
+                disabled={guardandoFeedback}
+                style={{ width: "auto", padding: "10px 28px" }}
+              >
+                {guardandoFeedback ? "Guardando..." : feedbackGuardado ? "¡Guardado!" : "Guardar configuración"}
+              </button>
+            </div>
+
 
             </div>
           )}
 
         </div>
       </main>
-      {/* ── Modal: añadir caso manual ── */}
+
+      {/*Modal para aádir caso manualmente */}
       {modalAñadir && (
         <div className={styles.modalOverlay} onClick={() => setModalAñadir(false)}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>

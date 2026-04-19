@@ -134,7 +134,7 @@ export default function GestionMaterial({
     const res = await fetch(API+'/asignatura/' + asignaturaId +'/temas', {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nombre: `Tema ${nombreTema.trim()}`, color: colorTema }),
+      body: JSON.stringify({ nombre: 'Tema ${nombreTema.trim()}', color: colorTema }),
     });
     if (!res.ok) return;
     const nuevo: Tema = await res.json();
@@ -158,7 +158,7 @@ export default function GestionMaterial({
 
   async function abrirStats(ej: { id: number; nombre: string }) {
     setStatsEj(ej);
-    const res = await fetch(`${API}/ejercicio/${ej.id}/errores`);
+    const res = await fetch(API + '/ejercicio/' + ej.id + '/errores');
     const data = await res.json();
     setErroresStats(Array.isArray(data) ? data : []);
   }
@@ -218,10 +218,10 @@ export default function GestionMaterial({
                       </span>
                       <button
                           className={styles.botonIcono}
-                          onClick={() => setStatsEj({ id: ej.id, nombre: ej.nombre })}
+                          onClick={() => abrirStats({ id: ej.id, nombre: ej.nombre })}
                           title="Ver estadísticas"
                         >📊</button>
-                      <Link href={`/detalleEjercicio/${ej.id}`} className={styles.botonIcono}> ✎ </Link>
+                      <Link href={'/detalleEjercicio/' + ej.id} className={styles.botonIcono}> ✎ </Link>
                       <button
                         className={styles.botonIcono}
                         onClick={() => eliminarEjercicio(tema.id, ej.id)}
