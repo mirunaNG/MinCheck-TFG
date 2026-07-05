@@ -53,6 +53,7 @@ export default function GestionMaterial({
   const [erroresStats, setErroresStats] = useState<ErroreStat[]>([]);
 
   const [temaSeleccionado, setTemaSeleccionado] = useState<number>(0);
+  const [tipoEjSeleccionado, setTipoEjSeleccionado] = useState<string>("");
   const [nombreEjercicio, setNombreEjercicio] = useState("");
   const [enunciadoFile, setEnunciadoFile] = useState<File | null>(null);
   const [solucionFile, setSolucionFile] = useState<File | null>(null);
@@ -251,7 +252,7 @@ export default function GestionMaterial({
         </div>
       </main>
 
-      {/* Modal nuevo ejercicio */}
+      {/* Modal añadir ejercicio */}
       {modalAbierto === "ejercicio" && (
         <Modal
           titulo="Nuevo Ejercicio"
@@ -281,6 +282,23 @@ export default function GestionMaterial({
               {temas.map((t) => (
                 <option key={t.id} value={t.id}>{t.nombre}</option>
               ))}
+            </select>
+          </div>
+
+          <div className={styles.campoModal}>
+            <label className={styles.etiquetaCampo}>Tipo de ejercicio</label>
+            <p className={styles.textoAyuda}>Elige el tipo de entrada del ejercicio o la opción de que se haga automáticamente.</p>
+            <select
+              className={styles.entradaCampo}
+              value={tipoEjSeleccionado}
+              onChange={(e) => setTipoEjSeleccionado(e.target.value)}
+            >
+              <option value="centinela">Centinela</option>
+              <option value="numCasos">Número de casos</option>
+              <option value="ilimitado">Ilimitado</option>
+              <option value="automatico">Automático</option>
+            {/*Si se selecciona automático, lo hace la logica del backend
+            Si se selecciona el tipo, se tiene en cuenta directamente el JSON de ese tipo*/}
             </select>
           </div>
 
