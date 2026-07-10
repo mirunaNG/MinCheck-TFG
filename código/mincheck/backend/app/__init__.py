@@ -9,6 +9,11 @@ db = SQLAlchemy()
 login_manager = LoginManager()
 jwt = JWTManager()
 
+@login_manager.user_loader
+def carga_usuario(id_usuario):
+    from app.modelos import Usuario
+    return db.session.get(Usuario, int(id_usuario))
+
 
 def create_app() -> Flask:
     app = Flask(__name__)
