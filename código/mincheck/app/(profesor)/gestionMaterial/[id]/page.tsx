@@ -95,6 +95,7 @@ export default function GestionMaterial({
     setNombreEjercicio("");
     setEnunciadoFile(null);
     setSolucionFile(null);
+    setTipoEjSeleccionado("automatico");   // ← añadir esta línea
 
     setModalAbierto("ejercicio");
   }
@@ -114,6 +115,7 @@ export default function GestionMaterial({
     if (!nombreEjercicio.trim()) return;
     const formData = new FormData();
     formData.append("nombre", nombreEjercicio.trim());
+    if (tipoEjSeleccionado) formData.append("tipoEjercicio", tipoEjSeleccionado);
     if (enunciadoFile) formData.append("enunciado", enunciadoFile);
     if (solucionFile) formData.append("solucion", solucionFile);
 

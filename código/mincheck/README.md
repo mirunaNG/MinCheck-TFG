@@ -20,5 +20,5 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 Además, lanzar el servidor de Flask para el backend:
 Abrir una terminal en la carpeta 'backend' y primero activar el entorno y luego lanzar 'python mincheck.py'
 
-
+Arrancar ollama: ollama serve
 
