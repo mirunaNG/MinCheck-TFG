@@ -99,26 +99,27 @@ export default function DetalleEjercicio({
   const [nuevoOutput, setNuevoOutput] = useState("");
 
   /*Cargar ejercicio */
-  useEffect(() => {
-    fetch('http://localhost:5001/ejercicio/' +ejercicioId)
-      .then((r) => r.json())
-      .then((data: EjercicioDetalle) => {
-        setDatos(data);
-        if (data.casosPrueba) setCasos(data.casosPrueba);
-        if (data.enunciadoNombre) {
-          setEnunciadoFile({ nombre: data.enunciadoNombre, tamaño: "", fecha: "" });
-        }
-        if (data.solucionNombre) {
-          setSolucionFile({ nombre: data.solucionNombre, tamaño: "", fecha: "" });
-        }
-        setVisibleAlumnos(data.visible);
-        setFechaLimiteActiva(data.fechaLimite !== null);
-        if (data.fechaLimite) setFechaLimiteValor(data.fechaLimite.slice(0, 16));
+  async function cargarEjercicio() {
+    const r = await fetch('http://localhost:5001/ejercicio/' + ejercicioId);
+    const data: EjercicioDetalle = await r.json();
+    setDatos(data);
+    if (data.casosPrueba) setCasos(data.casosPrueba);
+    if (data.enunciadoNombre) {
+      setEnunciadoFile({ nombre: data.enunciadoNombre, tamaño: "", fecha: "" });
+    }
+    if (data.solucionNombre) {
+      setSolucionFile({ nombre: data.solucionNombre, tamaño: "", fecha: "" });
+    }
+    setVisibleAlumnos(data.visible);
+    setFechaLimiteActiva(data.fechaLimite !== null);
+    if (data.fechaLimite) setFechaLimiteValor(data.fechaLimite.slice(0, 16));
+    setCargando(false);
+  }
 
-        setCargando(false);
-      })
-      .catch(() => setCargando(false));
+  useEffect(() => {
+    cargarEjercicio().catch(() => setCargando(false));
   }, [ejercicioId]);
+
 
   /*Cargar configuracion del feedback */
   useEffect(() => {
@@ -143,14 +144,24 @@ async function handleGenerar(){
       method: 'POST',
       body: form,
     });
-    const estructura = await resEstructura.json();
+        const analisis = await resEstructura.json();
+    const { entrada_ejemplo, salida_ejemplo, ...estructura } = analisis;
+
+    //El ejemplo del enunciado solo se añade la primera vez que se generan casos para este ejercicio
+    const esPrimeraGeneracion = casos.length === 0;
 
     //Generar los casos de prueba a partir de esa estructura
     const resCasos = await fetch('http://localhost:8001/generar/casos', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ estructura, total_casos: 10 }),
+      body: JSON.stringify({
+        estructura,
+        total_casos: 10,
+        entrada_ejemplo: esPrimeraGeneracion ? entrada_ejemplo : undefined,
+        salida_ejemplo: esPrimeraGeneracion ? salida_ejemplo : undefined,
+      }),
     });
+
     const data: { casos: { perfiles: string[]; input: string; output_esperado?: string }[] } = await resCasos.json();
 
     //Si hay solución subida, ejecutarla contra cada input para obtener el output real
@@ -208,8 +219,26 @@ async function handleGenerar(){
     setModalAñadir(false);
   }
 
-  function handleEliminarCaso(id: number) {
+  async function handleEliminarCaso(id: number) {
+    const res = await fetch('http://localhost:5001/caso/' + id, { method: 'DELETE' });
+    if (!res.ok) return;
     setCasos((prev) => prev.filter((c) => c.id !== id));
+  }
+
+    async function handleEliminarEnunciado() {
+    const res = await fetch('http://localhost:5001/ejercicio/' + ejercicioId + '/archivos/enunciado', {
+      method: 'DELETE',
+    });
+    if (!res.ok) return;
+    setEnunciadoFile(null);
+  }
+
+  async function handleEliminarSolucion() {
+    const res = await fetch('http://localhost:5001/ejercicio/' + ejercicioId + '/archivos/solucion', {
+      method: 'DELETE',
+    });
+    if (!res.ok) return;
+    setSolucionFile(null);
   }
 
   function handleDescargar(){
@@ -224,7 +253,7 @@ async function handleGenerar(){
     setConfigFeedback((prev) => ({ ...prev, [key]: !prev[key] }));
   }
 
-  function handleNuevoEnunciado(file: File) {
+  async function handleNuevoEnunciado(file: File) {
     setEnunciadoFile({
       nombre: file.name,
       tamaño: (file.size / 1024).toFixed(0) + 'KB',
@@ -232,14 +261,14 @@ async function handleGenerar(){
     });
     const form = new FormData();
     form.append('enunciado', file);
-    fetch('http://localhost:5001/ejercicio/' + ejercicioId + '/archivos', {
+    await fetch('http://localhost:5001/ejercicio/' + ejercicioId + '/archivos', {
       method: 'PUT',
       body: form,
     });
+    await cargarEjercicio();
   }
 
-
-  function handleNuevaSolucion(file: File) {
+  async function handleNuevaSolucion(file: File) {
     setSolucionFile({
       nombre: file.name,
       tamaño: (file.size / 1024).toFixed(0) + 'KB',
@@ -247,11 +276,13 @@ async function handleGenerar(){
     });
     const form = new FormData();
     form.append('solucion', file);
-    fetch('http://localhost:5001/ejercicio/' + ejercicioId + '/archivos', {
+    await fetch('http://localhost:5001/ejercicio/' + ejercicioId + '/archivos', {
       method: 'PUT',
       body: form,
     });
+    await cargarEjercicio();
   }
+
 
 
   async function handleGuardarFeedback(){
@@ -359,7 +390,7 @@ async function handleGenerar(){
                         <span className={styles.archivoNombre}>{enunciadoFile.nombre}</span>
                         <span className={styles.archivoMeta}>{enunciadoFile.fecha} · {enunciadoFile.tamaño}</span>
                       </div>
-                      <button className={styles.eliminarBtn} onClick={() => setEnunciadoFile(null)} title="Eliminar">🗑</button>
+                      <button className={styles.eliminarBtn} onClick={handleEliminarEnunciado} title="Eliminar">🗑</button>
                     </div>
                   )}
                   <label className={styles.dropZone}>
@@ -382,7 +413,7 @@ async function handleGenerar(){
                         <span className={styles.archivoNombre}>{solucionFile.nombre}</span>
                         <span className={styles.archivoMeta}>{solucionFile.fecha} · {solucionFile.tamaño}</span>
                       </div>
-                      <button className={styles.eliminarBtn} onClick={() => setSolucionFile(null)} title="Eliminar">🗑</button>
+                      <button className={styles.eliminarBtn} onClick={handleEliminarSolucion} title="Eliminar">🗑</button>
                     </div>
                   )}
                   <label className={styles.dropZone}>
@@ -498,13 +529,18 @@ async function handleGenerar(){
                 <button
                   className={styles.generarBtn}
                   onClick={handleGenerar}
-                  disabled={generando || !enunciadoFile}
+                  disabled={generando || !enunciadoFile || !solucionFile}
                 >
                   {generando ? "Analizando enunciado..." : "Generar casos de prueba"}
                 </button>
                 {!enunciadoFile && (
                   <p style={{ fontSize: 11, color: "#4a5568", textAlign: "center", margin: 0 }}>
                     Sube el enunciado en PDF para poder generar casos
+                  </p>
+              )}
+              {!solucionFile && (
+                  <p style={{ fontSize: 11, color: "#4a5568", textAlign: "center", margin: 0 }}>
+                    Sube la solución del ejercicio para poder generar casos
                   </p>
               )}
 

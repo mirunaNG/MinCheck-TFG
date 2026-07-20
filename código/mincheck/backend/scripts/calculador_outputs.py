@@ -56,11 +56,14 @@ def _ejecutar_caso(comando: list[str], entrada: str) -> str | None:
         return None
     return resultado.stdout.rstrip("\n")
 
-#Funcion principal que hace todo
+#Funcion principal que hace todo (tiene en cuenta que los ejemplos ya estan calculados)
 def calcular_outputs(casos: list[dict], ruta_solucion: str) -> list[dict]:
     with tempfile.TemporaryDirectory() as tmp_dir:
         comando = _preparar_comando(ruta_solucion, tmp_dir)
         for caso in casos:
+            if caso.get("output_esperado"):
+                continue
             caso["output_esperado"] = _ejecutar_caso(comando, caso["input"])
     return casos
+
 

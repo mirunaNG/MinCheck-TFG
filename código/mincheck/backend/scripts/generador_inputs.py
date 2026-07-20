@@ -6,9 +6,13 @@ RANGO_ENTERO_DEFECTO = (-1000, 1000)
 RANGO_REAL_DEFECTO = (-1000.0, 1000.0)
 RANGO_LONGITUD_DEFECTO = (0, 10)      # para vectores/cadenas sin longitud explícita
 ALFABETO_CADENA = string.ascii_lowercase
+
 RANGO_LONGITUD_DEFECTO = (0, 10)      # para vectores/cadenas sin longitud explícita
 LIMITE_HYPOTHESIS_LISTA = 200       # hlimite bajo porque salta el health check
 ALFABETO_CADENA = string.ascii_lowercase
+
+LIMITE_PEQUENO_ENTERO = 20      # valores en [-20, 20] se consideran "pequeños"
+LIMITE_PEQUENO_REAL = 20.0
 
 GRUPOS_POR_FICHERO_MIN = 1   # nº mínimo de repeticiones de campos_por_caso en un fichero
 GRUPOS_POR_FICHERO_MAX = 7  # nº máximo
@@ -28,7 +32,14 @@ def _strategy_escalar(campo: dict):
         if salto:
             pasos = (hi - lo) // int(salto)
             return st.integers(min_value=0, max_value=pasos).map(lambda n: lo + n * int(salto))
-        return st.integers(min_value=lo, max_value=hi)
+
+        lo_pequeno = max(lo, -LIMITE_PEQUENO_ENTERO)
+        hi_pequeno = min(hi, LIMITE_PEQUENO_ENTERO)
+        rango_completo = st.integers(min_value=lo, max_value=hi)
+        if lo_pequeno <= hi_pequeno and (lo_pequeno, hi_pequeno) != (lo, hi):
+            pequenos = st.integers(min_value=lo_pequeno, max_value=hi_pequeno)
+            return st.one_of(pequenos, rango_completo)
+        return rango_completo
 
     if tipo == "real":
         lo = float(minimo) if minimo is not None else RANGO_REAL_DEFECTO[0]
@@ -36,7 +47,14 @@ def _strategy_escalar(campo: dict):
         if salto:
             pasos = int((hi - lo) / salto)
             return st.integers(min_value=0, max_value=pasos).map(lambda n: round(lo + n * salto, 6))
-        return st.floats(min_value=lo, max_value=hi, allow_nan=False, allow_infinity=False)
+
+        lo_pequeno = max(lo, -LIMITE_PEQUENO_REAL)
+        hi_pequeno = min(hi, LIMITE_PEQUENO_REAL)
+        rango_completo = st.floats(min_value=lo, max_value=hi, allow_nan=False, allow_infinity=False)
+        if lo_pequeno <= hi_pequeno and (lo_pequeno, hi_pequeno) != (lo, hi):
+            pequenos = st.floats(min_value=lo_pequeno, max_value=hi_pequeno, allow_nan=False, allow_infinity=False)
+            return st.one_of(pequenos, rango_completo)
+        return rango_completo
 
     if tipo == "booleano":
         return st.booleans()

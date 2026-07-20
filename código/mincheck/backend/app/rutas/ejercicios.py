@@ -227,6 +227,10 @@ def registrar_rutas_ejercicios(app):
         if 'enunciado' in request.files:
             f = request.files['enunciado']
             fname = secure_filename(f.filename)
+            if ejercicio.enunciado_nombre:
+                ruta_anterior = os.path.join(UPLOAD_FOLDER, ejercicio.enunciado_nombre)
+                if os.path.exists(ruta_anterior):
+                    os.remove(ruta_anterior)
             f.save(os.path.join(UPLOAD_FOLDER, fname))
             ejercicio.enunciado_nombre = fname
             ejercicio.enunciado_url = f'/uploads/{fname}'
@@ -234,6 +238,10 @@ def registrar_rutas_ejercicios(app):
         if 'solucion' in request.files:
             f = request.files['solucion']
             fname = secure_filename(f.filename)
+            if ejercicio.solucion_nombre:
+                ruta_anterior = os.path.join(UPLOAD_FOLDER, ejercicio.solucion_nombre)
+                if os.path.exists(ruta_anterior):
+                    os.remove(ruta_anterior)
             f.save(os.path.join(UPLOAD_FOLDER, fname))
             ejercicio.solucion_nombre = fname
             ejercicio.solucion_url = f'/uploads/{fname}'
@@ -241,6 +249,32 @@ def registrar_rutas_ejercicios(app):
         db.session.commit()
         return jsonify({'mensaje': 'Archivos actualizados'}), 200
     
+    @app.route('/ejercicio/<int:ejercicio_id>/archivos/<tipo>', methods=['DELETE'])
+    def eliminar_archivo_ej(ejercicio_id, tipo):
+        from app.modelos import Ejercicio
+        import os
+
+        if tipo not in ('enunciado', 'solucion'):
+            return jsonify({'mensaje': 'Tipo de archivo no válido'}), 400
+
+        ejercicio = Ejercicio.query.get(ejercicio_id)
+        if not ejercicio:
+            return jsonify({'mensaje': 'Ejercicio no encontrado'}), 404
+
+        UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), '..', 'uploads')
+        nombre_actual = getattr(ejercicio, f'{tipo}_nombre')
+
+        if nombre_actual:
+            ruta_archivo = os.path.join(UPLOAD_FOLDER, nombre_actual)
+            if os.path.exists(ruta_archivo):
+                os.remove(ruta_archivo)
+
+        setattr(ejercicio, f'{tipo}_nombre', None)
+        setattr(ejercicio, f'{tipo}_url', None)
+        db.session.commit()
+
+        return jsonify({'mensaje': 'Archivo eliminado'}), 200
+
     @app.route('/uploads/<path:nombre_archivo>', methods=['GET'])
     def servir_archivo_subido(nombre_archivo):
         from flask import send_from_directory
@@ -274,3 +308,15 @@ def registrar_rutas_ejercicios(app):
         return jsonify({
             'casos': [{'id': c.id, 'input': c.input, 'outputEsperado': c.output_esperado} for c in nuevos]
         }), 201
+
+    @app.route('/caso/<int:caso_id>', methods=['DELETE'])
+    def eliminar_caso_prueba(caso_id):
+        from app.modelos import Caso_Prueba
+
+        caso = Caso_Prueba.query.get(caso_id)
+        if not caso:
+            return jsonify({'mensaje': 'Caso de prueba no encontrado'}), 404
+
+        db.session.delete(caso)
+        db.session.commit()
+        return jsonify({'mensaje': 'Caso de prueba eliminado'}), 200

@@ -5,6 +5,7 @@ Puerto:   8001
 """
 
 from typing import List, Literal, Optional
+from urllib import response
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
@@ -454,23 +455,6 @@ def stream_analisis(enunciado_texto: str, tipo_forzado: Optional[str] = None):
 def health():
     return {"status": "ok", "ollama": OLLAMA_AVAILABLE, "model": MODEL}
 
-
-# @app.post("/analizar/enunciado")
-# def analizar_enunciado(req: AnalizarEnunciadoRequest):
-#     if req.enunciado_texto:
-#         texto = req.enunciado_texto
-#     elif req.ruta_pdf:
-#         texto = extraer_texto_pdf(req.ruta_pdf)
-#     else:
-#         raise HTTPException(status_code=400, detail="Debes indicar 'enunciado_texto' o 'ruta_pdf'")
-
-#     texto = _limpiar_diacriticos_rotos(texto)
-#     return StreamingResponse(
-#         stream_analisis(texto, req.tipo_forzado),
-#         media_type="text/event-stream",
-#         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"}
-#     )
-
 @app.post("/analizar/enunciado/archivo")
 async def analizar_enunciado_archivo(archivo: UploadFile = File(...)):
     contenido = await archivo.read()
@@ -491,6 +475,20 @@ async def analizar_enunciado_archivo(archivo: UploadFile = File(...)):
     )
     estructura = EstructuraEjercicio.model_validate_json(response.message.content)
     estructura = limitar_a_texto(estructura, texto)
+
+    response_ejemplo = ollama_chat(
+        model=MODEL,
+        messages=[
+            {"role": "system", "content": SYSTEM_EJEMPLO},
+            {"role": "user", "content": texto},
+        ],
+        format=EJEMPLO_SCHEMA,
+        options={"temperature": 0},
+    )
+    ejemplo = EjemploEjercicio.model_validate_json(response_ejemplo.message.content)
+
+    return {**estructura.model_dump(), **ejemplo.model_dump()}
+
     return estructura.model_dump()
 
 @app.post("/generar/casos")
