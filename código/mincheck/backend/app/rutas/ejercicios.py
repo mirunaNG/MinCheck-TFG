@@ -1,8 +1,5 @@
 from flask import request, jsonify
-from flask_jwt_extended import create_access_token
-from app import db, login_manager
-from app.modelos import Usuario
-import datetime
+from app import db
 
 
 def registrar_rutas_ejercicios(app):
@@ -20,7 +17,7 @@ def registrar_rutas_ejercicios(app):
         if not nombre:
             return jsonify({'mensaje': 'falta el nombre del tema '}), 400
         
-        UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), '..', 'uploads')
+        UPLOAD_FOLDER=os.path.join(os.path.dirname(__file__), '..', 'uploads')
         os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
         enunciado_nombre = None
@@ -109,7 +106,7 @@ def registrar_rutas_ejercicios(app):
             {
                 'id': c.id,
                 'input': c.input,
-                'output': c.outputEsperado,
+                'outputEsperado': c.output_esperado,
             }
             for c in ejercicio.casos_prueba
         ]
@@ -224,7 +221,7 @@ def registrar_rutas_ejercicios(app):
         if not ejercicio:
             return jsonify({'mensaje': 'Ejercicio no encontrado'}), 404
         
-        UPLOAD_FOLDER=os.path.join(os.path.dirname(__file__), '...', 'uploads')
+        UPLOAD_FOLDER=os.path.join(os.path.dirname(__file__), '..', 'uploads')
         os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
         if 'enunciado' in request.files:
@@ -243,3 +240,37 @@ def registrar_rutas_ejercicios(app):
 
         db.session.commit()
         return jsonify({'mensaje': 'Archivos actualizados'}), 200
+    
+    @app.route('/uploads/<path:nombre_archivo>', methods=['GET'])
+    def servir_archivo_subido(nombre_archivo):
+        from flask import send_from_directory
+        import os
+        UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), '..', 'uploads')
+        return send_from_directory(UPLOAD_FOLDER, nombre_archivo)
+
+    @app.route('/ejercicio/<int:ejercicio_id>/casos', methods=['POST'])
+    def guardar_casos_prueba(ejercicio_id):
+        from app.modelos import Ejercicio, Caso_Prueba
+
+        ejercicio = Ejercicio.query.get(ejercicio_id)
+        if not ejercicio:
+            return jsonify({'mensaje': 'Ejercicio no encontrado'}), 404
+
+        datos = request.get_json()
+        casos = datos.get('casos', [])
+
+        nuevos = []
+        for c in casos:
+            caso = Caso_Prueba(
+                ejercicio_id=ejercicio_id,
+                input=c.get('input', ''),
+                output_esperado=c.get('outputEsperado', ''),
+            )
+            db.session.add(caso)
+            nuevos.append(caso)
+
+        db.session.commit()
+
+        return jsonify({
+            'casos': [{'id': c.id, 'input': c.input, 'outputEsperado': c.output_esperado} for c in nuevos]
+        }), 201

@@ -33,7 +33,7 @@ type EjercicioDetalle = {
   tema : {id:number; nombre: string};
   asignatura: {id:number; nombre: string} | null;
   enunciadoNombre: string | null;
-  enuncdiadoURL: string | null;
+  enunciadoURL: string | null;
   solucionNombre: string | null;
   solucionURL: string | null;
   casosPrueba: CasoPrueba[];
@@ -69,6 +69,7 @@ const FEEDBACK_DEFAULT: ConfigFeedback = {
   mostrarTras: 3,
 };
 
+
 export default function DetalleEjercicio({
   params,
 }: {
@@ -103,6 +104,7 @@ export default function DetalleEjercicio({
       .then((r) => r.json())
       .then((data: EjercicioDetalle) => {
         setDatos(data);
+        if (data.casosPrueba) setCasos(data.casosPrueba);
         if (data.enunciadoNombre) {
           setEnunciadoFile({ nombre: data.enunciadoNombre, tamaño: "", fecha: "" });
         }
@@ -126,14 +128,73 @@ export default function DetalleEjercicio({
       .catch(() => {});
   }, [ejercicioId]);
 
-  /*ESTO HAY QUE HACER LA LOGICA  AÚN:)) */
-  function handleGenerar(){
-    setGenerando(true);
-    setTimeout(() => {
-      setCasos((datos?.casosPrueba ?? []).map((c) => ({...c})));
-      setGenerando(false);
-    }, 900);
+async function handleGenerar(){
+  if (!datos?.enunciadoURL) return;
+  setGenerando(true);
+  try {
+    //Descargar el PDF real desde el backend Flask (5001)
+    const resPdf = await fetch('http://localhost:5001' + datos.enunciadoURL);
+    const blobPdf = await resPdf.blob();
+
+    //Enviarlo al analizador de IA (server.py en puerto 8001) para sacar la estructura
+    const form = new FormData();
+    form.append('archivo', blobPdf, datos.enunciadoNombre ?? 'enunciado.pdf');
+    const resEstructura = await fetch('http://localhost:8001/analizar/enunciado/archivo', {
+      method: 'POST',
+      body: form,
+    });
+    const estructura = await resEstructura.json();
+
+    //Generar los casos de prueba a partir de esa estructura
+    const resCasos = await fetch('http://localhost:8001/generar/casos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ estructura, total_casos: 10 }),
+    });
+    const data: { casos: { perfiles: string[]; input: string; output_esperado?: string }[] } = await resCasos.json();
+
+    //Si hay solución subida, ejecutarla contra cada input para obtener el output real
+    let casosConOutput = data.casos;
+    if (datos.solucionURL) {
+      const resSolucion = await fetch('http://localhost:5001' + datos.solucionURL);
+      const blobSolucion = await resSolucion.blob();
+
+      const formSolucion = new FormData();
+      formSolucion.append('solucion', blobSolucion, datos.solucionNombre ?? 'solucion');
+      formSolucion.append('casos', JSON.stringify(data.casos));
+
+      const resOutputs = await fetch('http://localhost:8001/calcular/outputs', {
+        method: 'POST',
+        body: formSolucion,
+      });
+      if (resOutputs.ok) {
+        const outputsData: { casos: { perfiles: string[]; input: string; output_esperado?: string }[] } = await resOutputs.json();
+        casosConOutput = outputsData.casos;
+      }
+    }
+
+    //Guardar los casos generados en el ejercicio (backend Flask, 5001) - se añaden, no se borran los anteriores
+    const resGuardado = await fetch('http://localhost:5001/ejercicio/' + ejercicioId + '/casos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+          casos: casosConOutput.map((c) => ({
+          input: c.input,
+          outputEsperado: c.output_esperado ?? "(sin calcular todavía)",
+        })),
+      }),
+    });
+    const guardado: { casos: CasoPrueba[] } = await resGuardado.json();
+
+    //Añadir los casos nuevos a los que ya había en la tabla
+    setCasos((prev) => [...prev, ...guardado.casos]);
+
+  } catch (e) {
+    console.error("Error generando casos:", e);
+  } finally {
+    setGenerando(false);
   }
+}
 
   function handleAñadirManual(){
     if (!nuevoInput.trim()) return;
@@ -437,15 +498,16 @@ export default function DetalleEjercicio({
                 <button
                   className={styles.generarBtn}
                   onClick={handleGenerar}
-                  disabled={generando || !solucionFile}
+                  disabled={generando || !enunciadoFile}
                 >
-                  {generando ? "Analizando solución..." : "Generar casos de prueba"}
+                  {generando ? "Analizando enunciado..." : "Generar casos de prueba"}
                 </button>
-                {!solucionFile && (
+                {!enunciadoFile && (
                   <p style={{ fontSize: 11, color: "#4a5568", textAlign: "center", margin: 0 }}>
-                    Sube el código solución para poder generar casos
+                    Sube el enunciado en PDF para poder generar casos
                   </p>
-                )}
+              )}
+
               </div>
             </div>
           )}
