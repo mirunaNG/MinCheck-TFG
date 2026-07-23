@@ -62,14 +62,34 @@ def registrar_rutas_ejercicios(app):
     @app.route('/ejercicio/<int:ejercicio_id>', methods=['DELETE'])
     def eliminar_ejercicio_ruta(ejercicio_id):
         from app.modelos import Ejercicio
+        import os
         ejercicio = Ejercicio.query.get(ejercicio_id)
         if not ejercicio:
             return jsonify({'mensaje': 'Ejercicio no encontrado'}), 404
-        
+
+        UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), '..', 'uploads')
+
+        if ejercicio.enunciado_nombre:
+            ruta_enunciado = os.path.join(UPLOAD_FOLDER, ejercicio.enunciado_nombre)
+            if os.path.exists(ruta_enunciado):
+                os.remove(ruta_enunciado)
+
+        if ejercicio.solucion_nombre:
+            ruta_solucion = os.path.join(UPLOAD_FOLDER, ejercicio.solucion_nombre)
+            if os.path.exists(ruta_solucion):
+                os.remove(ruta_solucion)
+
+        for entrega in ejercicio.entregas:
+            if entrega.codigo_url:
+                nombre_archivo = entrega.codigo_url.split('/uploads/')[-1]
+                ruta_codigo = os.path.join(UPLOAD_FOLDER, nombre_archivo)
+                if os.path.exists(ruta_codigo):
+                    os.remove(ruta_codigo)
+
         db.session.delete(ejercicio)
         db.session.commit()
-        return jsonify({'mensaje': 'Ejercicio eliminado'}), 200   
-    
+        return jsonify({'mensaje': 'Ejercicio eliminado'}), 200
+
 
     @app.route('/ejercicio/<int:ejercicio_id>/errores', methods=['GET'])
     def errores_ejercicio(ejercicio_id):

@@ -31,6 +31,8 @@ def registrar_rutas_entregas(app):
     @app.route('/ejercicio/<int:ejercicio_id>/alumno/<int:alumno_id>/intentos', methods=['GET'])
     def intentos_alumno_ejercicio(ejercicio_id, alumno_id):
         from app.modelos import Ejercicio, Entrega
+        import os
+
         ejercicio = Ejercicio.query.get(ejercicio_id)
         if not ejercicio:
             return jsonify({'mensaje': 'Ejercicio no encontrado'}), 404
@@ -52,7 +54,28 @@ def registrar_rutas_entregas(app):
                 'errorPrincipal': e.error_principal,
             })
         
-        ultimo_codigo=entregas[0].codigo_url if entregas else None
+        
+        ultimo_codigo = None
+        if entregas:
+            ultima = entregas[0] # Cogemos solo el último intento
+            
+            # Comprobamos si la url contiene la palabra uploads
+            if ultima.codigo_url and 'uploads' in ultima.codigo_url:
+                UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), '..', 'uploads')
+                
+                # Extraemos solo el nombre del archivo, ignorando si tiene / delante o no
+                nombre_archivo = ultima.codigo_url.split('uploads/')[-1].lstrip('/')
+                ruta = os.path.join(UPLOAD_FOLDER, nombre_archivo)
+                
+                try:
+                    with open(ruta, 'r', encoding='utf-8', errors='replace') as f:
+                        ultimo_codigo = f.read() # Leemos el código real
+                except FileNotFoundError:
+                    ultimo_codigo = "// Error: Archivo no encontrado en el servidor."
+            else:
+                # Por si hay entregas muy antiguas guardadas como texto directo
+                ultimo_codigo = ultima.codigo_url
+        
 
         return jsonify({
             'ejercicio': {
@@ -63,30 +86,67 @@ def registrar_rutas_entregas(app):
                 'enunciadoURL': ejercicio.enunciado_url,
             },
             'intentos': intentos,
-            'ultimoCodigo': ultimo_codigo,
+            'ultimoCodigo': ultimo_codigo, # Esto es lo que lee tu frontend
         }), 200
     
     @app.route('/ejercicio/<int:ejercicio_id>/entregas', methods=['POST'])
     def guardar_entrega(ejercicio_id):
         from app.modelos import Ejercicio, Entrega
-        import datetime
+        from werkzeug.utils import secure_filename
+        import datetime, os, json, requests
+
         ejercicio = Ejercicio.query.get(ejercicio_id)
         if not ejercicio:
             return jsonify({'mensaje': 'Ejercicio no encontrado'}), 404
-        
-        datos = request.get_json()
-        alumno_id = datos.get('alumnoId')
-        codigo = datos.get('codigo', '')
 
-        if not alumno_id:
+        alumno_id = request.form.get('alumnoId')
+        archivo = request.files.get('codigo')
+
+        if not alumno_id or not archivo:
             return jsonify({'mensaje': 'Faltan datos'}), 400
-        
+
+        UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), '..', 'uploads')
+        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+        timestamp = int(datetime.datetime.now().timestamp())
+        #todos los archivos comparten la misma carpeta uploads/. Si dos alumnos suben un archivo llamado solucion.cpp, sin ese prefijo el segundo sobreescribiría el del primero. 
+        # Con el prefijo cada entrega es única.
+        fname = f'entrega_{ejercicio_id}_{alumno_id}_{timestamp}_{secure_filename(archivo.filename)}'
+        ruta_guardada = os.path.join(UPLOAD_FOLDER, fname)
+        archivo.save(ruta_guardada)
+
+        extension = os.path.splitext(fname)[1].lstrip('.')
+
+        casos_prueba = [
+            {'input': c.input, 'output_esperado': c.output_esperado}
+            for c in ejercicio.casos_prueba
+        ]
+
+        resultado = 'incorrecto'
+        error_principal = 'No se pudo evaluar la entrega'
+        try:
+            with open(ruta_guardada, 'rb') as f:
+                respuesta = requests.post(
+                    'http://localhost:8001/juzgar/entrega',
+                    files={'codigo': (fname, f)},
+                    data={'casos': json.dumps(casos_prueba)},
+                    timeout=30,
+                )
+            if respuesta.ok:
+                datos_juicio = respuesta.json()
+                resultado = datos_juicio['resultado']
+                error_principal = datos_juicio['error_principal']
+        except requests.exceptions.RequestException:
+            pass
+
         entrega = Entrega(
             alumno_id=alumno_id,
             ejercicio_id=ejercicio_id,
-            codigo_url=codigo,
-            resultado='correcto',
-            fecha_hora = datetime.datetime.now(),
+            codigo_url=f'/uploads/{fname}',
+            codigo_lenguaje=extension,
+            resultado=resultado,
+            error_principal=error_principal,
+            fecha_hora=datetime.datetime.now(),
         )
         db.session.add(entrega)
         db.session.commit()
@@ -95,8 +155,37 @@ def registrar_rutas_entregas(app):
             'id': entrega.id,
             'resultado': entrega.resultado,
             'fechaHora': entrega.fecha_hora.strftime('%d/%m/%Y %H:%M'),
-            'errorPrincipal': None,
+            'errorPrincipal': entrega.error_principal,
         }), 201
+
+    @app.route('/entrega/<int:entrega_id>/codigo', methods=['GET'])
+    def obtener_codigo_entrega(entrega_id):
+        from app.modelos import Entrega
+        import os
+
+        entrega = Entrega.query.get(entrega_id)
+        if not entrega:
+            return jsonify({'mensaje': 'Entrega no encontrada'}), 404
+
+        UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), '..', 'uploads')
+
+        if entrega.codigo_url and entrega.codigo_url.startswith('/uploads/'):
+            nombre_archivo = entrega.codigo_url.replace('/uploads/', '', 1)
+            ruta = os.path.join(UPLOAD_FOLDER, nombre_archivo)
+            with open(ruta, 'r', encoding='utf-8', errors='replace') as f:
+                codigo = f.read()
+        else:
+            # entregas antiguas, guardadas como texto plano directamente en codigo_url
+            codigo = entrega.codigo_url or ''
+            nombre_archivo = f'entrega_{entrega.id}.{entrega.codigo_lenguaje or "txt"}'
+
+        return jsonify({
+            'codigo': codigo,
+            'nombreArchivo': nombre_archivo,
+            'alumno': entrega.alumno.nombre_completo,
+        }), 200
+
+
     
     @app.route('/alumno/<int:alumno_id>/historialEntregas', methods=['GET'])
     def historial_entregas_alumno(alumno_id):

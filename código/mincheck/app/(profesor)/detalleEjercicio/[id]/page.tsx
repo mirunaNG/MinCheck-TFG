@@ -4,6 +4,8 @@ import { use, useState, useEffect } from "react";
 import Sidebar from "../../../components/sidebar";
 import Tabla from "../../../components/Tabla";
 import styles from "../detalleEj.module.css";
+import CodigoViewerModal from "../../../components/verCodigoModal";
+
 
 type PestañaActiva = "material" | "entregas" | "feedback";
 
@@ -97,6 +99,8 @@ export default function DetalleEjercicio({
   const [modalAñadir, setModalAñadir] = useState(false);
   const [nuevoInput, setNuevoInput]   = useState("");
   const [nuevoOutput, setNuevoOutput] = useState("");
+
+  const [entregaCodigo, setEntregaCodigo] = useState<number | null>(null);
 
   /*Cargar ejercicio */
   async function cargarEjercicio() {
@@ -586,7 +590,9 @@ async function handleGenerar(){
                       <td>
                         <div className={styles.alumnoCell}>
                           <span className={styles.alumnoNombre}>{en.alumno}</span>
-                          <button className={styles.codigoBtn}>código</button>
+                          <button className={styles.codigoBtn} onClick={() => setEntregaCodigo(en.id)}>
+                            código
+                          </button>
                         </div>
                       </td>
                       <td>{en.fechaHora}</td>
@@ -734,6 +740,9 @@ async function handleGenerar(){
             </div>
           </div>
         </div>
+      )}
+      {entregaCodigo !== null && (
+        <CodigoViewerModal entregaId={entregaCodigo} onCerrar={() => setEntregaCodigo(null)} />
       )}
     </div>
   );

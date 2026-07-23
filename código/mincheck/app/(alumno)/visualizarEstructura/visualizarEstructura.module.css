@@ -1,0 +1,37 @@
+.layout {
+  display: flex;
+  font-family: sans-serif;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.proximamente {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  max-width: 420px;
+}
+
+.icono {
+  font-size: 40px;
+}
+
+.proximamenteTitulo {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.proximamenteDesc {
+  font-size: 14px;
+  color: #8b949e;
+  margin: 0;
+}

@@ -20,6 +20,7 @@ import tempfile
 
 from generador_inputs import generar_conjunto_de_pruebas
 from calculador_outputs import calcular_outputs
+from juez import juzgar_entrega
 
 
 
@@ -135,6 +136,14 @@ You will receive the statement of a programming exercise. Your task is to fill i
    - "numCasos": a single number, read ONCE before any test case, states the total number of cases.
    - "ilimitado": input is read until end-of-file, with no count and no stop value.
    Base this strictly on the "Entrada" section of the statement, not assumptions.
+
+   IMPORTANT — do not confuse a per-case size field with a case-count field: a statement that says the
+   input is "a series/sequence of test cases" and then describes, for EACH case, a field like "número de
+   elementos", "size", "N", etc. is NOT giving a count of test cases — that field belongs to a single
+   case (put it as the first entry of "campos_por_caso"). Only classify as "numCasos" if the statement
+   explicitly says a value read BEFORE any case gives the TOTAL NUMBER OF TEST CASES themselves. If the
+   statement never states such a count and gives no sentinel value either, the answer is "ilimitado",
+   even if a "number of elements"-like field also appears inside each case.
 
 2. "valor_centinela": if tipo_lectura is "centinela", the exact sentinel value described in the
    statement (as text, e.g. "0" or "-1"). Otherwise null.
@@ -521,6 +530,23 @@ async def calcular_outputs_endpoint(solucion: UploadFile = File(...), casos: str
             raise HTTPException(status_code=400, detail=str(e))
 
     return {"casos": casos_lista}
+
+@app.post("/juzgar/entrega")
+async def juzgar_entrega_endpoint(codigo: UploadFile = File(...), casos: str = Form(...)):
+    casos_lista = json.loads(casos)
+    contenido = await codigo.read()
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        ruta_codigo = os.path.join(tmp_dir, codigo.filename)
+        with open(ruta_codigo, "wb") as f:
+            f.write(contenido)
+        try:
+            resultado = juzgar_entrega(casos_lista, ruta_codigo)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+
+    return resultado
+
 
 
 

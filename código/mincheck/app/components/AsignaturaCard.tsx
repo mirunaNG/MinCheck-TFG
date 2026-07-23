@@ -9,11 +9,24 @@ type Props = {
   ejercicios?: number;
   profesor?: string;
   onClick: () => void;
+  onEliminar?: () => void;
 };
 
-export default function AsignaturaCard({ nombre, color, imagen, alumnos, ejercicios, profesor, onClick }: Props) {
+export default function AsignaturaCard({ nombre, color, imagen, alumnos, ejercicios, profesor, onClick, onEliminar }: Props) {
   return (
     <div className={styles.card} onClick={onClick}>
+      {onEliminar && (
+        <button
+          className={styles.botonEliminar}
+          onClick={(e) => {
+            e.stopPropagation();  /*Evita que al pulsar tambien se dispare el onClick de la tarjeta*/
+            onEliminar();
+          }}
+          title="Eliminar asignatura"
+        >
+          🗑
+        </button>
+      )}
       <div className={styles.imagen} style={{ backgroundColor: color }}>
         {imagen ? (
           <img src={imagen} alt={nombre} className={styles.imagenFoto} />

@@ -1,8 +1,10 @@
 "use client";
 
 import { use, useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import Sidebar from "../../../components/sidebar";
 import styles from "../intentarEjercicio.module.css";
+
 
 type IntentoPrevio = {
   id: number;
@@ -34,6 +36,8 @@ export default function IntentarEjercicio({
   const [dragging, setDragging] = useState(false);
   const [cargando, setCargando] = useState(true);
   const [enviando, setEnviando] = useState(false);
+  const router = useRouter();
+
 
   useEffect(() => {
     const idGuardado = localStorage.getItem("id");
@@ -77,14 +81,20 @@ export default function IntentarEjercicio({
     if (file) handleFile(file);
   };
 
- const handleEnviar = async () => {
+  const handleEnviar = async () => {
     if (!alumnoId) return;
     setEnviando(true);
 
+    const nombreArchivo = archivoNombre ?? "solucion.txt";
+    const blob = new Blob([codigo], { type: "text/plain" });
+
+    const form = new FormData();
+    form.append("alumnoId", String(alumnoId));
+    form.append("codigo", blob, nombreArchivo);
+
     const res = await fetch('http://localhost:5001/ejercicio/' + id + '/entregas', {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ alumnoId, codigo }),
+      body: form,
     });
 
     if (res.ok) {
@@ -93,6 +103,20 @@ export default function IntentarEjercicio({
     }
     setEnviando(false);
   };
+
+  const handleDescargarEnunciado = async () => {
+    if (!ejercicio?.enunciadoURL) return;
+    const res = await fetch(`http://localhost:5001${ejercicio.enunciadoURL}`);
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = ejercicio.enunciadoNombre ?? "enunciado.pdf";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+
 
   if (cargando) {
     return (
@@ -140,9 +164,14 @@ export default function IntentarEjercicio({
                 <span className={styles.nombreArchivo}>
                   {archivoNombre ?? "sin_archivo.cpp"}
                 </span>
-                <button className={styles.botonEnviar} onClick={handleEnviar}>
-                  enviar 🗑
+                <button
+                  className={styles.botonEnviar}
+                  onClick={handleEnviar}
+                  disabled={enviando}
+                >
+                  {enviando ? "Evaluando..." : "enviar 🗑"}
                 </button>
+
               </div>
               <textarea
                 className={styles.codigoArea}
@@ -156,6 +185,10 @@ export default function IntentarEjercicio({
                 spellCheck={false}
               />
             </div>
+
+            {enviando && (
+              <p className={styles.evaluandoAviso}>⏳ Evaluando tu solución...</p>
+            )}
 
             <label
               className={`${styles.zonaArchivo}`}
@@ -186,19 +219,59 @@ export default function IntentarEjercicio({
           </div>
 
           <div className={styles.columnaDerecha}>
-            <div className={styles.card}>
-              <h3 className={styles.cardTitulo}>ENUNCIADO</h3>
-              {ejercicio.enunciadoNombre ? (
-                <div className={styles.pdfRow}>
-                  <span className={styles.pdfNombre}>
-                    {ejercicio.enunciadoNombre}
-                  </span>
-                  <button className={styles.btnDescargar}>Descargar pdf</button>
+              <div className={styles.card}>
+                <h3 className={styles.cardTitulo}>ENUNCIADO</h3>
+                {ejercicio.enunciadoNombre ? (
+                  <div className={styles.pdfRow}>
+                    <span className={styles.pdfNombre}>
+                      {ejercicio.enunciadoNombre}
+                    </span>
+                    <button className={styles.btnDescargar} onClick={handleDescargarEnunciado}>
+                      Descargar pdf
+                    </button>
+                  </div>
+                ) : (
+                  <p className={styles.sinContenido}>Sin enunciado</p>
+                )}
+              </div>
+
+
+
+            {intentosPrevios.length > 0 &&
+              intentosPrevios[0].resultado === "incorrecto" && (
+                <div className={styles.card}>
+                  <h3 className={styles.cardTitulo}>RESULTADO</h3>
+                  <p className={styles.resultadoMensaje}>✗ Incorrecto</p>
+
+                  <button
+                    className={styles.opcionBtn}
+                    onClick={() => router.push(`/visualizarEstructura/${id}`)}
+                  >
+                    🧩 Visualizar estructura de datos
+                  </button>
+
+
+                  <div className={styles.cuadranteFeedback}>
+                    <span className={styles.cuadranteTitulo}>
+                      Contraejemplo mínimo
+                    </span>
+                    <p className={styles.cuadranteTexto}>
+                      Próximamente se mostrará aquí la entrada más simple que
+                      hace fallar tu solución.
+                    </p>
+                  </div>
+
+                  <button className={styles.opcionBtn} disabled>
+                    💬 Enviar duda al profesor
+                    <span className={styles.badgeProximamente}>PRÓXIMAMENTE</span>
+                  </button>
+
+                  <button className={styles.opcionBtn} disabled>
+                    💡 Pistas
+                    <span className={styles.badgeProximamente}>PRÓXIMAMENTE</span>
+                  </button>
                 </div>
-              ) : (
-                <p className={styles.sinContenido}>Sin enunciado</p>
               )}
-            </div>
 
             <div className={styles.card}>
               <h3 className={styles.cardTitulo}>INTENTOS ANTERIORES</h3>

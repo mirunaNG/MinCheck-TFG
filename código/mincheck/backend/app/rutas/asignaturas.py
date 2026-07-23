@@ -195,6 +195,18 @@ def registrar_rutas_asignaturas(app):
             'color': asignatura.color or '#4d7cfe',
             'profesor': asignatura.profesor.nombre_completo,
         }), 200
+
+    @app.route('/asignatura/<int:asignatura_id>', methods=['DELETE'])
+    def eliminar_asignatura(asignatura_id):
+        from app.modelos import Asignatura
+        asignatura = Asignatura.query.get(asignatura_id)
+        if not asignatura:
+            return jsonify({'mensaje': 'Asignatura no encontrada'}), 404
+
+        db.session.delete(asignatura)
+        db.session.commit()
+        return jsonify({'mensaje': 'Asignatura eliminada'}), 200
+
     
     @app.route('/asignatura/<int:asignatura_id>/alumnos', methods=['GET'])
     def alumnos_asignatura(asignatura_id):

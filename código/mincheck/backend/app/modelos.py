@@ -59,7 +59,7 @@ class Asignatura(db.Model):
     # tiene muchos temas y muchas matrículas
     profesor: Mapped["Usuario"] = relationship(back_populates="asignaturas_profesor")
     temas: Mapped[List["Tema"]] = relationship(back_populates="asignatura", cascade="all, delete-orphan")
-    matriculas: Mapped[List["Matricula"]] = relationship(back_populates="asignatura")
+    matriculas: Mapped[List["Matricula"]] = relationship(back_populates="asignatura", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f'<Asignatura {self.nombre}>'

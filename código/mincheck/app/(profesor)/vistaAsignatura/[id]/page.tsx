@@ -5,6 +5,7 @@ import Link from "next/link";
 import Sidebar from "../../../components/sidebar";
 import Tabla from "../../../components/Tabla";
 import styles from "../vistaAsigProf.module.css";
+import CodigoViewerModal from "../../../components/verCodigoModal";
 
 type Asignatura = {
   id: number;
@@ -44,6 +45,7 @@ export default function VistaAsignaturaProfesor({
   const [verTodosAlumnos, setVerTodosAlumnos] = useState(false);
   // necesario porque asignatura es null hasta que carga, entonces muestra por un momento 'asignatura no encontrada'
   const [cargando, setCargando] = useState(true);
+  const [entregaCodigo, setEntregaCodigo] = useState<number | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -159,8 +161,9 @@ export default function VistaAsignaturaProfesor({
                         />
                       </td>
                       <td>
-                        {/*toDo: implementar que muestre el código del alumno, sacado de la BBDD */}
-                        <button className={styles.linkAlCodigo}>código →</button>
+                        <button className={styles.linkAlCodigo} onClick={() => setEntregaCodigo(e.id)}>
+                          código →
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -173,6 +176,9 @@ export default function VistaAsignaturaProfesor({
           </div>
         </div>
       </main>
+      {entregaCodigo !== null && (
+        <CodigoViewerModal entregaId={entregaCodigo} onCerrar={() => setEntregaCodigo(null)} />
+      )}
     </div>
   );
 }

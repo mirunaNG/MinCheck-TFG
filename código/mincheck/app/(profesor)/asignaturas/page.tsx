@@ -59,6 +59,21 @@ export default function PaginaDashboardProfesor() {
     setMostrarModal(false);
   }
 
+  async function handlerEliminarAsignatura(id: number) {
+    const confirmado = window.confirm(
+      "¿Seguro que quieres eliminar esta asignatura? Esta acción no se puede deshacer."
+    );
+    if (!confirmado) return;
+
+    const res = await fetch(`http://localhost:5001/asignatura/${id}`, {
+      method: "DELETE",
+    });
+
+    if (!res.ok) return;
+
+    setAsignaturas((prev) => prev.filter((a) => a.id !== id));
+  }
+
   return (
     <div className={styles.layout}>
       <Sidebar rol="profesor" />
@@ -82,6 +97,7 @@ export default function PaginaDashboardProfesor() {
                     alumnos={a.alumnos}
                     ejercicios={a.ejercicios}
                     onClick={() => router.push(`/vistaAsignatura/${a.id}`)}
+                    onEliminar={() => handlerEliminarAsignatura(a.id)}
                   />
                 ))}
               </div>
