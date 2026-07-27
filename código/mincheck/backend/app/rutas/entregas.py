@@ -86,7 +86,7 @@ def registrar_rutas_entregas(app):
                 'enunciadoURL': ejercicio.enunciado_url,
             },
             'intentos': intentos,
-            'ultimoCodigo': ultimo_codigo, # Esto es lo que lee tu frontend
+            'ultimoCodigo': ultimo_codigo, 
         }), 200
     
     @app.route('/ejercicio/<int:ejercicio_id>/entregas', methods=['POST'])

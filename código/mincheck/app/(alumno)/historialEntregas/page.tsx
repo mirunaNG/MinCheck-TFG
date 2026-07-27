@@ -38,7 +38,14 @@ export default function PaginaHistorialEntregas() {
         </header>
 
         <div className={styles.contenido}>
-          {grupos.map(({ asignatura, entregas }) => (
+          {grupos.map(({ asignatura, entregas }) => {
+            const ejerciciosAprobados = new Set(
+              entregas
+                .filter((e) => e.resultado === "correcto")
+                .map((e) => e.ejercicio)
+            );
+
+            return (
             <div key={asignatura.id} className={styles.bloqueAsignatura}>
               <div
                 className={styles.cabeceraAsignatura}
@@ -66,15 +73,17 @@ export default function PaginaHistorialEntregas() {
                       />
                     </td>
                     <td>
-                      {e.resultado === "incorrecto" && (
-                        <span className={styles.reintentar}>reintentar</span>
-                      )}
+                      {e.resultado === "incorrecto" &&
+                        !ejerciciosAprobados.has(e.ejercicio) && (
+                          <span className={styles.reintentar}>reintentar</span>
+                        )}
                     </td>
                   </tr>
                 ))}
               </Tabla>
             </div>
-          ))}
+            );
+          })}
         </div>
       </main>
     </div>

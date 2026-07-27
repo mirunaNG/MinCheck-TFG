@@ -51,7 +51,7 @@ export default function IntentarEjercicio({
       .then((datos) => {
         setEjercicio(datos.ejercicio);
         setIntentosPrevios(datos.intentos);
-        if (datos.ultimoCodigo) {
+        if (datos.ultimoCodigo !== null) {
           setCodigo(datos.ultimoCodigo);
           setArchivoNombre(
             `${datos.ejercicio.nombre.toLowerCase().replace(/ /g, "_")}_sol.cpp`
@@ -83,6 +83,7 @@ export default function IntentarEjercicio({
 
   const handleEnviar = async () => {
     if (!alumnoId) return;
+    if (!codigo.trim()) return;
     setEnviando(true);
 
     const nombreArchivo = archivoNombre ?? "solucion.txt";
@@ -167,7 +168,7 @@ export default function IntentarEjercicio({
                 <button
                   className={styles.botonEnviar}
                   onClick={handleEnviar}
-                  disabled={enviando}
+                  disabled={enviando || !codigo.trim()}
                 >
                   {enviando ? "Evaluando..." : "enviar 🗑"}
                 </button>
