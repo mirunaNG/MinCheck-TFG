@@ -134,10 +134,21 @@ def _formatear_caso(valores: dict, campos_por_caso: list[dict]) -> str:
         valor = valores[nombre]
         if tipo in _TIPO_BASE_VECTOR:
             tipo_elemento = _TIPO_BASE_VECTOR[tipo]
-            partes.append(" ".join(_formatear_valor(v, tipo_elemento) for v in valor))
+            elementos = " ".join(_formatear_valor(v, tipo_elemento) for v in valor)
+            if campo.get("tipo_lectura_caso") == "centinela":
+                valor_literal = campo.get("valor_centinela_campo")
+                if valor_literal is not None:
+                    terminador = valor_literal
+                elif campo.get("tipo_centinela_campo") in (None, "cadena", "caracter"):
+                    terminador = "fin"
+                else:
+                    terminador = "999999999"
+                elementos = f"{elementos} {terminador}".strip()
+            partes.append(elementos)
         else:
             partes.append(_formatear_valor(valor, tipo))
     return "\n".join(partes)
+
 
 def _formatear_fichero(grupos: list[dict], campos_por_caso: list[dict],
                         tipo_lectura: str, valor_centinela) -> str:

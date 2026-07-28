@@ -84,10 +84,16 @@ CAMPO_SCHEMA = {
         "longitud_minima": {"type": ["integer", "null"]},
         "longitud_maxima": {"type": ["integer", "null"]},
         "longitud_referencia": {"type": ["string", "null"]},
+        "tipo_lectura_caso": {"type": ["string", "null"], "enum": ["centinela", "numCasos", "ilimitado", None]},
+        "valor_centinela_campo": {"type": ["string", "null"]},
+        "tipo_centinela_campo": {"type": ["string", "null"],
+                                 "enum": ["entero", "real", "cadena", "caracter", "booleano", None]},
     },
     "required": ["nombre", "tipo", "minimo", "maximo", "salto",
-                 "longitud_minima", "longitud_maxima", "longitud_referencia"],
+                 "longitud_minima", "longitud_maxima", "longitud_referencia", "tipo_lectura_caso",
+                 "valor_centinela_campo", "tipo_centinela_campo"],
 }
+
 
 ESTRUCTURA_SCHEMA = {
     "type": "object",
@@ -131,19 +137,21 @@ student submissions, so it must be precise and complete.
 You will receive the statement of a programming exercise. Your task is to fill in:
 
 1. "tipo_lectura": how a solving program must read the input, choosing exactly one of:
-   - "centinela": reading stops when a specific value is found, even if that value is carried by a field
-     that also states a case's size or count.
+   - "centinela": reading of the WHOLE FILE stops when a specific value is found — meaning NO MORE
+     TEST CASES follow after it.
    - "numCasos": a single number, read ONCE before any test case, states the total number of cases.
    - "ilimitado": input is read until end-of-file, with no count and no stop value.
    Base this strictly on the "Entrada" section of the statement, not assumptions.
 
-   IMPORTANT — do not confuse a per-case size field with a case-count field: a statement that says the
-   input is "a series/sequence of test cases" and then describes, for EACH case, a field like "número de
-   elementos", "size", "N", etc. is NOT giving a count of test cases — that field belongs to a single
-   case (put it as the first entry of "campos_por_caso"). Only classify as "numCasos" if the statement
-   explicitly says a value read BEFORE any case gives the TOTAL NUMBER OF TEST CASES themselves. If the
-   statement never states such a count and gives no sentinel value either, the answer is "ilimitado",
-   even if a "number of elements"-like field also appears inside each case.
+   IMPORTANT — do not confuse a per-case count field with the file-level "numCasos": if a number
+   appears ONCE INSIDE EACH test case (e.g. "en la primera línea de cada caso se indica el número de
+   elementos del vector") and the statement says cases keep repeating until the file ends with no total
+   given beforehand, that number is a regular field of "campos_por_caso", and the vector/cadena it sizes
+   should get "tipo_lectura_caso": "numCasos" (see below) — this is NOT the file-level tipo_lectura
+   "numCasos". Reserve tipo_lectura "numCasos" for a single number that appears exactly ONCE, BEFORE any
+   test case, stating the total number of cases in the whole file.
+
+
 
 2. "valor_centinela": if tipo_lectura is "centinela", the exact sentinel value described in the
    statement (as text, e.g. "0" or "-1"). Otherwise null.
@@ -165,6 +173,27 @@ You will receive the statement of a programming exercise. Your task is to fill i
    - "longitud_referencia": string or null — if the number of elements of a vector/cadena is determined
      by the value of an earlier field in this same list (e.g. "N" read right before a vector of N
      numbers), put that field's "nombre" here. Otherwise null.
+   - "tipo_lectura_caso": ONLY for "vector_*" fields. Uses the EXACT SAME three values as "tipo_lectura"
+     above, but describes how THIS field's own elements are read WITHIN one case — independently of the
+     file-level "tipo_lectura". The two do not have to match: a file classified as "ilimitado" can still
+     contain a field read the "numCasos" way, if a count for THAT specific field appears once at the
+     start of each case (see the worked example below).
+       - "numCasos": an earlier field in this SAME case states, once, how many elements this field has
+         (use "longitud_referencia" with that field's "nombre", as before).
+       - "centinela": the statement says THIS list (not the whole file) is read element by element until
+         a stop value/word is found. "longitud_referencia", "longitud_minima" and "longitud_maxima" must
+         be null in this case.
+       - "ilimitado": no count field and no stop value are given for this list; its length is free/random,
+         bounded by "longitud_minima"/"longitud_maxima".
+     For any non-vector field, "tipo_lectura_caso" is null.
+   - "valor_centinela_campo": ONLY relevant if "tipo_lectura_caso" is "centinela". If the statement gives
+     a specific stop value (e.g. "until a -1 is read"), put it here as text. If it gives no specific
+     value, null.
+   - "tipo_centinela_campo": ONLY relevant if "tipo_lectura_caso" is "centinela" AND "valor_centinela_campo"
+     is null (generic stop condition, no specific value given). States the type of whatever ends the
+     reading, choosing one of "entero", "real", "cadena", "caracter", "booleano" — for example, "any
+     word" or "any non-numeric text" is "cadena". Otherwise, null.
+
 
 Rules:
 - For ANY field, scalar or vector, never assume "minimo", "maximo", "salto", "longitud_minima" or
@@ -204,20 +233,25 @@ EJEMPLO_CENTINELA = {
     "valor_centinela": "0 0",
     "campos_por_caso": [
         {"nombre": "a", "tipo": "entero", "minimo": None, "maximo": None,
-         "salto": None, "longitud_minima": None, "longitud_maxima": None, "longitud_referencia": None},
+         "salto": None, "longitud_minima": None, "longitud_maxima": None, "longitud_referencia": None,
+         "tipo_lectura_caso": None, "valor_centinela_campo": None, "tipo_centinela_campo": None},
         {"nombre": "b", "tipo": "entero", "minimo": None, "maximo": None,
-         "salto": None, "longitud_minima": None, "longitud_maxima": None, "longitud_referencia": None},
+         "salto": None, "longitud_minima": None, "longitud_maxima": None, "longitud_referencia": None,
+         "tipo_lectura_caso": None, "valor_centinela_campo": None, "tipo_centinela_campo": None},
     ],
 }
 
-EJEMPLO_NUMCASOS = {
+
+EJEMPLO_NUMCASOS = {   
     "tipo_lectura": "numCasos",
     "valor_centinela": None,
     "campos_por_caso": [
         {"nombre": "N", "tipo": "entero", "minimo": 1, "maximo": 100,
-         "salto": None, "longitud_minima": None, "longitud_maxima": None, "longitud_referencia": None},
+         "salto": None, "longitud_minima": None, "longitud_maxima": None, "longitud_referencia": None,
+         "tipo_lectura_caso": None, "valor_centinela_campo": None, "tipo_centinela_campo": None},
         {"nombre": "vector", "tipo": "vector_entero", "minimo": 0, "maximo": 1000,
-         "salto": None, "longitud_minima": None, "longitud_maxima": None, "longitud_referencia": "N"},
+         "salto": None, "longitud_minima": None, "longitud_maxima": None, "longitud_referencia": "N",
+         "tipo_lectura_caso": "numCasos", "valor_centinela_campo": None, "tipo_centinela_campo": None},
     ],
 }
 
@@ -225,8 +259,12 @@ EJEMPLO_ILIMITADO = {
     "tipo_lectura": "ilimitado",
     "valor_centinela": None,
     "campos_por_caso": [
-        {"nombre": "temperatura", "tipo": "real", "minimo": -50.0, "maximo": 50.0,
-         "salto": 0.1, "longitud_minima": None, "longitud_maxima": None, "longitud_referencia": None},
+        {"nombre": "N", "tipo": "entero", "minimo": 1, "maximo": 100,
+         "salto": None, "longitud_minima": None, "longitud_maxima": None, "longitud_referencia": None,
+         "tipo_lectura_caso": None, "valor_centinela_campo": None, "tipo_centinela_campo": None},
+        {"nombre": "vector", "tipo": "vector_entero", "minimo": 0, "maximo": 1000,
+         "salto": None, "longitud_minima": None, "longitud_maxima": None, "longitud_referencia": "N",
+         "tipo_lectura_caso": "numCasos", "valor_centinela_campo": None, "tipo_centinela_campo": None},
     ],
 }
 
@@ -240,10 +278,16 @@ Example (tipo_lectura = "centinela"):
 Example (tipo_lectura = "numCasos"):
 {json.dumps(EJEMPLO_NUMCASOS, ensure_ascii=False, indent=2)}
 
-Example (tipo_lectura = "ilimitado"):
+Example (tipo_lectura = "ilimitado") — notice this has the EXACT SAME campos_por_caso as the "numCasos"
+example above (a per-case field "N" sizing a vector via tipo_lectura_caso "numCasos"). The only
+difference is tipo_lectura itself: here the statement never gives a total case count before all cases,
+so cases are simply read until the file ends. Never infer tipo_lectura "numCasos" just because some
+campos_por_caso field looks like a count — check ONLY whether that count is stated ONCE before all
+cases (→ tipo_lectura "numCasos"), or repeats inside each case (→ tipo_lectura "ilimitado" or
+"centinela", with tipo_lectura_caso capturing the per-field count instead):
 {json.dumps(EJEMPLO_ILIMITADO, ensure_ascii=False, indent=2)}
-"""
 
+"""
 
 # ══════════════════════════════════════════════════════
 #  HELPERS
