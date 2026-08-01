@@ -233,6 +233,30 @@
   display: none;
 }
 
+.archivoConBoton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.archivoConBoton .archivo {
+  flex: 1;
+}
+
+.botonEliminarArchivo {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  color: #8b949e;
+  transition: color 0.2s;
+}
+
+.botonEliminarArchivo:hover {
+  color: #e6edf3;
+}
+
+
 .coloresGrid {
   display: flex;
   gap: 10px;

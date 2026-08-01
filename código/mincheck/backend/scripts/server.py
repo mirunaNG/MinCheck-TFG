@@ -53,7 +53,6 @@ class EstructuraEjercicio(BaseModel):
 
 class GenerarCasosRequest(BaseModel):
     estructura: dict
-    total_casos: int = 20
     entrada_ejemplo: Optional[str] = None
     salida_ejemplo: Optional[str] = None
 
@@ -546,8 +545,7 @@ async def analizar_enunciado_archivo(archivo: UploadFile = File(...)):
 
 @app.post("/generar/casos")
 def generar_casos(req: GenerarCasosRequest):
-    total = max(1, min(req.total_casos, 200))
-    casos = generar_conjunto_de_pruebas(req.estructura, total=total)
+    casos = generar_conjunto_de_pruebas(req.estructura)
 
     if req.entrada_ejemplo:
         casos.insert(0, {
@@ -559,7 +557,7 @@ def generar_casos(req: GenerarCasosRequest):
     return {"casos": casos}
 
 @app.post("/calcular/outputs")
-#guarda fichero con nombre original en directorio temporal porque en Java el nombre de la clase debe coincidir con el nombre del fichero
+#guarda fichero con nombre original en directorio temporal porque la extensión determina qué compilador se usa
 async def calcular_outputs_endpoint(solucion: UploadFile = File(...), casos: str = Form(...)):
     casos_lista = json.loads(casos)
     contenido = await solucion.read()

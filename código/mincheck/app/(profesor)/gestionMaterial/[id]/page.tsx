@@ -306,33 +306,59 @@ export default function GestionMaterial({
 
           <div className={styles.campoModal}>
             <label className={styles.etiquetaCampo}>Enunciado</label>
-            <label className={styles.archivo}>
-              <span className={styles.iconoArchivo}>📄</span>
-              <span className={styles.textoArchivo}>
-                {enunciadoFile ? enunciadoFile.name : "Seleccionar archivos"}
-              </span>
-              <input
-                type="file"
-                className={styles.archivodeEntrada}
-                onChange={(e) => setEnunciadoFile(e.target.files?.[0] ?? null)}
-              />
-            </label>
+            <div className={styles.archivoConBoton}>
+              <label className={styles.archivo}>
+                <span className={styles.iconoArchivo}>📄</span>
+                <span className={styles.textoArchivo}>
+                  {enunciadoFile ? enunciadoFile.name : "Seleccionar archivos"}
+                </span>
+                <input
+                  type="file"
+                  className={styles.archivodeEntrada}
+                  onChange={(e) => setEnunciadoFile(e.target.files?.[0] ?? null)}
+                />
+              </label>
+              {enunciadoFile && (
+                <button
+                  type="button"
+                  className={styles.botonEliminarArchivo}
+                  onClick={() => setEnunciadoFile(null)}
+                  title="Eliminar archivo"
+                >
+                  🗑
+                </button>
+              )}
+            </div>
           </div>
+
 
           <div className={styles.campoModal}>
             <label className={styles.etiquetaCampo}>Código solución</label>
-            <label className={styles.archivo}>
-              <span className={styles.iconoArchivo}>📄</span>
-              <span className={styles.textoArchivo}>
-                {solucionFile ? solucionFile.name : "Seleccionar archivos"}
-              </span>
-              <input
-                type="file"
-                className={styles.archivodeEntrada}
-                onChange={(e) => setSolucionFile(e.target.files?.[0] ?? null)}
-              />
-            </label>
+            <div className={styles.archivoConBoton}>
+              <label className={styles.archivo}>
+                <span className={styles.iconoArchivo}>📄</span>
+                <span className={styles.textoArchivo}>
+                  {solucionFile ? solucionFile.name : "Seleccionar archivos"}
+                </span>
+                <input
+                  type="file"
+                  className={styles.archivodeEntrada}
+                  onChange={(e) => setSolucionFile(e.target.files?.[0] ?? null)}
+                />
+              </label>
+              {solucionFile && (
+                <button
+                  type="button"
+                  className={styles.botonEliminarArchivo}
+                  onClick={() => setSolucionFile(null)}
+                  title="Eliminar archivo"
+                >
+                  🗑
+                </button>
+              )}
+            </div>
           </div>
+
 
           <div className={styles.botonesModal}>
             <button className={styles.botonConfirmar} onClick={crearEjercicio}>

@@ -7,19 +7,49 @@ RANGO_REAL_DEFECTO = (-1000.0, 1000.0)
 RANGO_LONGITUD_DEFECTO = (0, 10)      # para vectores/cadenas sin longitud explícita
 ALFABETO_CADENA = string.ascii_lowercase
 
-RANGO_LONGITUD_DEFECTO = (0, 10)      # para vectores/cadenas sin longitud explícita
-LIMITE_HYPOTHESIS_LISTA = 200       # hlimite bajo porque salta el health check
-ALFABETO_CADENA = string.ascii_lowercase
+LIMITE_HYPOTHESIS_LISTA = 200       # limite bajo porque salta el health check
 
 LIMITE_PEQUENO_ENTERO = 20      # valores en [-20, 20] se consideran "pequeños"
 LIMITE_PEQUENO_REAL = 20.0
 
-GRUPOS_POR_FICHERO_MIN = 1   # nº mínimo de repeticiones de campos_por_caso en un fichero
-GRUPOS_POR_FICHERO_MAX = 7  # nº máximo
+# Perfiles al estilo de un juez real: en vez de N ficheros aleatorios sueltos,
+# se generan 5 ficheros con un propósito cada uno.
+NUM_CASOS_SIMPLES = 5        # casos "de manual", valores pequeños tipo enunciado
+GRUPOS_CASO_SIMPLE = 1
+
+GRUPOS_CASO_EXHAUSTIVO = 50  # 1 caso con muchos grupos que recorren valores límite
+
+NUM_CASOS_GRANDES = 2        # casos con inputs muy grandes para forzar timeout
+GRUPOS_CASO_GRANDE = 100
+MARGEN_GRANDE = 5            # cuánto por debajo del máximo se permite en el caso grande
+
+
+def _strategy_tamano(lo: int, hi: int, modo: str):
+    """Estrategia para un valor que representa un tamaño: longitud de vector/cadena
+    o un contador que otro campo referencia como longitud_referencia."""
+    if modo == "simple":
+        hi_p = min(hi, 5)
+        if hi_p < lo:
+            hi_p = hi
+        return st.integers(min_value=lo, max_value=hi_p)
+
+    if modo == "borde":
+        candidatos = sorted({v for v in {lo, lo + 1, hi - 1, hi} if lo <= v <= hi})
+        return st.sampled_from(candidatos)
+
+    if modo == "grande":
+        lo_g = hi - MARGEN_GRANDE
+        if lo_g < lo:
+            lo_g = lo
+        return st.integers(min_value=lo_g, max_value=hi)
+
+    return st.integers(min_value=lo, max_value=hi)
 
 
 #Estrategia -> traduce el campo a una estrategia de Hypothesis para generar valores válidos
-def _strategy_escalar(campo: dict):
+#modo: "normal" (todo el rango), "simple" (valores pequeños tipo enunciado),
+#      "borde" (valores límite: min, max, 0...), "grande" (valores cerca del máximo)
+def _strategy_escalar(campo: dict, modo: str = "normal"):
     tipo = campo["tipo"]
     minimo = campo.get("minimo")
     maximo = campo.get("maximo")
@@ -31,40 +61,72 @@ def _strategy_escalar(campo: dict):
         hi = int(maximo) if maximo is not None else RANGO_ENTERO_DEFECTO[1]
         if salto:
             pasos = (hi - lo) // int(salto)
+            if modo == "grande":
+                return st.just(lo + pasos * int(salto))
             return st.integers(min_value=0, max_value=pasos).map(lambda n: lo + n * int(salto))
 
-        lo_pequeno = max(lo, -LIMITE_PEQUENO_ENTERO)
-        hi_pequeno = min(hi, LIMITE_PEQUENO_ENTERO)
-        rango_completo = st.integers(min_value=lo, max_value=hi)
-        if lo_pequeno <= hi_pequeno and (lo_pequeno, hi_pequeno) != (lo, hi):
-            pequenos = st.integers(min_value=lo_pequeno, max_value=hi_pequeno)
-            return st.one_of(pequenos, rango_completo)
-        return rango_completo
+        if modo == "simple":
+            lo_p, hi_p = max(lo, -LIMITE_PEQUENO_ENTERO), min(hi, LIMITE_PEQUENO_ENTERO)
+            if lo_p > hi_p:
+                lo_p, hi_p = lo, hi
+            return st.integers(min_value=lo_p, max_value=hi_p)
+
+        if modo == "borde":
+            candidatos = sorted({v for v in {lo, lo + 1, 0, hi - 1, hi} if lo <= v <= hi})
+            return st.sampled_from(candidatos)
+
+        return st.integers(min_value=lo, max_value=hi)
 
     if tipo == "real":
         lo = float(minimo) if minimo is not None else RANGO_REAL_DEFECTO[0]
         hi = float(maximo) if maximo is not None else RANGO_REAL_DEFECTO[1]
         if salto:
             pasos = int((hi - lo) / salto)
+            if modo == "grande":
+                return st.just(round(lo + pasos * salto, 6))
             return st.integers(min_value=0, max_value=pasos).map(lambda n: round(lo + n * salto, 6))
 
-        lo_pequeno = max(lo, -LIMITE_PEQUENO_REAL)
-        hi_pequeno = min(hi, LIMITE_PEQUENO_REAL)
-        rango_completo = st.floats(min_value=lo, max_value=hi, allow_nan=False, allow_infinity=False)
-        if lo_pequeno <= hi_pequeno and (lo_pequeno, hi_pequeno) != (lo, hi):
-            pequenos = st.floats(min_value=lo_pequeno, max_value=hi_pequeno, allow_nan=False, allow_infinity=False)
-            return st.one_of(pequenos, rango_completo)
-        return rango_completo
+        if modo == "simple":
+            lo_p, hi_p = max(lo, -LIMITE_PEQUENO_REAL), min(hi, LIMITE_PEQUENO_REAL)
+            if lo_p > hi_p:
+                lo_p, hi_p = lo, hi
+            return st.floats(min_value=lo_p, max_value=hi_p, allow_nan=False, allow_infinity=False)
+
+        if modo == "borde":
+            candidatos = sorted({v for v in {lo, 0.0, hi} if lo <= v <= hi})
+            return st.sampled_from(candidatos)
+
+        return st.floats(min_value=lo, max_value=hi, allow_nan=False, allow_infinity=False)
+
 
     if tipo == "booleano":
         return st.booleans()
 
     if tipo == "caracter":
+        if modo == "borde":
+            return st.sampled_from([ALFABETO_CADENA[0], ALFABETO_CADENA[-1]])
         return st.text(alphabet=ALFABETO_CADENA, min_size=1, max_size=1)
 
     if tipo == "cadena":
         lm = campo.get("longitud_minima") if campo.get("longitud_minima") is not None else RANGO_LONGITUD_DEFECTO[0]
         lM = campo.get("longitud_maxima") if campo.get("longitud_maxima") is not None else RANGO_LONGITUD_DEFECTO[1]
+
+        if modo == "simple":
+            hi_p = min(lM, 5)
+            if hi_p < lm:
+                hi_p = lM
+            return st.text(alphabet=ALFABETO_CADENA, min_size=lm, max_size=hi_p)
+
+        if modo == "borde":
+            candidatos = sorted({v for v in {lm, lm + 1, lM - 1, lM} if lm <= v <= lM})
+            return st.one_of(*[st.text(alphabet=ALFABETO_CADENA, min_size=n, max_size=n) for n in candidatos])
+
+        if modo == "grande":
+            lo_g = lM - MARGEN_GRANDE
+            if lo_g < lm:
+                lo_g = lm
+            return st.text(alphabet=ALFABETO_CADENA, min_size=lo_g, max_size=lM)
+
         return st.text(alphabet=ALFABETO_CADENA, min_size=lm, max_size=lM)
 
     raise ValueError(f"tipo escalar desconocido: {tipo}")
@@ -76,14 +138,29 @@ _TIPO_BASE_VECTOR = {
 }
 
 #estrategia para un campo vector -> se aplica la del escalar a cada uno de sus elemetnos
-def _strategy_elemento_vector(campo: dict):
+def _strategy_elemento_vector(campo: dict, modo: str = "normal"):
     tipo_base = _TIPO_BASE_VECTOR[campo["tipo"]]
-    return _strategy_escalar({**campo, "tipo": tipo_base})
+    return _strategy_escalar({**campo, "tipo": tipo_base}, modo)
 
-#st.composite permite dependencias (unas estrategias que dependan de otras) 
+
+def _strategy_longitud_vector(campo: dict, modo: str):
+    lm = campo.get("longitud_minima") if campo.get("longitud_minima") is not None else RANGO_LONGITUD_DEFECTO[0]
+    lM = campo.get("longitud_maxima") if campo.get("longitud_maxima") is not None else RANGO_LONGITUD_DEFECTO[1]
+    lM = min(lM, LIMITE_HYPOTHESIS_LISTA)
+    return _strategy_tamano(lm, lM, modo)
+
+
+def _strategy_contador(campo: dict, modo: str):
+    lo = int(campo["minimo"]) if campo.get("minimo") is not None else RANGO_ENTERO_DEFECTO[0]
+    hi = int(campo["maximo"]) if campo.get("maximo") is not None else RANGO_ENTERO_DEFECTO[1]
+    hi = min(hi, LIMITE_HYPOTHESIS_LISTA)
+    return _strategy_tamano(lo, hi, modo)
+
+
+#st.composite permite dependencias (unas estrategias que dependan de otras)
 @st.composite
 #devuelve una estrategia que produce un diccionario con los valores para un CASO COMPLETO
-def _strategy_caso(draw, campos_por_caso: list[dict]):
+def _strategy_caso(draw, campos_por_caso: list[dict], modo: str = "normal"):
     referenciados = {c["longitud_referencia"] for c in campos_por_caso if c.get("longitud_referencia")}
     valores = {}
     for campo in campos_por_caso:
@@ -95,26 +172,21 @@ def _strategy_caso(draw, campos_por_caso: list[dict]):
             if ref:
                 n = int(valores[ref])
             else:
-                lm = campo.get("longitud_minima") if campo.get("longitud_minima") is not None else RANGO_LONGITUD_DEFECTO[0]
-                lM = campo.get("longitud_maxima") if campo.get("longitud_maxima") is not None else RANGO_LONGITUD_DEFECTO[1]
-                lM = min(lM, LIMITE_HYPOTHESIS_LISTA)
-                n = draw(st.integers(min_value=lm, max_value=lM))
-            elemento = _strategy_elemento_vector(campo)
+                n = draw(_strategy_longitud_vector(campo, modo))
+            elemento = _strategy_elemento_vector(campo, modo)
             valores[nombre] = draw(st.lists(elemento, min_size=n, max_size=n))
+        elif nombre in referenciados:
+            valores[nombre] = draw(_strategy_contador(campo, modo))
         else:
-            campo_efectivo = campo
-            if nombre in referenciados and campo.get("maximo") is not None:
-                campo_efectivo = {**campo, "maximo": min(campo["maximo"], LIMITE_HYPOTHESIS_LISTA)}
-            valores[nombre] = draw(_strategy_escalar(campo_efectivo))
+            valores[nombre] = draw(_strategy_escalar(campo, modo))
 
     return valores
 
 
-#se hacen varios casos por fichero, no solo 1. LO DEFINE EL PROFESOR, CUANTOS CASOS QUIERE
+#genera un fichero con un número fijo de grupos (lo decide el perfil, no el azar)
 @st.composite
-def _strategy_fichero(draw, campos_por_caso: list[dict]):
-    num_grupos = draw(st.integers(min_value=GRUPOS_POR_FICHERO_MIN, max_value=GRUPOS_POR_FICHERO_MAX))
-    return [draw(_strategy_caso(campos_por_caso)) for _ in range(num_grupos)]
+def _strategy_fichero(draw, campos_por_caso: list[dict], modo: str, num_grupos: int):
+    return [draw(_strategy_caso(campos_por_caso, modo)) for _ in range(num_grupos)]
 
 
 #FORMATEOS
@@ -159,25 +231,36 @@ def _formatear_fichero(grupos: list[dict], campos_por_caso: list[dict],
         lineas = lineas + [valor_centinela if valor_centinela is not None else "0"]
     return "\n".join(lineas)
 
-#Junta todo
-def generar_conjunto_de_pruebas(estructura: dict, total: int = 20) -> list[dict]:
-    campos = estructura["campos_por_caso"]
-    tipo_lectura = estructura["tipo_lectura"]
-    valor_centinela = estructura.get("valor_centinela")
 
+def _generar_ficheros(campos: list[dict], modo: str, num_grupos: int, cantidad: int) -> list[list[dict]]:
     ficheros_generados = []
 
-    @settings(max_examples=total, deadline=None, database=None)
-    @given(_strategy_fichero(campos))
+    @settings(max_examples=cantidad, deadline=None, database=None)
+    @given(_strategy_fichero(campos, modo, num_grupos))
     def _recolectar(grupos):
         ficheros_generados.append(grupos)
 
     _recolectar()
+    return ficheros_generados[:cantidad]
+
+
+#Junta todo: genera los 5 ficheros al estilo de un juez real
+def generar_conjunto_de_pruebas(estructura: dict) -> list[dict]:
+    campos = estructura["campos_por_caso"]
+    tipo_lectura = estructura["tipo_lectura"]
+    valor_centinela = estructura.get("valor_centinela")
+
+    perfiles = [
+        ("simple", "simple", GRUPOS_CASO_SIMPLE, NUM_CASOS_SIMPLES),
+        ("exhaustivo", "borde", GRUPOS_CASO_EXHAUSTIVO, 1),
+        ("grande", "grande", GRUPOS_CASO_GRANDE, NUM_CASOS_GRANDES),
+    ]
 
     resultados = []
-    for grupos in ficheros_generados[:total]:
-        texto = _formatear_fichero(grupos, campos, tipo_lectura, valor_centinela)
-        resultados.append({"perfiles": ["aleatorio"], "input": texto})
+    for nombre, modo, num_grupos, cantidad in perfiles:
+        for grupos in _generar_ficheros(campos, modo, num_grupos, cantidad):
+            texto = _formatear_fichero(grupos, campos, tipo_lectura, valor_centinela)
+            resultados.append({"perfiles": [nombre], "input": texto})
+
 
     return resultados
-

@@ -11,7 +11,7 @@ EJEMPLO_NUMCASOS = {
     ],
 }
 
-casos = generar_conjunto_de_pruebas(EJEMPLO_NUMCASOS, total=3)
+casos = generar_conjunto_de_pruebas(EJEMPLO_NUMCASOS)
 for c in casos:
     print("----")
     print(c["input"])

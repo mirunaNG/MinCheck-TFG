@@ -160,7 +160,6 @@ async function handleGenerar(){
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         estructura,
-        total_casos: 10,
         entrada_ejemplo: esPrimeraGeneracion ? entrada_ejemplo : undefined,
         salida_ejemplo: esPrimeraGeneracion ? salida_ejemplo : undefined,
       }),
@@ -211,17 +210,26 @@ async function handleGenerar(){
   }
 }
 
-  function handleAñadirManual(){
-    if (!nuevoInput.trim()) return;
-    setCasos((prev) => [
-      ...prev,
-      {id:Date.now(), input:nuevoInput.trim(), outputEsperado: nuevoOutput.trim()},
-    ]);
+async function handleAñadirManual() {
+  if (!nuevoInput.trim()) return;
 
-    setNuevoInput("");
-    setNuevoOutput("");
-    setModalAñadir(false);
-  }
+  const res = await fetch('http://localhost:5001/ejercicio/' + ejercicioId + '/casos', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      casos: [{ input: nuevoInput.trim(), outputEsperado: nuevoOutput.trim() }],
+    }),
+  });
+  if (!res.ok) return;
+
+  const guardado = await res.json();
+  setCasos((prev) => [...prev, ...guardado.casos]);
+
+  setNuevoInput("");
+  setNuevoOutput("");
+  setModalAñadir(false);
+}
+
 
   async function handleEliminarCaso(id: number) {
     const res = await fetch('http://localhost:5001/caso/' + id, { method: 'DELETE' });
@@ -425,8 +433,8 @@ async function handleGenerar(){
                     <span className={styles.dropTexto}>
                       {solucionFile ? "Arrastra un nuevo archivo para reemplazar" : "Arrastra o selecciona un archivo"}
                     </span>
-                    <span className={styles.dropHint}>Java, C, C++, python</span>
-                    <input type="file" accept=".java,.c,.cpp,.py" className={styles.fileInput}
+                    <span className={styles.dropHint}> C++</span>
+                    <input type="file" accept=".cpp,.cc" className={styles.fileInput}
                       onChange={(e) => { const f = e.target.files?.[0]; if (f) handleNuevaSolucion(f); }} />
                   </label>
                 </section>

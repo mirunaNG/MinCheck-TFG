@@ -56,7 +56,6 @@ export default function GeneradorCasos() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           estructura,
-          total_casos: 10,
           entrada_ejemplo,
           salida_ejemplo,
         }),
@@ -65,11 +64,17 @@ export default function GeneradorCasos() {
       const data: { casos: { perfiles: string[]; input: string; output_esperado?: string }[] } =
         await resCasos.json();
 
-      // Si el código subido es un archivo, se ejecuta contra cada input para obtener el output real
+      // Se ejecuta el código contra cada input para obtener el output real.
+      // Se usa el archivo si hay uno adjunto; si no, el texto escrito a mano.
       let casosConOutput = data.casos;
-      if (archivo) {
+      if (archivo || codigo.trim()) {
         const formSolucion = new FormData();
-        formSolucion.append("solucion", archivo, archivo.name);
+        if (archivo) {
+          formSolucion.append("solucion", archivo, archivo.name);
+        } else {
+          const blob = new Blob([codigo], { type: "text/plain" });
+          formSolucion.append("solucion", blob, "solucion.cpp");
+        }
         formSolucion.append("casos", JSON.stringify(data.casos));
         const resOutputs = await fetch("http://localhost:8001/calcular/outputs", {
           method: "POST",
@@ -81,6 +86,8 @@ export default function GeneradorCasos() {
           casosConOutput = outputsData.casos;
         }
       }
+
+
 
       setCasos(
         casosConOutput.map((c, i) => ({
@@ -169,7 +176,7 @@ export default function GeneradorCasos() {
                 Subir archivo 📄
                 <input
                   type="file"
-                  accept=".java,.c,.cpp,.py,.txt"
+                  accept=".cpp,.cc"
                   className={styles.archivodeEntrada}
                   onChange={(e) => {
                     const f = e.target.files?.[0];

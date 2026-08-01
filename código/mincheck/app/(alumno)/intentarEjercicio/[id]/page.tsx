@@ -86,7 +86,7 @@ export default function IntentarEjercicio({
     if (!codigo.trim()) return;
     setEnviando(true);
 
-    const nombreArchivo = archivoNombre ?? "solucion.txt";
+    const nombreArchivo = archivoNombre ?? "solucion.cpp";
     const blob = new Blob([codigo], { type: "text/plain" });
 
     const form = new FormData();
@@ -104,6 +104,12 @@ export default function IntentarEjercicio({
     }
     setEnviando(false);
   };
+
+  const handleEliminarArchivo = () => {
+    setArchivoNombre(null);
+    setCodigo("");
+  };
+
 
   const handleDescargarEnunciado = async () => {
     if (!ejercicio?.enunciadoURL) return;
@@ -162,18 +168,30 @@ export default function IntentarEjercicio({
           <div className={styles.columnaIzquierda}>
             <div className={styles.editorCard}>
               <div className={styles.editorHeader}>
-                <span className={styles.nombreArchivo}>
-                  {archivoNombre ?? "sin_archivo.cpp"}
-                </span>
+                <div className={styles.archivoInfoHeader}>
+                  <span className={styles.nombreArchivo}>
+                    {archivoNombre ?? "sin_archivo.cpp"}
+                  </span>
+                  {archivoNombre && (
+                    <button
+                      type="button"
+                      className={styles.botonEliminarArchivo}
+                      onClick={handleEliminarArchivo}
+                      title="Eliminar archivo"
+                    >
+                      🗑
+                    </button>
+                  )}
+                </div>
                 <button
                   className={styles.botonEnviar}
                   onClick={handleEnviar}
                   disabled={enviando || !codigo.trim()}
                 >
-                  {enviando ? "Evaluando..." : "enviar 🗑"}
+                  {enviando ? "Evaluando..." : "enviar 📤"}
                 </button>
-
               </div>
+
               <textarea
                 className={styles.codigoArea}
                 value={codigo}
@@ -202,7 +220,7 @@ export default function IntentarEjercicio({
             >
               <input
                 type="file"
-                accept=".c,.cpp,.java,.py"
+                accept=".cpp,.cc"
                 className={styles.inputOculto}
                 onChange={handleInputChange}
               />
@@ -215,7 +233,7 @@ export default function IntentarEjercicio({
                   {archivoNombre ? "reemplazar" : "subirlo"}
                 </span>
               </p>
-              <p className={styles.dropSubtexto}>Java, C, C++, python</p>
+              <p className={styles.dropSubtexto}> C++</p>
             </label>
           </div>
 
