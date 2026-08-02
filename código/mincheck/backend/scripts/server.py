@@ -5,7 +5,6 @@ Puerto:   8001
 """
 
 from typing import List, Literal, Optional
-from urllib import response
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
@@ -193,6 +192,14 @@ You will receive the statement of a programming exercise. Your task is to fill i
      reading, choosing one of "entero", "real", "cadena", "caracter", "booleano" — for example, "any
      word" or "any non-numeric text" is "cadena". Otherwise, null.
 
+     - IMPORTANT — do not confuse a per-case sentinel with the file-level "centinela": if a stop value/word
+    ends each INDIVIDUAL case's list (e.g., a list is read element by element until a word like "fin"
+    appears, and then a NEW case starts on the next line) and the statement gives no separate value that
+    stops the WHOLE FILE, then tipo_lectura must be "ilimitado" (cases are simply read until EOF), and it
+    is the FIELD that gets "tipo_lectura_caso": "centinela". Reserve the file-level tipo_lectura
+    "centinela" for when the statement says reading of the WHOLE FILE (no more cases at all) stops upon
+    that value — never just because one case's own list ends that way.
+
 
 Rules:
 - For ANY field, scalar or vector, never assume "minimo", "maximo", "salto", "longitud_minima" or
@@ -237,6 +244,16 @@ EJEMPLO_CENTINELA = {
         {"nombre": "b", "tipo": "entero", "minimo": None, "maximo": None,
          "salto": None, "longitud_minima": None, "longitud_maxima": None, "longitud_referencia": None,
          "tipo_lectura_caso": None, "valor_centinela_campo": None, "tipo_centinela_campo": None},
+    ],
+}
+
+EJEMPLO_CENTINELA_POR_CASO = {
+    "tipo_lectura": "ilimitado",
+    "valor_centinela": None,
+    "campos_por_caso": [
+        {"nombre": "lista", "tipo": "vector_entero", "minimo": None, "maximo": None,
+         "salto": None, "longitud_minima": None, "longitud_maxima": None, "longitud_referencia": None,
+         "tipo_lectura_caso": "centinela", "valor_centinela_campo": None, "tipo_centinela_campo": "cadena"},
     ],
 }
 
@@ -287,6 +304,40 @@ cases (→ tipo_lectura "numCasos"), or repeats inside each case (→ tipo_lectu
 {json.dumps(EJEMPLO_ILIMITADO, ensure_ascii=False, indent=2)}
 
 """
+
+SYSTEM_ANALISIS += """
+
+Heuristic cue for tipo_lectura "ilimitado" vs "numCasos": phrases like "una serie de casos",
+"consta de varios casos", "hasta el final del fichero", or any wording that does NOT state a total
+count before the cases start, are a strong signal for "ilimitado" — even if a number appears at the
+start of EVERY case. That per-case number sizes something WITHIN that case (e.g. a vector), it is not
+a file-level case count, no matter how similar it looks to one.
+
+Worked example of this exact confusion, using a real exercise statement:
+
+Statement fragment: "La entrada consta de una serie de casos de prueba. Cada caso de prueba consta de
+dos líneas. En la primera se indica el número de elementos del vector y en la segunda los valores del
+vector."
+
+WRONG: tipo_lectura = "numCasos", treating "el número de elementos del vector" as the total case count.
+CORRECT: tipo_lectura = "ilimitado" — the statement never gives a total number of cases, it only says
+cases keep coming ("una serie de casos") until the file ends. "N" is a per-case field that sizes the
+vector via longitud_referencia, exactly like campos_por_caso in the EJEMPLO_ILIMITADO example above:
+
+{"tipo_lectura": "ilimitado", "valor_centinela": null, "campos_por_caso": [
+  {"nombre": "N", "tipo": "entero", "minimo": 1, "maximo": null, "salto": null,
+   "longitud_minima": null, "longitud_maxima": null, "longitud_referencia": null,
+   "tipo_lectura_caso": null, "valor_centinela_campo": null, "tipo_centinela_campo": null},
+  {"nombre": "vector", "tipo": "vector_entero", "minimo": null, "maximo": null, "salto": null,
+   "longitud_minima": null, "longitud_maxima": null, "longitud_referencia": "N",
+   "tipo_lectura_caso": "numCasos", "valor_centinela_campo": null, "tipo_centinela_campo": null}
+]}
+
+Never assign tipo_lectura "numCasos" just because a number appears once per case and sizes a vector —
+check first whether the statement gives ONE total count BEFORE any case starts. If it doesn't, use
+"ilimitado" regardless of how the per-case field looks.
+"""
+
 
 # ══════════════════════════════════════════════════════
 #  HELPERS
@@ -527,6 +578,8 @@ async def analizar_enunciado_archivo(archivo: UploadFile = File(...)):
     )
     estructura = EstructuraEjercicio.model_validate_json(response.message.content)
     estructura = limitar_a_texto(estructura, texto)
+    print(json.dumps(estructura.model_dump(), indent=2, ensure_ascii=False))
+
 
     response_ejemplo = ollama_chat(
         model=MODEL,
@@ -541,7 +594,6 @@ async def analizar_enunciado_archivo(archivo: UploadFile = File(...)):
 
     return {**estructura.model_dump(), **ejemplo.model_dump()}
 
-    return estructura.model_dump()
 
 @app.post("/generar/casos")
 def generar_casos(req: GenerarCasosRequest):

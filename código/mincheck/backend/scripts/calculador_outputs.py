@@ -1,16 +1,8 @@
 import os
-import resource
 import subprocess
 import tempfile
 
 TIMEOUT_SEGUNDOS = 5  # tiempo máximo por caso antes de darlo por colgado
-MEMORIA_LIMITE_KB = 256 * 1024  # 256 MB máx. por proceso ejecutado
-
-
-def _limitar_memoria():
-    limite_bytes = MEMORIA_LIMITE_KB * 1024
-    resource.setrlimit(resource.RLIMIT_AS, (limite_bytes, limite_bytes))
-
 
 def _comando_cpp(ruta: str, tmp_dir: str) -> list[str]:
     binario = os.path.join(tmp_dir, "solucion")
@@ -41,13 +33,14 @@ def _ejecutar_caso(comando: list[str], entrada: str) -> str | None:
     try:
         resultado = subprocess.run(
             comando, input=entrada, capture_output=True, text=True,
-            timeout=TIMEOUT_SEGUNDOS, preexec_fn=_limitar_memoria,
+            timeout=TIMEOUT_SEGUNDOS,
         )
     except subprocess.TimeoutExpired:
         return None
     if resultado.returncode != 0:
         return None
     return resultado.stdout.rstrip("\n")
+
 
 
 #Funcion principal que hace todo (tiene en cuenta que los ejemplos ya estan calculados)

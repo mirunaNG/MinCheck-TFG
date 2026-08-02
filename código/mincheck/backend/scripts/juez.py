@@ -1,9 +1,9 @@
 import subprocess
 import tempfile
 
-from calculador_outputs import _preparar_comando, _limitar_memoria, TIMEOUT_SEGUNDOS
+from calculador_outputs import _preparar_comando, TIMEOUT_SEGUNDOS
 
-OUTPUT_LIMITE_BYTES = 10 * 1024 * 1024  # 10 MB de salida por caso, protege contra print() en bucle infinito
+OUTPUT_LIMITE_BYTES = 10 * 1024 * 1024 
 
 
 def _normalizar(texto: str | None) -> str:
@@ -14,7 +14,7 @@ def _ejecutar_caso_alumno(comando: list[str], entrada: str, tiempo_limite: float
     try:
         resultado = subprocess.run(
             comando, input=entrada, capture_output=True, text=True,
-            timeout=tiempo_limite, preexec_fn=_limitar_memoria,
+            timeout=tiempo_limite,
         )
     except subprocess.TimeoutExpired:
         return {"estado": "timeout"}

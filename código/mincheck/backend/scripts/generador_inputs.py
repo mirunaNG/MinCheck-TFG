@@ -41,8 +41,6 @@ def _strategy_tamano(lo: int, hi: int, modo: str):
 
 
 #Estrategia -> traduce el campo a una estrategia de Hypothesis para generar valores válidos
-#modo: "normal" (todo el rango), "simple" (valores pequeños tipo enunciado),
-#      "borde" (valores límite: min, max, 0...), "grande" (valores cerca del máximo)
 def _strategy_escalar(campo: dict, modo: str = "normal"):
     tipo = campo["tipo"]
     minimo = campo.get("minimo")
@@ -354,7 +352,7 @@ def _generar_fichero_grande(campos_por_caso: list[dict], num_grupos: int) -> lis
     return grupos
 
 
-#Junta todo: genera los 5 ficheros al estilo de un juez real
+#Junta todo: genera los 5 casos al estilo de un juez real
 def generar_conjunto_de_pruebas(estructura: dict) -> list[dict]:
     campos = estructura["campos_por_caso"]
     tipo_lectura = estructura["tipo_lectura"]
@@ -362,9 +360,7 @@ def generar_conjunto_de_pruebas(estructura: dict) -> list[dict]:
 
     resultados = []
 
-    # "simple" y "exhaustivo" van por Hypothesis. Como siempre genera primero
-    # un ejemplo degenerado (todo a 0 o al limite mas cercano a 0), pedimos
-    # un fichero de mas en cada perfil y descartamos ese primero.
+    # "simple" y "exhaustivo" van por Hypothesis. 
     perfiles_hypothesis = [
         ("simple", "simple", GRUPOS_CASO_SIMPLE, NUM_CASOS_SIMPLES),
         ("exhaustivo", "borde", GRUPOS_CASO_EXHAUSTIVO, 1),
@@ -374,8 +370,7 @@ def generar_conjunto_de_pruebas(estructura: dict) -> list[dict]:
             texto = _formatear_fichero(grupos, campos, tipo_lectura, valor_centinela)
             resultados.append({"perfiles": [nombre], "input": texto})
 
-    # "grande" va aparte, generado directamente con random (ver comentario
-    # junto a _generar_fichero_grande).
+    # "grande" va aparte, generado directamente con random 
     for _ in range(NUM_CASOS_GRANDES):
         grupos = _generar_fichero_grande(campos, GRUPOS_CASO_GRANDE)
         texto = _formatear_fichero(grupos, campos, tipo_lectura, valor_centinela)
