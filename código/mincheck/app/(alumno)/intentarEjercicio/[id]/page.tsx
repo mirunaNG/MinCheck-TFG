@@ -11,6 +11,7 @@ type IntentoPrevio = {
   resultado: "correcto" | "incorrecto" | "pendiente";
   fechaHora: string;
   errorPrincipal: string | null;
+  detalleError: string | null;
 };
 
 type EjercicioInfo = {
@@ -261,6 +262,15 @@ export default function IntentarEjercicio({
                 <div className={styles.card}>
                   <h3 className={styles.cardTitulo}>RESULTADO</h3>
                   <p className={styles.resultadoMensaje}>✗ Incorrecto</p>
+                  
+                  {intentosPrevios[0].detalleError && (
+                    <div className={styles.cuadranteFeedback}>
+                      <span className={styles.cuadranteTitulo}>Detalle del error</span>
+                      <p className={styles.cuadranteTexto} style={{ whiteSpace: "pre-wrap", fontFamily: "monospace" }}>
+                        {intentosPrevios[0].detalleError}
+                      </p>
+                    </div>
+                  )}
 
                   <button
                     className={styles.opcionBtn}

@@ -52,7 +52,9 @@ def registrar_rutas_entregas(app):
                 'resultado': e.resultado,
                 'fechaHora': e.fecha_hora.strftime('%d/%m/%Y %H:%M') if e.fecha_hora else '-',
                 'errorPrincipal': e.error_principal,
+                'detalleError': e.detalle_error,
             })
+
         
         
         ultimo_codigo = None
@@ -124,20 +126,23 @@ def registrar_rutas_entregas(app):
 
         resultado = 'incorrecto'
         error_principal = 'No se pudo evaluar la entrega'
+        detalle_error = None
         try:
             with open(ruta_guardada, 'rb') as f:
                 respuesta = requests.post(
                     'http://localhost:8001/juzgar/entrega',
                     files={'codigo': (fname, f)},
-                    data={'casos': json.dumps(casos_prueba)},
+                    data={'casos': json.dumps(casos_prueba), 'tiempo_limite': ejercicio.tiempo_limite},
                     timeout=30,
                 )
             if respuesta.ok:
                 datos_juicio = respuesta.json()
                 resultado = datos_juicio['resultado']
                 error_principal = datos_juicio['error_principal']
+                detalle_error = datos_juicio.get('detalle_error')
         except requests.exceptions.RequestException:
             pass
+
 
         entrega = Entrega(
             alumno_id=alumno_id,
@@ -146,6 +151,7 @@ def registrar_rutas_entregas(app):
             codigo_lenguaje=extension,
             resultado=resultado,
             error_principal=error_principal,
+            detalle_error=detalle_error,
             fecha_hora=datetime.datetime.now(),
         )
         db.session.add(entrega)
@@ -156,6 +162,7 @@ def registrar_rutas_entregas(app):
             'resultado': entrega.resultado,
             'fechaHora': entrega.fecha_hora.strftime('%d/%m/%Y %H:%M'),
             'errorPrincipal': entrega.error_principal,
+            'detalleError': entrega.detalle_error,
         }), 201
 
     @app.route('/entrega/<int:entrega_id>/codigo', methods=['GET'])

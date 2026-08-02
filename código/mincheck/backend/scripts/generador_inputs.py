@@ -1,5 +1,6 @@
 import string
 from hypothesis import given, settings, strategies as st
+import random
 
 #Como min/max/longitudes pueden venir a null, hay que definir un rango por defecto para no generar valores sin sentido
 RANGO_ENTERO_DEFECTO = (-1000, 1000)
@@ -12,21 +13,19 @@ LIMITE_HYPOTHESIS_LISTA = 200       # limite bajo porque salta el health check
 LIMITE_PEQUENO_ENTERO = 20      # valores en [-20, 20] se consideran "pequeños"
 LIMITE_PEQUENO_REAL = 20.0
 
-# Perfiles al estilo de un juez real: en vez de N ficheros aleatorios sueltos,
-# se generan 5 ficheros con un propósito cada uno.
-NUM_CASOS_SIMPLES = 5        # casos "de manual", valores pequeños tipo enunciado
-GRUPOS_CASO_SIMPLE = 1
+# Perfiles al estilo de un juez real: se generan 5 ficheros con un propósito cada uno.
+NUM_CASOS_SIMPLES = 2        # casos "de manual", valores pequeños tipo enunciado
+GRUPOS_CASO_SIMPLE = 6       # varios inputs sencillos dentro de cada caso simple
 
-GRUPOS_CASO_EXHAUSTIVO = 50  # 1 caso con muchos grupos que recorren valores límite
+GRUPOS_CASO_EXHAUSTIVO = 5  # caso recorre valores límite
 
-NUM_CASOS_GRANDES = 2        # casos con inputs muy grandes para forzar timeout
+NUM_CASOS_GRANDES = 2        # casos con inputs muy grandes para probar timeout
 GRUPOS_CASO_GRANDE = 100
 MARGEN_GRANDE = 5            # cuánto por debajo del máximo se permite en el caso grande
 
-
+#Estrategia para un valor que representa un tamaño: longitud de vector/cadena
+# o un contador que otro campo referencia como longitud_referencia.
 def _strategy_tamano(lo: int, hi: int, modo: str):
-    """Estrategia para un valor que representa un tamaño: longitud de vector/cadena
-    o un contador que otro campo referencia como longitud_referencia."""
     if modo == "simple":
         hi_p = min(hi, 5)
         if hi_p < lo:
@@ -37,13 +36,8 @@ def _strategy_tamano(lo: int, hi: int, modo: str):
         candidatos = sorted({v for v in {lo, lo + 1, hi - 1, hi} if lo <= v <= hi})
         return st.sampled_from(candidatos)
 
-    if modo == "grande":
-        lo_g = hi - MARGEN_GRANDE
-        if lo_g < lo:
-            lo_g = lo
-        return st.integers(min_value=lo_g, max_value=hi)
-
     return st.integers(min_value=lo, max_value=hi)
+
 
 
 #Estrategia -> traduce el campo a una estrategia de Hypothesis para generar valores válidos
@@ -61,8 +55,6 @@ def _strategy_escalar(campo: dict, modo: str = "normal"):
         hi = int(maximo) if maximo is not None else RANGO_ENTERO_DEFECTO[1]
         if salto:
             pasos = (hi - lo) // int(salto)
-            if modo == "grande":
-                return st.just(lo + pasos * int(salto))
             return st.integers(min_value=0, max_value=pasos).map(lambda n: lo + n * int(salto))
 
         if modo == "simple":
@@ -82,8 +74,6 @@ def _strategy_escalar(campo: dict, modo: str = "normal"):
         hi = float(maximo) if maximo is not None else RANGO_REAL_DEFECTO[1]
         if salto:
             pasos = int((hi - lo) / salto)
-            if modo == "grande":
-                return st.just(round(lo + pasos * salto, 6))
             return st.integers(min_value=0, max_value=pasos).map(lambda n: round(lo + n * salto, 6))
 
         if modo == "simple":
@@ -120,12 +110,6 @@ def _strategy_escalar(campo: dict, modo: str = "normal"):
         if modo == "borde":
             candidatos = sorted({v for v in {lm, lm + 1, lM - 1, lM} if lm <= v <= lM})
             return st.one_of(*[st.text(alphabet=ALFABETO_CADENA, min_size=n, max_size=n) for n in candidatos])
-
-        if modo == "grande":
-            lo_g = lM - MARGEN_GRANDE
-            if lo_g < lm:
-                lo_g = lm
-            return st.text(alphabet=ALFABETO_CADENA, min_size=lo_g, max_size=lM)
 
         return st.text(alphabet=ALFABETO_CADENA, min_size=lm, max_size=lM)
 
@@ -243,6 +227,132 @@ def _generar_ficheros(campos: list[dict], modo: str, num_grupos: int, cantidad: 
     _recolectar()
     return ficheros_generados[:cantidad]
 
+# ---- Perfil "grande": generado con random puro, sin Hypothesis ----
+
+def _dominio_entero(campo: dict):
+    """(lo, hi) del campo si es entero de rango fijo, o None si no aplica
+    (real/cadena: dominio tan grande que una colision por azar es improbable)."""
+    tipo_base = _TIPO_BASE_VECTOR.get(campo["tipo"], campo["tipo"])
+    if tipo_base != "entero" or campo.get("salto"):
+        return None
+    minimo = campo.get("minimo")
+    maximo = campo.get("maximo")
+    lo = int(minimo) if minimo is not None else RANGO_ENTERO_DEFECTO[0]
+    hi = int(maximo) if maximo is not None else RANGO_ENTERO_DEFECTO[1]
+    return lo, hi
+
+
+def _valor_grande_escalar(campo: dict):
+    tipo = campo["tipo"]
+    minimo = campo.get("minimo")
+    maximo = campo.get("maximo")
+    salto = campo.get("salto")
+
+    if tipo == "entero":
+        lo = int(minimo) if minimo is not None else RANGO_ENTERO_DEFECTO[0]
+        hi = int(maximo) if maximo is not None else RANGO_ENTERO_DEFECTO[1]
+        if salto:
+            pasos = (hi - lo) // int(salto)
+            return lo + random.randint(0, pasos) * int(salto)
+        return random.randint(lo, hi)
+
+    if tipo == "real":
+        lo = float(minimo) if minimo is not None else RANGO_REAL_DEFECTO[0]
+        hi = float(maximo) if maximo is not None else RANGO_REAL_DEFECTO[1]
+        if salto:
+            pasos = int((hi - lo) / salto)
+            return round(lo + random.randint(0, pasos) * salto, 6)
+        return round(random.uniform(lo, hi), 6)
+
+    if tipo == "booleano":
+        return random.choice([True, False])
+
+    if tipo == "caracter":
+        return random.choice(ALFABETO_CADENA)
+
+    if tipo == "cadena":
+        lm = campo.get("longitud_minima") if campo.get("longitud_minima") is not None else RANGO_LONGITUD_DEFECTO[0]
+        lM = campo.get("longitud_maxima") if campo.get("longitud_maxima") is not None else RANGO_LONGITUD_DEFECTO[1]
+        lo_g = max(lm, lM - MARGEN_GRANDE)
+        if lo_g > lM:
+            lo_g = lM
+        n = random.randint(lo_g, lM)
+        return "".join(random.choice(ALFABETO_CADENA) for _ in range(n))
+
+    raise ValueError(f"tipo escalar desconocido: {tipo}")
+
+
+def _columna_sin_repetir(campo: dict, n: int):
+    """n valores para el caso "grande": distintos entre si mientras el dominio
+    de valores posibles lo permita, porque repetir un valor que el juez ya
+    evaluo no aporta nada nuevo. Si el dominio es mas pequeno que n, se
+    reparte lo que hay en vez de fallar."""
+    if n <= 0:
+        return []
+
+    dominio = _dominio_entero(campo)
+    if dominio is not None:
+        lo, hi = dominio
+        tamano_dominio = hi - lo + 1
+        if tamano_dominio <= n:
+            base = list(range(lo, hi + 1))
+            random.shuffle(base)
+            return [base[i % tamano_dominio] for i in range(n)]
+        return random.sample(range(lo, hi + 1), n)
+
+    tipo_base = _TIPO_BASE_VECTOR.get(campo["tipo"], campo["tipo"])
+    campo_base = {**campo, "tipo": tipo_base}
+    return [_valor_grande_escalar(campo_base) for _ in range(n)]
+
+
+def _longitud_grande(lm: int, lM: int) -> int:
+    lM = min(lM, LIMITE_HYPOTHESIS_LISTA)
+    lo_g = max(lm, lM - MARGEN_GRANDE)
+    if lo_g > lM:
+        lo_g = lM
+    return random.randint(lo_g, lM)
+
+
+def _contador_grande(campo: dict) -> int:
+    lo = int(campo["minimo"]) if campo.get("minimo") is not None else RANGO_ENTERO_DEFECTO[0]
+    hi = int(campo["maximo"]) if campo.get("maximo") is not None else RANGO_ENTERO_DEFECTO[1]
+    hi = min(hi, LIMITE_HYPOTHESIS_LISTA)
+    lo_g = max(lo, hi - MARGEN_GRANDE)
+    return random.randint(lo_g, hi)
+
+
+def _generar_fichero_grande(campos_por_caso: list[dict], num_grupos: int) -> list[dict]:
+    referenciados = {c["longitud_referencia"] for c in campos_por_caso if c.get("longitud_referencia")}
+
+    # Los campos "de valor" (no longitudes) se generan por columnas para que
+    # ningun valor se repita entre grupos mientras el dominio lo permita.
+    columnas = {}
+    for campo in campos_por_caso:
+        if campo["tipo"] in _TIPO_BASE_VECTOR or campo["nombre"] in referenciados:
+            continue
+        columnas[campo["nombre"]] = _columna_sin_repetir(campo, num_grupos)
+
+    grupos = []
+    for i in range(num_grupos):
+        valores = {nombre: columnas[nombre][i] for nombre in columnas}
+        for campo in campos_por_caso:
+            nombre = campo["nombre"]
+            if nombre in valores:
+                continue
+            if nombre in referenciados:
+                valores[nombre] = _contador_grande(campo)
+            else:
+                ref = campo.get("longitud_referencia")
+                if ref:
+                    n = int(valores[ref])
+                else:
+                    lm = campo.get("longitud_minima") if campo.get("longitud_minima") is not None else RANGO_LONGITUD_DEFECTO[0]
+                    lM = campo.get("longitud_maxima") if campo.get("longitud_maxima") is not None else RANGO_LONGITUD_DEFECTO[1]
+                    n = _longitud_grande(lm, lM)
+                valores[nombre] = _columna_sin_repetir(campo, n)
+        grupos.append(valores)
+    return grupos
+
 
 #Junta todo: genera los 5 ficheros al estilo de un juez real
 def generar_conjunto_de_pruebas(estructura: dict) -> list[dict]:
@@ -250,17 +360,25 @@ def generar_conjunto_de_pruebas(estructura: dict) -> list[dict]:
     tipo_lectura = estructura["tipo_lectura"]
     valor_centinela = estructura.get("valor_centinela")
 
-    perfiles = [
+    resultados = []
+
+    # "simple" y "exhaustivo" van por Hypothesis. Como siempre genera primero
+    # un ejemplo degenerado (todo a 0 o al limite mas cercano a 0), pedimos
+    # un fichero de mas en cada perfil y descartamos ese primero.
+    perfiles_hypothesis = [
         ("simple", "simple", GRUPOS_CASO_SIMPLE, NUM_CASOS_SIMPLES),
         ("exhaustivo", "borde", GRUPOS_CASO_EXHAUSTIVO, 1),
-        ("grande", "grande", GRUPOS_CASO_GRANDE, NUM_CASOS_GRANDES),
     ]
-
-    resultados = []
-    for nombre, modo, num_grupos, cantidad in perfiles:
-        for grupos in _generar_ficheros(campos, modo, num_grupos, cantidad):
+    for nombre, modo, num_grupos, cantidad in perfiles_hypothesis:
+        for grupos in _generar_ficheros(campos, modo, num_grupos, cantidad + 1)[1:]:
             texto = _formatear_fichero(grupos, campos, tipo_lectura, valor_centinela)
             resultados.append({"perfiles": [nombre], "input": texto})
 
+    # "grande" va aparte, generado directamente con random (ver comentario
+    # junto a _generar_fichero_grande).
+    for _ in range(NUM_CASOS_GRANDES):
+        grupos = _generar_fichero_grande(campos, GRUPOS_CASO_GRANDE)
+        texto = _formatear_fichero(grupos, campos, tipo_lectura, valor_centinela)
+        resultados.append({"perfiles": ["grande"], "input": texto})
 
     return resultados

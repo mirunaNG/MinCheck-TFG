@@ -3,7 +3,7 @@ from typing import List, Optional
 import datetime
 from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy import String, Integer, Boolean, ForeignKey, Text, DateTime
+from sqlalchemy import String, Float, Integer, Boolean, ForeignKey, Text, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 class Usuario(db.Model):
@@ -110,6 +110,7 @@ class Ejercicio(db.Model):
     fecha_creacion: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime, nullable=True)
     visible: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     fecha_limite: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime, nullable=True)
+    tiempo_limite: Mapped[float] = mapped_column(Float, nullable=False, default=5.0)
 
     # Relaciones: cada ejercicio pertenece a un tema, tiene muchos casos de prueba,
     # muchas entregas y una configuración de feedback
@@ -149,6 +150,7 @@ class Entrega(db.Model):
     resultado: Mapped[str] = mapped_column(Text, nullable=False)
     error_principal: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     fecha_hora: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime, nullable=True)
+    detalle_error: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     # Relaciones: cada entrega pertenece a un alumno y a un ejercicio
     alumno: Mapped["Usuario"] = relationship(back_populates="entregas")

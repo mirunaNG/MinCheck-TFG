@@ -42,6 +42,7 @@ type EjercicioDetalle = {
   entregas: EntregaDetalle[];
   visible: boolean;
   fechaLimite: string | null;
+  tiempoLimite: number;
 };
 
 type ConfigFeedback = {
@@ -101,6 +102,7 @@ export default function DetalleEjercicio({
   const [nuevoOutput, setNuevoOutput] = useState("");
 
   const [entregaCodigo, setEntregaCodigo] = useState<number | null>(null);
+  const [tiempoLimiteValor, setTiempoLimiteValor] = useState(5);
 
   /*Cargar ejercicio */
   async function cargarEjercicio() {
@@ -117,6 +119,7 @@ export default function DetalleEjercicio({
     setVisibleAlumnos(data.visible);
     setFechaLimiteActiva(data.fechaLimite !== null);
     if (data.fechaLimite) setFechaLimiteValor(data.fechaLimite.slice(0, 16));
+    setTiempoLimiteValor(data.tiempoLimite ?? 5);
     setCargando(false);
   }
 
@@ -319,6 +322,7 @@ async function handleAñadirManual() {
       body: JSON.stringify({
         visible: visibleAlumnos,
         fechaLimite: fechaLimiteActiva && fechaLimiteValor ? fechaLimiteValor : null,
+        tiempoLimite: tiempoLimiteValor,
       }),
     });
   }
@@ -529,6 +533,21 @@ async function handleAñadirManual() {
                     role="switch" aria-checked={fechaLimiteActiva}
                   />
                 </div>
+                <div className={styles.configItem}>
+                  <div className={styles.configTexto}>
+                    <span className={styles.configNombre}>Tiempo límite (segundos)</span>
+                    <span className={styles.configDesc}>Tiempo máximo de ejecución por caso de prueba</span>
+                  </div>
+                  <input
+                    type="number"
+                    min={1}
+                    step={0.5}
+                    value={tiempoLimiteValor}
+                    onChange={(e) => setTiempoLimiteValor(Number(e.target.value))}
+                    style={{ width: 70, background: '#1a1f2e', color: '#c9d1d9', border: '1px solid #30363d', borderRadius: 4, padding: '4px 6px', fontSize: 13 }}
+                  />
+                </div>
+
                 <button
                   onClick={handleGuardarConfiguracion}
                   style={{ marginTop: 10, width: '100%', padding: '8px', background: '#4d7cfe', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}

@@ -154,6 +154,7 @@ def registrar_rutas_ejercicios(app):
             'entregas': entregas,
             'visible': ejercicio.visible,
             'fechaLimite': ejercicio.fecha_limite.isoformat() if ejercicio.fecha_limite else None,
+            'tiempoLimite': ejercicio.tiempo_limite,
         }), 200
     
     @app.route('/ejercicio/<int:ejercicio_id>/configuracion', methods=['PUT'])
@@ -167,7 +168,9 @@ def registrar_rutas_ejercicios(app):
         ejercicio.visible = datos.get('visible', ejercicio.visible)
         fecha_str = datos.get('fechaLimite')
         ejercicio.fecha_limite = datetime.datetime.fromisoformat(fecha_str) if fecha_str else None
+        ejercicio.tiempo_limite = datos.get('tiempoLimite', ejercicio.tiempo_limite)
         db.session.commit()
+
         return jsonify({'mensaje': 'Configuración guardada'}), 200
 
     

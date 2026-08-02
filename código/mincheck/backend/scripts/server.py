@@ -19,7 +19,7 @@ import os
 import tempfile
 
 from generador_inputs import generar_conjunto_de_pruebas
-from calculador_outputs import calcular_outputs
+from calculador_outputs import calcular_outputs, TIMEOUT_SEGUNDOS
 from juez import juzgar_entrega
 
 
@@ -574,7 +574,9 @@ async def calcular_outputs_endpoint(solucion: UploadFile = File(...), casos: str
     return {"casos": casos_lista}
 
 @app.post("/juzgar/entrega")
-async def juzgar_entrega_endpoint(codigo: UploadFile = File(...), casos: str = Form(...)):
+async def juzgar_entrega_endpoint(
+    codigo: UploadFile = File(...), casos: str = Form(...), tiempo_limite: float = Form(TIMEOUT_SEGUNDOS)
+):
     casos_lista = json.loads(casos)
     contenido = await codigo.read()
 
@@ -583,7 +585,7 @@ async def juzgar_entrega_endpoint(codigo: UploadFile = File(...), casos: str = F
         with open(ruta_codigo, "wb") as f:
             f.write(contenido)
         try:
-            resultado = juzgar_entrega(casos_lista, ruta_codigo)
+            resultado = juzgar_entrega(casos_lista, ruta_codigo, tiempo_limite)
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
 
