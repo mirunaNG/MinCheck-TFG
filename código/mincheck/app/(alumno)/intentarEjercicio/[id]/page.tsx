@@ -274,7 +274,7 @@ export default function IntentarEjercicio({
 
                   <button
                     className={styles.opcionBtn}
-                    onClick={() => router.push(`/visualizarEstructura/${id}`)}
+                    onClick={() => router.push(`/visualizarEstructura/${intentosPrevios[0].id}`)}
                   >
                     🧩 Visualizar estructura de datos
                   </button>

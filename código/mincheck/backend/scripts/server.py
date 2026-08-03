@@ -20,6 +20,7 @@ import tempfile
 from generador_inputs import generar_conjunto_de_pruebas
 from calculador_outputs import calcular_outputs, TIMEOUT_SEGUNDOS
 from juez import juzgar_entrega
+from visualizador import generar_trace
 
 
 
@@ -643,7 +644,11 @@ async def juzgar_entrega_endpoint(
 
     return resultado
 
-
+@app.post("/visualizar/entrega")
+async def visualizar_entrega_endpoint(codigo: UploadFile = File(...), lenguaje: str = Form(...)):
+    contenido = await codigo.read()
+    trace = generar_trace(contenido.decode("utf-8", errors="replace"), lenguaje)
+    return trace
 
 
 # ══════════════════════════════════════════════════════

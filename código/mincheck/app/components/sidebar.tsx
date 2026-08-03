@@ -9,14 +9,15 @@ const rutasSegunRol = {
   profesor: [
     { texto: "Dashboard", ruta: "/dashboard", icono: "▦" },
     { texto: "Asignaturas", ruta: "/asignaturas", icono: "🔖" },
-    { texto: "Estadísticas", ruta: "/estadisticas", icono: "📊" },
-    { texto: "Mi perfil", ruta: "/perfilProfesor", icono: "👤" },
     { texto: "Generador de casos", ruta: "/generadorCasos", icono: "📋" },
-  ],
-  alumno: [
+    { texto: "Estadísticas", ruta: "/estadisticas", icono: "📊" },
+    { texto: "Perfil", ruta: "/perfilProfesor", icono: "👤" },
+],
+    alumno: [
     { texto: "Dashboard", ruta: "/dashboardAlumno", icono: "▦" },
     { texto: "Cursos", ruta: "/asignaturasAlumno", icono: "🔖" },
     { texto: "Resultados", ruta: "/historialEntregas", icono: "📊" },
+    { texto: "Visualizar estructura", ruta: "/visualizarEstructura", icono: "🧩" },
     { texto: "Perfil", ruta: "/perfilAlumno", icono: "👤" },
   ],
 };

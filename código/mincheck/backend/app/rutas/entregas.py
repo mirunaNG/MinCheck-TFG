@@ -192,6 +192,33 @@ def registrar_rutas_entregas(app):
             'alumno': entrega.alumno.nombre_completo,
         }), 200
 
+    @app.route('/entrega/<int:entrega_id>/visualizacion', methods=['GET'])
+    def visualizar_entrega(entrega_id):
+        from app.modelos import Entrega
+        import os, requests
+
+        entrega = Entrega.query.get(entrega_id)
+        if not entrega:
+            return jsonify({'mensaje': 'Entrega no encontrada'}), 404
+
+        UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), '..', 'uploads')
+        nombre_archivo = entrega.codigo_url.replace('/uploads/', '', 1)
+        ruta = os.path.join(UPLOAD_FOLDER, nombre_archivo)
+
+        lenguaje = 'cpp' if entrega.codigo_lenguaje in ('cpp', 'cc') else 'c'
+
+        try:
+            with open(ruta, 'rb') as f:
+                respuesta = requests.post(
+                    'http://localhost:8001/visualizar/entrega',
+                    files={'codigo': (nombre_archivo, f)},
+                    data={'lenguaje': lenguaje},
+                    timeout=20,
+                )
+            return jsonify(respuesta.json()), 200
+        except requests.exceptions.RequestException:
+            return jsonify({'mensaje': 'No se pudo generar la visualización'}), 502
+
 
     
     @app.route('/alumno/<int:alumno_id>/historialEntregas', methods=['GET'])

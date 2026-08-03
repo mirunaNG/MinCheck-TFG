@@ -6,32 +6,18 @@
 .main {
   flex: 1;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   padding: 40px;
 }
 
-.proximamente {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  text-align: center;
-  max-width: 420px;
-}
-
-.icono {
-  font-size: 40px;
-}
-
-.proximamenteTitulo {
-  font-size: 20px;
-  font-weight: bold;
-  margin: 0;
-}
-
-.proximamenteDesc {
+.aviso {
   font-size: 14px;
   color: #8b949e;
-  margin: 0;
 }
+
+.mensajeError {
+  font-size: 14px;
+  color: #f85149;
+}
+
