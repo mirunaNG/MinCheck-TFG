@@ -17,6 +17,7 @@ import pdfplumber
 import os
 import tempfile
 
+from contraejemplo import encontrar_contraejemplo_minimo
 from generador_inputs import generar_conjunto_de_pruebas
 from calculador_outputs import calcular_outputs, TIMEOUT_SEGUNDOS
 from juez import juzgar_entrega
@@ -650,6 +651,33 @@ async def visualizar_entrega_endpoint(codigo: UploadFile = File(...), lenguaje: 
     trace = generar_trace(contenido.decode("utf-8", errors="replace"), lenguaje)
     return trace
 
+@app.post("/juzgar/contraejemplo")
+async def juzgar_contraejemplo_endpoint(
+    codigo: UploadFile = File(...),
+    solucion: UploadFile = File(...),
+    estructura: str = Form(...),
+    tiempo_limite: float = Form(TIMEOUT_SEGUNDOS),
+):
+    estructura_dict = json.loads(estructura)
+    contenido_codigo = await codigo.read()
+    contenido_solucion = await solucion.read()
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        ruta_codigo = os.path.join(tmp_dir, codigo.filename)
+        with open(ruta_codigo, "wb") as f:
+            f.write(contenido_codigo)
+        ruta_solucion = os.path.join(tmp_dir, solucion.filename)
+        with open(ruta_solucion, "wb") as f:
+            f.write(contenido_solucion)
+
+        try:
+            contraejemplo = encontrar_contraejemplo_minimo(
+                estructura_dict, ruta_codigo, ruta_solucion, tiempo_limite=tiempo_limite
+            )
+        except (ValueError, RuntimeError) as e:
+            raise HTTPException(status_code=400, detail=str(e))
+
+    return {"contraejemplo": contraejemplo}
 
 # ══════════════════════════════════════════════════════
 #  MAIN

@@ -53,6 +53,7 @@ def registrar_rutas_entregas(app):
                 'fechaHora': e.fecha_hora.strftime('%d/%m/%Y %H:%M') if e.fecha_hora else '-',
                 'errorPrincipal': e.error_principal,
                 'detalleError': e.detalle_error,
+                'contraejemplo': e.contraejemplo_input,
             })
 
         
@@ -143,6 +144,28 @@ def registrar_rutas_entregas(app):
         except requests.exceptions.RequestException:
             pass
 
+        contraejemplo_input = None
+        if resultado == 'incorrecto' and error_principal == 'Salida incorrecta':
+            if ejercicio.solucion_nombre and ejercicio.estructura_json:
+                try:
+                    ruta_solucion = os.path.join(UPLOAD_FOLDER, ejercicio.solucion_nombre)
+                    with open(ruta_guardada, 'rb') as f_alumno, open(ruta_solucion, 'rb') as f_solucion:
+                        respuesta_ce = requests.post(
+                            'http://localhost:8001/juzgar/contraejemplo',
+                            files={
+                                'codigo': (fname, f_alumno),
+                                'solucion': (ejercicio.solucion_nombre, f_solucion),
+                            },
+                            data={'estructura': ejercicio.estructura_json, 'tiempo_limite': ejercicio.tiempo_limite},
+                            timeout=60,
+                        )
+                    if respuesta_ce.ok:
+                        contraejemplo = respuesta_ce.json().get('contraejemplo')
+                        if contraejemplo:
+                            contraejemplo_input = contraejemplo['input']
+                except requests.exceptions.RequestException:
+                    pass
+
 
         entrega = Entrega(
             alumno_id=alumno_id,
@@ -153,6 +176,7 @@ def registrar_rutas_entregas(app):
             error_principal=error_principal,
             detalle_error=detalle_error,
             fecha_hora=datetime.datetime.now(),
+            contraejemplo_input=contraejemplo_input,
         )
         db.session.add(entrega)
         db.session.commit()
@@ -163,6 +187,7 @@ def registrar_rutas_entregas(app):
             'fechaHora': entrega.fecha_hora.strftime('%d/%m/%Y %H:%M'),
             'errorPrincipal': entrega.error_principal,
             'detalleError': entrega.detalle_error,
+            'contraejemplo': entrega.contraejemplo_input,
         }), 201
 
     @app.route('/entrega/<int:entrega_id>/codigo', methods=['GET'])

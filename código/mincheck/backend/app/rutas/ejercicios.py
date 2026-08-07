@@ -315,6 +315,7 @@ def registrar_rutas_ejercicios(app):
 
         datos = request.get_json()
         casos = datos.get('casos', [])
+        estructura = datos.get('estructura')
 
         nuevos = []
         for c in casos:
@@ -325,6 +326,10 @@ def registrar_rutas_ejercicios(app):
             )
             db.session.add(caso)
             nuevos.append(caso)
+
+        if estructura is not None:
+            import json 
+            ejercicio.estructura_json = json.dumps(estructura)
 
         db.session.commit()
 

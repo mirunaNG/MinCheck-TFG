@@ -111,6 +111,7 @@ class Ejercicio(db.Model):
     visible: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     fecha_limite: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime, nullable=True)
     tiempo_limite: Mapped[float] = mapped_column(Float, nullable=False, default=5.0)
+    estructura_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     # Relaciones: cada ejercicio pertenece a un tema, tiene muchos casos de prueba,
     # muchas entregas y una configuración de feedback
@@ -151,6 +152,7 @@ class Entrega(db.Model):
     error_principal: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     fecha_hora: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime, nullable=True)
     detalle_error: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    contraejemplo_input: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     # Relaciones: cada entrega pertenece a un alumno y a un ejercicio
     alumno: Mapped["Usuario"] = relationship(back_populates="entregas")
