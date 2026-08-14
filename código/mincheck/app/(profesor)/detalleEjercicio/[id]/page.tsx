@@ -101,6 +101,8 @@ export default function DetalleEjercicio({
   const [nuevoInput, setNuevoInput]   = useState("");
   const [nuevoOutput, setNuevoOutput] = useState("");
 
+  const [guardandoConfig, setGuardandoConfig] = useState(false);
+
   const [entregaCodigo, setEntregaCodigo] = useState<number | null>(null);
   const [tiempoLimiteValor, setTiempoLimiteValor] = useState(5);
 
@@ -316,6 +318,7 @@ async function handleAñadirManual() {
   }
 
   async function handleGuardarConfiguracion() {
+    setGuardandoConfig(true);
     await fetch('http://localhost:5001/ejercicio/' + ejercicioId + '/configuracion', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -325,6 +328,7 @@ async function handleAñadirManual() {
         tiempoLimite: tiempoLimiteValor,
       }),
     });
+    setGuardandoConfig(false);
   }
 
 
@@ -550,9 +554,10 @@ async function handleAñadirManual() {
 
                 <button
                   onClick={handleGuardarConfiguracion}
+                  disabled={guardandoConfig}
                   style={{ marginTop: 10, width: '100%', padding: '8px', background: '#4d7cfe', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}
                 >
-                  Guardar configuración
+                  {guardandoConfig ? "Guardando..." : "Guardar configuración"}
                 </button>
 
                 </div>

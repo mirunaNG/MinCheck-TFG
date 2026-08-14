@@ -151,8 +151,6 @@ You will receive the statement of a programming exercise. Your task is to fill i
    "numCasos". Reserve tipo_lectura "numCasos" for a single number that appears exactly ONCE, BEFORE any
    test case, stating the total number of cases in the whole file.
 
-
-
 2. "valor_centinela": if tipo_lectura is "centinela", the exact sentinel value described in the
    statement (as text, e.g. "0" or "-1"). Otherwise null.
 
@@ -338,6 +336,39 @@ vector via longitud_referencia, exactly like campos_por_caso in the EJEMPLO_ILIM
 Never assign tipo_lectura "numCasos" just because a number appears once per case and sizes a vector —
 check first whether the statement gives ONE total count BEFORE any case starts. If it doesn't, use
 "ilimitado" regardless of how the per-case field looks.
+"""
+
+SYSTEM_ANALISIS += """
+
+Fixed-count same-line fields: if a case (or the whole file, for tipo_lectura "centinela"/"numCasos"
+single-line inputs) is described as N values that all share the SAME "tipo" and the SAME "minimo",
+"maximo" and "salto" (e.g. "dos números, ambos entre 1 y 1000", "tres enteros separados por espacios"),
+and N is a small fixed number stated directly in the prose (not read from the input itself), model them
+as a SINGLE "vector_*" field with "longitud_minima" and "longitud_maxima" both set to N (and
+"longitud_referencia" null) — NOT as N separate scalar fields. A vector field's elements are written on
+one line separated by spaces, which matches this pattern directly.
+
+Only use this fixed-length-vector shortcut when every one of the N values shares the exact same type
+and the exact same bounds. If the values differ in type (e.g. one is text, another numeric) or in
+allowed range, they are genuinely different fields and must stay as separate scalar entries in
+"campos_por_caso" (each still gets written on its own line by the generator — there is currently no way
+to force differently-typed/ranged scalar fields onto a shared line).
+
+Worked example, using a real exercise statement:
+
+Statement fragment: "La entrada comienza con un número que indica cuántos casos de prueba tendrán que
+evaluarse. Cada uno son dos números, que indican el número de uvas que he comprado y cuánta gente
+seremos esta noche a cenar. Los dos números están entre 1 y 1.000.000.000."
+
+WRONG: two scalar "entero" fields "uvas" and "comensales" — the generator would print them on separate
+lines, but the statement's example shows them on the SAME line ("24 2").
+CORRECT: a single fixed-length vector, since both numbers share type "entero" and the same range:
+
+{"tipo_lectura": "numCasos", "valor_centinela": null, "campos_por_caso": [
+  {"nombre": "uvas_comensales", "tipo": "vector_entero", "minimo": 1, "maximo": 1000000000,
+   "salto": null, "longitud_minima": 2, "longitud_maxima": 2, "longitud_referencia": null,
+   "tipo_lectura_caso": null, "valor_centinela_campo": null, "tipo_centinela_campo": null}
+]}
 """
 
 
