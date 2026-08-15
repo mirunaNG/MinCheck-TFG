@@ -237,7 +237,7 @@ def registrar_rutas_entregas(app):
                 respuesta = requests.post(
                     'http://localhost:8001/visualizar/entrega',
                     files={'codigo': (nombre_archivo, f)},
-                    data={'lenguaje': lenguaje},
+                    data={'lenguaje': lenguaje, 'entrada': entrega.contraejemplo_input or ''},
                     timeout=20,
                 )
             return jsonify(respuesta.json()), 200

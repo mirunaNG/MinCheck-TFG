@@ -12,6 +12,7 @@ type IntentoPrevio = {
   fechaHora: string;
   errorPrincipal: string | null;
   detalleError: string | null;
+  contraejemplo: string | null;
 };
 
 type EjercicioInfo = {
@@ -284,10 +285,15 @@ export default function IntentarEjercicio({
                     <span className={styles.cuadranteTitulo}>
                       Contraejemplo mínimo
                     </span>
-                    <p className={styles.cuadranteTexto}>
-                      Próximamente se mostrará aquí la entrada más simple que
-                      hace fallar tu solución.
-                    </p>
+                    {intentosPrevios[0].contraejemplo ? (
+                      <p className={styles.cuadranteTexto} style={{ whiteSpace: "pre-wrap", fontFamily: "monospace" }}>
+                        {intentosPrevios[0].contraejemplo}
+                      </p>
+                    ) : (
+                      <p className={styles.cuadranteTexto}>
+                        No se ha podido calcular un contraejemplo para este intento.
+                      </p>
+                    )}
                   </div>
 
                   <button className={styles.opcionBtn} disabled>

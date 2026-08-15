@@ -6,10 +6,10 @@ MEM_LIMIT = "1024m"
 DOCKER_IMAGE = "pgbovine/opt-cpp-backend:v1"
 
 
-def generar_trace(codigo: str, lenguaje: str) -> dict:
+def generar_trace(codigo: str, lenguaje: str, entrada: str = "") -> dict:
     """lenguaje debe ser 'c' o 'cpp'. Devuelve el JSON de OPT ya parseado."""
     comando = [
-        "docker", "run", "-m", MEM_LIMIT, "--rm",
+        "docker", "run", "-i", "-m", MEM_LIMIT, "--rm",
         "--user=netuser", "--net=none", "--cap-drop", "all",
         DOCKER_IMAGE,
         "python", "/tmp/opt-cpp-backend/run_cpp_backend.py",
@@ -17,7 +17,7 @@ def generar_trace(codigo: str, lenguaje: str) -> dict:
     ]
     try:
         resultado = subprocess.run(
-            comando, capture_output=True, text=True,
+            comando, input=entrada, capture_output=True, text=True,
             timeout=TIMEOUT_VISUALIZACION,
         )
     except subprocess.TimeoutExpired:

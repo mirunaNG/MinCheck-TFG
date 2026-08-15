@@ -13,6 +13,7 @@ export default function VisualizarEstructuraLibre() {
   const [generando, setGenerando] = useState(false);
   const [trace, setTrace] = useState<TraceOPT | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [entrada, setEntrada] = useState("");
 
   function handlerArchivo(file: File) {
     setArchivoNombre(file.name);
@@ -34,6 +35,8 @@ export default function VisualizarEstructuraLibre() {
       const blob = new Blob([codigo], { type: "text/plain" });
       form.append("codigo", blob, archivoNombre ?? `solucion.${lenguaje}`);
       form.append("lenguaje", lenguaje);
+      form.append("entrada", entrada);
+
 
       const res = await fetch("http://localhost:8001/visualizar/entrega", {
         method: "POST",
@@ -108,7 +111,15 @@ export default function VisualizarEstructuraLibre() {
               rows={10}
               spellCheck={false}
             />
-
+            <textarea
+              className={styles.codigoTextarea}
+              placeholder="Entrada estándar (stdin) — opcional, una línea por cada lectura de cin"
+              value={entrada}
+              onChange={(e) => setEntrada(e.target.value)}
+              rows={4}
+              spellCheck={false}
+            />
+            
             <div className={styles.grupoGenerar}>
               <button
                 className={styles.botonGenerar}

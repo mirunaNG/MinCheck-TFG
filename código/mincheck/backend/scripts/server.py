@@ -677,10 +677,13 @@ async def juzgar_entrega_endpoint(
     return resultado
 
 @app.post("/visualizar/entrega")
-async def visualizar_entrega_endpoint(codigo: UploadFile = File(...), lenguaje: str = Form(...)):
+async def visualizar_entrega_endpoint(
+    codigo: UploadFile = File(...), lenguaje: str = Form(...), entrada: str = Form("")
+):
     contenido = await codigo.read()
-    trace = generar_trace(contenido.decode("utf-8", errors="replace"), lenguaje)
+    trace = generar_trace(contenido.decode("utf-8", errors="replace"), lenguaje, entrada)
     return trace
+
 
 @app.post("/juzgar/contraejemplo")
 async def juzgar_contraejemplo_endpoint(
