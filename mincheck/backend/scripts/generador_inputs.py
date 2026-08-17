@@ -139,6 +139,25 @@ def _strategy_contador(campo: dict, modo: str):
     return _strategy_tamano(lo, hi, modo)
 
 
+#estrategia sesgada hacia el valor exacto de una relacion aritmetica (y sus vecinos +-1/2/3,
+#para cubrir bugs de tipo off-by-one como > en vez de >=) entre dos campos
+def _strategy_valor_relacionado(base_valor, operacion: str, valor: float, lo, hi, modo: str):
+    if operacion == "multiplo":
+        centro = base_valor * valor
+    elif operacion == "suma":
+        centro = valor - base_valor
+    elif operacion == "resta":
+        centro = base_valor - valor
+    else:
+        raise ValueError(f"relacion_operacion desconocida: {operacion}")
+
+    deltas = [0, 0, -1, 1, -2, 2, -3, 3]
+    candidatos = sorted({v for v in (centro + d for d in deltas) if lo <= v <= hi})
+    if not candidatos:
+        return st.just(max(lo, min(hi, centro)))
+    return st.sampled_from(candidatos)
+
+
 #st.composite permite dependencias (unas estrategias que dependan de otras)
 @st.composite
 #devuelve una estrategia que produce un diccionario con los valores para un CASO COMPLETO
@@ -162,6 +181,30 @@ def _strategy_caso(draw, campos_por_caso: list[dict], modo: str = "normal"):
         else:
             valores[nombre] = draw(_strategy_escalar(campo, modo))
 
+    # segunda pasada: sesgar hacia relaciones aritmeticas explicitas entre campos escalares.
+    # va aparte para no depender del orden (relacion_campo puede apuntar a un campo posterior).
+    for campo in campos_por_caso:
+        ref = campo.get("relacion_campo")
+        operacion = campo.get("relacion_operacion")
+        valor_relacion = campo.get("relacion_valor")
+        if not ref or not operacion or valor_relacion is None:
+            continue
+        if campo["tipo"] not in ("entero", "real") or ref not in valores:
+            continue
+
+        nombre = campo["nombre"]
+        minimo = campo.get("minimo")
+        maximo = campo.get("maximo")
+        if campo["tipo"] == "entero":
+            lo = int(minimo) if minimo is not None else RANGO_ENTERO_DEFECTO[0]
+            hi = int(maximo) if maximo is not None else RANGO_ENTERO_DEFECTO[1]
+        else:
+            lo = float(minimo) if minimo is not None else RANGO_REAL_DEFECTO[0]
+            hi = float(maximo) if maximo is not None else RANGO_REAL_DEFECTO[1]
+
+        sesgada = _strategy_valor_relacionado(valores[ref], operacion, valor_relacion, lo, hi, modo)
+        valores[nombre] = draw(st.one_of(st.just(valores[nombre]), sesgada))
+
     return valores
 
 
@@ -181,7 +224,8 @@ def _formatear_valor(valor, tipo: str) -> str:
     return str(valor)
 
 def _formatear_caso(valores: dict, campos_por_caso: list[dict]) -> str:
-    partes = []
+    lineas: list[list[str]] = []
+    linea_de: dict[str, int] = {}  # nombre de campo -> indice en `lineas` donde se escribio
     for campo in campos_por_caso:
         nombre = campo["nombre"]
         tipo = campo["tipo"]
@@ -198,10 +242,18 @@ def _formatear_caso(valores: dict, campos_por_caso: list[dict]) -> str:
                 else:
                     terminador = "999999999"
                 elementos = f"{elementos} {terminador}".strip()
-            partes.append(elementos)
+            lineas.append([elementos])
+            linea_de[nombre] = len(lineas) - 1
         else:
-            partes.append(_formatear_valor(valor, tipo))
-    return "\n".join(partes)
+            texto = _formatear_valor(valor, tipo)
+            ref = campo.get("misma_linea_que")
+            if ref and ref in linea_de:
+                lineas[linea_de[ref]].append(texto)
+                linea_de[nombre] = linea_de[ref]
+            else:
+                lineas.append([texto])
+                linea_de[nombre] = len(lineas) - 1
+    return "\n".join(" ".join(linea) for linea in lineas)
 
 
 def _formatear_fichero(grupos: list[dict], campos_por_caso: list[dict],

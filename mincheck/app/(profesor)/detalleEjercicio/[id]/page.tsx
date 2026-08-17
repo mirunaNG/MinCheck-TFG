@@ -201,6 +201,7 @@ async function handleGenerar(){
           input: c.input,
           outputEsperado: c.output_esperado ?? "(sin calcular todavía)",
         })),
+        estructura,
       }),
     });
     const guardado: { casos: CasoPrueba[] } = await resGuardado.json();

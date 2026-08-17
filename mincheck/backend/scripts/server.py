@@ -88,10 +88,15 @@ CAMPO_SCHEMA = {
         "valor_centinela_campo": {"type": ["string", "null"]},
         "tipo_centinela_campo": {"type": ["string", "null"],
                                  "enum": ["entero", "real", "cadena", "caracter", "booleano", None]},
+        "misma_linea_que": {"type": ["string", "null"]},
+        "relacion_campo": {"type": ["string", "null"]},
+        "relacion_operacion": {"type": ["string", "null"], "enum": ["multiplo", "suma", "resta", None]},
+        "relacion_valor": {"type": ["number", "null"]},
     },
     "required": ["nombre", "tipo", "minimo", "maximo", "salto",
                  "longitud_minima", "longitud_maxima", "longitud_referencia", "tipo_lectura_caso",
-                 "valor_centinela_campo", "tipo_centinela_campo"],
+                 "valor_centinela_campo", "tipo_centinela_campo",
+                 "misma_linea_que", "relacion_campo", "relacion_operacion", "relacion_valor"],
 }
 
 
@@ -191,6 +196,22 @@ You will receive the statement of a programming exercise. Your task is to fill i
      is null (generic stop condition, no specific value given). States the type of whatever ends the
      reading, choosing one of "entero", "real", "cadena", "caracter", "booleano" — for example, "any
      word" or "any non-numeric text" is "cadena". Otherwise, null.
+   - "misma_linea_que": string or null — if this field is printed on the SAME input line as another field
+     of this same case (e.g. two numbers separated by spaces on one line), put that other field's
+     "nombre" here (normally the field immediately before it on that line). Otherwise null. This is
+     PURELY about output formatting/line layout — it never implies anything about the field's value.
+   - "relacion_campo": string or null — if the statement gives an EXPLICIT arithmetic relationship
+     between this field's value and another field's value (e.g. "cada persona necesita 12 uvas", "N debe
+     ser el doble de M", a conversion factor, a threshold defined in terms of another field), put that
+     other field's "nombre" here. It does not matter which of the two fields appears first in the
+     statement or in "campos_por_caso" order. Otherwise null.
+   - "relacion_operacion": one of "multiplo", "suma", "resta", or null — required (non-null) whenever
+     "relacion_campo" is set. Describes how this field's value relates to "relacion_campo"'s value:
+       - "multiplo": this field ≈ valor[relacion_campo] * relacion_valor
+       - "suma": this field ≈ relacion_valor - valor[relacion_campo]
+       - "resta": this field ≈ valor[relacion_campo] - relacion_valor
+   - "relacion_valor": number or null — the constant used in "relacion_operacion". Required (non-null)
+     whenever "relacion_campo" is set.
 
      - IMPORTANT — do not confuse a per-case sentinel with the file-level "centinela": if a stop value/word
     ends each INDIVIDUAL case's list (e.g., a list is read element by element until a word like "fin"
@@ -218,6 +239,10 @@ Rules:
 - A field's "tipo" depends on how its value is used (numeric operations vs. text), not on how it is
   displayed (leading zeros, fixed decimals, separators). Use "cadena" only when the value is non-numeric
   or never used arithmetically.
+- "relacion_campo"/"relacion_operacion"/"relacion_valor" must ONLY be filled when the statement states an
+  EXPLICIT constant relationship (a fixed number/factor given in the prose). Never guess or infer a
+  relationship from context, and never set it just because two fields happen to share a line or a type —
+  "misma_linea_que" is what captures that, "relacion_campo" is a separate, optional, stricter thing.
 - Return ONLY valid JSON matching the requested schema.
 """
 
@@ -229,7 +254,9 @@ specific real exercise) — pay close attention to how leading zeros are handled
 Statement fragment: "El código tiene tres dígitos. Los ceros a la izquierda son válidos, así que 007
 es un código correcto."
 → field: {"nombre": "codigo", "tipo": "entero", "minimo": 0, "maximo": 999, "salto": null,
-          "longitud_minima": null, "longitud_maxima": null, "longitud_referencia": null}
+          "longitud_minima": null, "longitud_maxima": null, "longitud_referencia": null,
+          "tipo_lectura_caso": null, "valor_centinela_campo": null, "tipo_centinela_campo": null,
+          "misma_linea_que": null, "relacion_campo": null, "relacion_operacion": null, "relacion_valor": null}
 (minimo is 0, NOT 100, because the statement explicitly allows a leading zero — apply the same logic
 to any statement with this pattern, regardless of the domain or wording.)
 """
@@ -240,10 +267,12 @@ EJEMPLO_CENTINELA = {
     "campos_por_caso": [
         {"nombre": "a", "tipo": "entero", "minimo": None, "maximo": None,
          "salto": None, "longitud_minima": None, "longitud_maxima": None, "longitud_referencia": None,
-         "tipo_lectura_caso": None, "valor_centinela_campo": None, "tipo_centinela_campo": None},
+         "tipo_lectura_caso": None, "valor_centinela_campo": None, "tipo_centinela_campo": None,
+         "misma_linea_que": None, "relacion_campo": None, "relacion_operacion": None, "relacion_valor": None},
         {"nombre": "b", "tipo": "entero", "minimo": None, "maximo": None,
          "salto": None, "longitud_minima": None, "longitud_maxima": None, "longitud_referencia": None,
-         "tipo_lectura_caso": None, "valor_centinela_campo": None, "tipo_centinela_campo": None},
+         "tipo_lectura_caso": None, "valor_centinela_campo": None, "tipo_centinela_campo": None,
+         "misma_linea_que": "a", "relacion_campo": None, "relacion_operacion": None, "relacion_valor": None},
     ],
 }
 
@@ -253,21 +282,24 @@ EJEMPLO_CENTINELA_POR_CASO = {
     "campos_por_caso": [
         {"nombre": "lista", "tipo": "vector_entero", "minimo": None, "maximo": None,
          "salto": None, "longitud_minima": None, "longitud_maxima": None, "longitud_referencia": None,
-         "tipo_lectura_caso": "centinela", "valor_centinela_campo": None, "tipo_centinela_campo": "cadena"},
+         "tipo_lectura_caso": "centinela", "valor_centinela_campo": None, "tipo_centinela_campo": "cadena",
+         "misma_linea_que": None, "relacion_campo": None, "relacion_operacion": None, "relacion_valor": None},
     ],
 }
 
 
-EJEMPLO_NUMCASOS = {   
+EJEMPLO_NUMCASOS = {
     "tipo_lectura": "numCasos",
     "valor_centinela": None,
     "campos_por_caso": [
         {"nombre": "N", "tipo": "entero", "minimo": 1, "maximo": 100,
          "salto": None, "longitud_minima": None, "longitud_maxima": None, "longitud_referencia": None,
-         "tipo_lectura_caso": None, "valor_centinela_campo": None, "tipo_centinela_campo": None},
+         "tipo_lectura_caso": None, "valor_centinela_campo": None, "tipo_centinela_campo": None,
+         "misma_linea_que": None, "relacion_campo": None, "relacion_operacion": None, "relacion_valor": None},
         {"nombre": "vector", "tipo": "vector_entero", "minimo": 0, "maximo": 1000,
          "salto": None, "longitud_minima": None, "longitud_maxima": None, "longitud_referencia": "N",
-         "tipo_lectura_caso": "numCasos", "valor_centinela_campo": None, "tipo_centinela_campo": None},
+         "tipo_lectura_caso": "numCasos", "valor_centinela_campo": None, "tipo_centinela_campo": None,
+         "misma_linea_que": None, "relacion_campo": None, "relacion_operacion": None, "relacion_valor": None},
     ],
 }
 
@@ -277,10 +309,12 @@ EJEMPLO_ILIMITADO = {
     "campos_por_caso": [
         {"nombre": "N", "tipo": "entero", "minimo": 1, "maximo": 100,
          "salto": None, "longitud_minima": None, "longitud_maxima": None, "longitud_referencia": None,
-         "tipo_lectura_caso": None, "valor_centinela_campo": None, "tipo_centinela_campo": None},
+         "tipo_lectura_caso": None, "valor_centinela_campo": None, "tipo_centinela_campo": None,
+         "misma_linea_que": None, "relacion_campo": None, "relacion_operacion": None, "relacion_valor": None},
         {"nombre": "vector", "tipo": "vector_entero", "minimo": 0, "maximo": 1000,
          "salto": None, "longitud_minima": None, "longitud_maxima": None, "longitud_referencia": "N",
-         "tipo_lectura_caso": "numCasos", "valor_centinela_campo": None, "tipo_centinela_campo": None},
+         "tipo_lectura_caso": "numCasos", "valor_centinela_campo": None, "tipo_centinela_campo": None,
+         "misma_linea_que": None, "relacion_campo": None, "relacion_operacion": None, "relacion_valor": None},
     ],
 }
 
@@ -341,18 +375,19 @@ check first whether the statement gives ONE total count BEFORE any case starts. 
 SYSTEM_ANALISIS += """
 
 Fixed-count same-line fields: if a case (or the whole file, for tipo_lectura "centinela"/"numCasos"
-single-line inputs) is described as N values that all share the SAME "tipo" and the SAME "minimo",
-"maximo" and "salto" (e.g. "dos números, ambos entre 1 y 1000", "tres enteros separados por espacios"),
-and N is a small fixed number stated directly in the prose (not read from the input itself), model them
-as a SINGLE "vector_*" field with "longitud_minima" and "longitud_maxima" both set to N (and
-"longitud_referencia" null) — NOT as N separate scalar fields. A vector field's elements are written on
-one line separated by spaces, which matches this pattern directly.
+single-line inputs) is described as N values written on the SAME line (e.g. "dos números, ambos entre 1
+y 1000", "tres enteros separados por espacios"), and N is a small fixed number stated directly in the
+prose (not read from the input itself), model them as N SEPARATE scalar entries in "campos_por_caso", in
+the order they are read — NEVER as a single "vector_*" field, even when every value shares the exact same
+"tipo" and bounds. Every field, scalar or vector, must correspond to one semantically distinct piece of
+data with its own "nombre". "vector_*" is reserved for lists whose length is variable or read from the
+input (via "longitud_referencia", or "longitud_minima"/"longitud_maxima" for a free-length list) — never
+for a fixed small count of individually-meaningful values.
 
-Only use this fixed-length-vector shortcut when every one of the N values shares the exact same type
-and the exact same bounds. If the values differ in type (e.g. one is text, another numeric) or in
-allowed range, they are genuinely different fields and must stay as separate scalar entries in
-"campos_por_caso" (each still gets written on its own line by the generator — there is currently no way
-to force differently-typed/ranged scalar fields onto a shared line).
+To keep those N fields on the same output line, set "misma_linea_que" on every one of them except the
+first to the "nombre" of the field immediately before it on that line. "misma_linea_que" is PURELY about
+line layout and has no effect on how values are generated — it never requires the fields to share type or
+bounds.
 
 Worked example, using a real exercise statement:
 
@@ -360,15 +395,41 @@ Statement fragment: "La entrada comienza con un número que indica cuántos caso
 evaluarse. Cada uno son dos números, que indican el número de uvas que he comprado y cuánta gente
 seremos esta noche a cenar. Los dos números están entre 1 y 1.000.000.000."
 
-WRONG: two scalar "entero" fields "uvas" and "comensales" — the generator would print them on separate
-lines, but the statement's example shows them on the SAME line ("24 2").
-CORRECT: a single fixed-length vector, since both numbers share type "entero" and the same range:
+WRONG: a single "vector_entero" field "uvas_comensales" of longitud_minima/longitud_maxima 2 — this loses
+the fact that "uvas" and "comensales" are two distinct, individually-named quantities, and makes it
+impossible to later express a relationship between them (see "relacion_campo" below).
+CORRECT: two separate scalar fields, kept on the same line via "misma_linea_que":
 
 {"tipo_lectura": "numCasos", "valor_centinela": null, "campos_por_caso": [
-  {"nombre": "uvas_comensales", "tipo": "vector_entero", "minimo": 1, "maximo": 1000000000,
-   "salto": null, "longitud_minima": 2, "longitud_maxima": 2, "longitud_referencia": null,
-   "tipo_lectura_caso": null, "valor_centinela_campo": null, "tipo_centinela_campo": null}
+  {"nombre": "uvas", "tipo": "entero", "minimo": 1, "maximo": 1000000000, "salto": null,
+   "longitud_minima": null, "longitud_maxima": null, "longitud_referencia": null,
+   "tipo_lectura_caso": null, "valor_centinela_campo": null, "tipo_centinela_campo": null,
+   "misma_linea_que": null, "relacion_campo": null, "relacion_operacion": null, "relacion_valor": null},
+  {"nombre": "comensales", "tipo": "entero", "minimo": 1, "maximo": 1000000000, "salto": null,
+   "longitud_minima": null, "longitud_maxima": null, "longitud_referencia": null,
+   "tipo_lectura_caso": null, "valor_centinela_campo": null, "tipo_centinela_campo": null,
+   "misma_linea_que": "uvas", "relacion_campo": null, "relacion_operacion": null, "relacion_valor": null}
 ]}
+
+Now suppose the same statement continued: "Cada comensal necesita comer al menos 12 uvas." This is an
+EXPLICIT constant arithmetic relationship between the two fields, so it must additionally be captured with
+"relacion_campo"/"relacion_operacion"/"relacion_valor" on one of the two fields (it does not matter which
+one, or which field appears first in the statement/list — pick either as long as the other is referenced
+by "nombre"):
+
+  {"nombre": "uvas", "tipo": "entero", "minimo": 1, "maximo": 1000000000, "salto": null,
+   "longitud_minima": null, "longitud_maxima": null, "longitud_referencia": null,
+   "tipo_lectura_caso": null, "valor_centinela_campo": null, "tipo_centinela_campo": null,
+   "misma_linea_que": null, "relacion_campo": "comensales", "relacion_operacion": "multiplo", "relacion_valor": 12},
+  {"nombre": "comensales", "tipo": "entero", "minimo": 1, "maximo": 1000000000, "salto": null,
+   "longitud_minima": null, "longitud_maxima": null, "longitud_referencia": null,
+   "tipo_lectura_caso": null, "valor_centinela_campo": null, "tipo_centinela_campo": null,
+   "misma_linea_que": "uvas", "relacion_campo": null, "relacion_operacion": null, "relacion_valor": null}
+
+Only fill "relacion_campo" when the statement gives an explicit constant/factor like this ("al menos 12
+uvas por comensal", "N debe ser el doble de M", a stated conversion rate) — never for a vague or implicit
+relationship, and never just because two fields happen to be compared in the problem's logic without a
+stated constant.
 """
 
 
