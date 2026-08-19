@@ -375,19 +375,21 @@ check first whether the statement gives ONE total count BEFORE any case starts. 
 SYSTEM_ANALISIS += """
 
 Fixed-count same-line fields: if a case (or the whole file, for tipo_lectura "centinela"/"numCasos"
-single-line inputs) is described as N values written on the SAME line (e.g. "dos números, ambos entre 1
-y 1000", "tres enteros separados por espacios"), and N is a small fixed number stated directly in the
-prose (not read from the input itself), model them as N SEPARATE scalar entries in "campos_por_caso", in
-the order they are read — NEVER as a single "vector_*" field, even when every value shares the exact same
-"tipo" and bounds. Every field, scalar or vector, must correspond to one semantically distinct piece of
-data with its own "nombre". "vector_*" is reserved for lists whose length is variable or read from the
-input (via "longitud_referencia", or "longitud_minima"/"longitud_maxima" for a free-length list) — never
-for a fixed small count of individually-meaningful values.
+single-line inputs) is described as N values that all share the SAME "tipo" and the SAME "minimo",
+"maximo" and "salto" (e.g. "dos números, ambos entre 1 y 1000", "tres enteros separados por espacios"),
+and N is a small fixed number stated directly in the prose (not read from the input itself), model them
+as a SINGLE "vector_*" field with "longitud_minima" and "longitud_maxima" both set to N (and
+"longitud_referencia" null) — NOT as N separate scalar fields. A vector field's elements are written on
+one line separated by spaces, which matches this pattern directly.
 
-To keep those N fields on the same output line, set "misma_linea_que" on every one of them except the
-first to the "nombre" of the field immediately before it on that line. "misma_linea_que" is PURELY about
-line layout and has no effect on how values are generated — it never requires the fields to share type or
-bounds.
+Only use this fixed-length-vector shortcut when every one of the N values shares the exact same type
+and the exact same bounds. If the values differ in type (e.g. one is text, another numeric) or in
+allowed range, they are genuinely different fields and must stay as separate scalar entries in
+"campos_por_caso" (each still gets written on its own line UNLESS the statement explicitly says they share
+a line, in which case use "misma_linea_que" on the later field to point at the earlier
+one — misma_linea_que works regardless of type or range differences between the two
+fields).
+
 
 Worked example, using a real exercise statement:
 
@@ -395,41 +397,15 @@ Statement fragment: "La entrada comienza con un número que indica cuántos caso
 evaluarse. Cada uno son dos números, que indican el número de uvas que he comprado y cuánta gente
 seremos esta noche a cenar. Los dos números están entre 1 y 1.000.000.000."
 
-WRONG: a single "vector_entero" field "uvas_comensales" of longitud_minima/longitud_maxima 2 — this loses
-the fact that "uvas" and "comensales" are two distinct, individually-named quantities, and makes it
-impossible to later express a relationship between them (see "relacion_campo" below).
-CORRECT: two separate scalar fields, kept on the same line via "misma_linea_que":
+WRONG: two scalar "entero" fields "uvas" and "comensales" — the generator would print them on separate
+lines, but the statement's example shows them on the SAME line ("24 2").
+CORRECT: a single fixed-length vector, since both numbers share type "entero" and the same range:
 
 {"tipo_lectura": "numCasos", "valor_centinela": null, "campos_por_caso": [
-  {"nombre": "uvas", "tipo": "entero", "minimo": 1, "maximo": 1000000000, "salto": null,
-   "longitud_minima": null, "longitud_maxima": null, "longitud_referencia": null,
-   "tipo_lectura_caso": null, "valor_centinela_campo": null, "tipo_centinela_campo": null,
-   "misma_linea_que": null, "relacion_campo": null, "relacion_operacion": null, "relacion_valor": null},
-  {"nombre": "comensales", "tipo": "entero", "minimo": 1, "maximo": 1000000000, "salto": null,
-   "longitud_minima": null, "longitud_maxima": null, "longitud_referencia": null,
-   "tipo_lectura_caso": null, "valor_centinela_campo": null, "tipo_centinela_campo": null,
-   "misma_linea_que": "uvas", "relacion_campo": null, "relacion_operacion": null, "relacion_valor": null}
+  {"nombre": "uvas_comensales", "tipo": "vector_entero", "minimo": 1, "maximo": 1000000000,
+   "salto": null, "longitud_minima": 2, "longitud_maxima": 2, "longitud_referencia": null,
+   "tipo_lectura_caso": null, "valor_centinela_campo": null, "tipo_centinela_campo": null}
 ]}
-
-Now suppose the same statement continued: "Cada comensal necesita comer al menos 12 uvas." This is an
-EXPLICIT constant arithmetic relationship between the two fields, so it must additionally be captured with
-"relacion_campo"/"relacion_operacion"/"relacion_valor" on one of the two fields (it does not matter which
-one, or which field appears first in the statement/list — pick either as long as the other is referenced
-by "nombre"):
-
-  {"nombre": "uvas", "tipo": "entero", "minimo": 1, "maximo": 1000000000, "salto": null,
-   "longitud_minima": null, "longitud_maxima": null, "longitud_referencia": null,
-   "tipo_lectura_caso": null, "valor_centinela_campo": null, "tipo_centinela_campo": null,
-   "misma_linea_que": null, "relacion_campo": "comensales", "relacion_operacion": "multiplo", "relacion_valor": 12},
-  {"nombre": "comensales", "tipo": "entero", "minimo": 1, "maximo": 1000000000, "salto": null,
-   "longitud_minima": null, "longitud_maxima": null, "longitud_referencia": null,
-   "tipo_lectura_caso": null, "valor_centinela_campo": null, "tipo_centinela_campo": null,
-   "misma_linea_que": "uvas", "relacion_campo": null, "relacion_operacion": null, "relacion_valor": null}
-
-Only fill "relacion_campo" when the statement gives an explicit constant/factor like this ("al menos 12
-uvas por comensal", "N debe ser el doble de M", a stated conversion rate) — never for a vague or implicit
-relationship, and never just because two fields happen to be compared in the problem's logic without a
-stated constant.
 """
 
 

@@ -276,6 +276,7 @@ def registrar_rutas_entregas(app):
                 'entregas': [
                     {
                         'id': e.id,
+                        'ejercicioId': e.ejercicio.id,
                         'ejercicio': e.ejercicio.nombre,
                         'fechaHora': e.fecha_hora.strftime('%d/%m/%Y %H:%M') if e.fecha_hora else '-',
                         'resultado': e.resultado,

@@ -7,6 +7,7 @@ import styles from "./historial.module.css";
 
 type Entrega = {
   id: number;
+  ejercicioId: number;
   ejercicio: string;
   fechaHora: string;
   resultado: string;
@@ -19,13 +20,17 @@ type Grupo = {
 
 export default function PaginaHistorialEntregas() {
   const [grupos, setGrupos] = useState<Grupo[]>([]);
+  const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
     const id = localStorage.getItem("id");
     if (!id) return;
     fetch("http://localhost:5001/alumno/" + id + "/historialEntregas")
       .then((res) => res.json())
-      .then((datos) => setGrupos(datos));
+      .then((datos) => {
+        setGrupos(datos);
+        setCargando(false);
+      });
   }, []);
 
   return (
@@ -38,6 +43,12 @@ export default function PaginaHistorialEntregas() {
         </header>
 
         <div className={styles.contenido}>
+          {!cargando && grupos.length === 0 && (
+            <p style={{ padding: 40, color: "#8b949e", textAlign: "center" }}>
+              Aún no tienes ninguna entrega.
+            </p>
+          )}
+
           {grupos.map(({ asignatura, entregas }) => {
             const ejerciciosAprobados = new Set(
               entregas
@@ -75,7 +86,9 @@ export default function PaginaHistorialEntregas() {
                     <td>
                       {e.resultado === "incorrecto" &&
                         !ejerciciosAprobados.has(e.ejercicio) && (
-                          <span className={styles.reintentar}>reintentar</span>
+                          <a href={`/intentarEjercicio/${e.ejercicioId}`} className={styles.reintentar}>
+                            reintentar
+                          </a>
                         )}
                     </td>
                   </tr>
