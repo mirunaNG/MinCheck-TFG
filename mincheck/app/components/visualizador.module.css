@@ -19,7 +19,7 @@
 
 .codigo {
   margin: 0;
-  font-family: monospace;
+  font-family: var(--font-fira-code), "Fira Code", monospace;;
   font-size: 13px;
   color: #e6edf3;
 }

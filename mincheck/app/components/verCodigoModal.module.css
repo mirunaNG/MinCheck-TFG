@@ -5,7 +5,7 @@
   border-radius: 8px;
   max-height: 420px;
   overflow: auto;
-  font-family: "Fira Code", monospace;
+  font-family: var(--font-fira-code), "Fira Code", monospace;
   font-size: 13px;
   white-space: pre;
   margin-top: 12px;

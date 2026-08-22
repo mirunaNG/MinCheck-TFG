@@ -91,7 +91,7 @@
   padding: 20px;
   font-size: 13px;
   line-height: 1.6;
-  font-family: "Courier New", monospace;
+  font-family: var(--font-fira-code), "Fira Code", monospace;;
   min-height: 500px;
 }
 
