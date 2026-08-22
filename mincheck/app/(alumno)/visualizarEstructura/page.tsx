@@ -111,14 +111,14 @@ export default function VisualizarEstructuraLibre() {
               rows={10}
               spellCheck={false}
             />
-            <textarea
+            {/* <textarea
               className={styles.codigoTextarea}
               placeholder="Entrada estándar (stdin) — opcional, una línea por cada lectura de cin"
               value={entrada}
               onChange={(e) => setEntrada(e.target.value)}
               rows={4}
               spellCheck={false}
-            />
+            /> */}
             
             <div className={styles.grupoGenerar}>
               <button

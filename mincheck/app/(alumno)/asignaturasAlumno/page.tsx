@@ -7,6 +7,7 @@ import Modal from "../../components/Modal";
 import AsignaturaCard from "../../components/AsignaturaCard";
 import styles from "./asignaturasAlumn.module.css";
 
+
 type Asignatura = {
   id: number;
   nombre: string;
@@ -15,6 +16,7 @@ type Asignatura = {
   alumnos: number;
   ejercicios: number;
 };
+
 
 export default function AsignaturasAlumno() {
   const router = useRouter();
