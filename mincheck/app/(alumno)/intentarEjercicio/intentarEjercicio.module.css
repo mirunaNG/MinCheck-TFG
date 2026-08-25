@@ -37,6 +37,7 @@
   display: flex;
   gap: 20px;
   padding: 0 30px 30px;
+  align-items: flex-start;
 }
 
 .columnaIzquierda {
@@ -77,6 +78,8 @@
 
 .botonEnviar {
   background-color: #2e3a55;
+  color: #c9d1d9;
+  border: none;
   border-radius: 10px;
   padding: 5px 12px;
   font-size: 12px;
@@ -89,10 +92,14 @@
 
 .codigoArea {
   padding: 20px;
+  background-color: #161e30;
+  border-color: #161e30;
+  color: #c9d1d9;
   font-size: 13px;
   line-height: 1.6;
-  font-family: var(--font-fira-code), "Fira Code", monospace;;
+  font-family: var(--font-fira-code), "Fira Code", monospace;
   min-height: 500px;
+  flex: 1;
 }
 
 .zonaArchivo {

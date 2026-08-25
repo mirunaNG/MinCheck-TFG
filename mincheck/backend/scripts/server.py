@@ -8,6 +8,7 @@ from typing import List, Literal, Optional
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
+from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel
 from io import BytesIO
 import json
@@ -689,7 +690,7 @@ async def calcular_outputs_endpoint(solucion: UploadFile = File(...), casos: str
         with open(ruta_solucion, "wb") as f:
             f.write(contenido)
         try:
-            casos_lista = calcular_outputs(casos_lista, ruta_solucion)
+            casos_lista = await run_in_threadpool(calcular_outputs, casos_lista, ruta_solucion)
         except (ValueError, RuntimeError) as e:
             raise HTTPException(status_code=400, detail=str(e))
 
@@ -707,7 +708,7 @@ async def juzgar_entrega_endpoint(
         with open(ruta_codigo, "wb") as f:
             f.write(contenido)
         try:
-            resultado = juzgar_entrega(casos_lista, ruta_codigo, tiempo_limite)
+            resultado = await run_in_threadpool(juzgar_entrega, casos_lista, ruta_codigo, tiempo_limite)
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
 
@@ -742,8 +743,9 @@ async def juzgar_contraejemplo_endpoint(
             f.write(contenido_solucion)
 
         try:
-            contraejemplo = encontrar_contraejemplo_minimo(
-                estructura_dict, ruta_codigo, ruta_solucion, tiempo_limite=tiempo_limite
+            contraejemplo = await run_in_threadpool(
+                encontrar_contraejemplo_minimo,
+                estructura_dict, ruta_codigo, ruta_solucion, tiempo_limite,
             )
         except (ValueError, RuntimeError) as e:
             raise HTTPException(status_code=400, detail=str(e))

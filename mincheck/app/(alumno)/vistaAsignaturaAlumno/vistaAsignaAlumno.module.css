@@ -123,6 +123,7 @@
 
 .botonReintentar {
   background-color: #62141b;
+  border: none;
   color: #f44336;
   font-size: 12px;
   font-weight: bold;
@@ -136,6 +137,7 @@
 
 .botonIntentar {
   background-color: #664422;
+  border: none;
   color: #e38500;
   font-size: 12px;
   font-weight: bold;

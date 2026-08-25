@@ -1,12 +1,10 @@
 "use client";
-
 import { useState, useMemo } from "react";
 import { TraceOPT, formatearValorOPT } from "../lib/opt";
 import styles from "./visualizador.module.css";
 
 export default function VisualizadorTrace({ trace }: { trace: TraceOPT }) {
   const [pasoActual, setPasoActual] = useState(0);
-
   const pasos = trace.trace;
   const paso = pasos[pasoActual];
   const lineasCodigo = useMemo(() => trace.code.split("\n"), [trace.code]);
@@ -49,6 +47,7 @@ export default function VisualizadorTrace({ trace }: { trace: TraceOPT }) {
           <span className={styles.contadorPaso}>
             Paso {pasoActual + 1} de {pasos.length}
           </span>
+
           <button
             onClick={() => setPasoActual((p) => Math.min(pasos.length - 1, p + 1))}
             disabled={pasoActual === pasos.length - 1}

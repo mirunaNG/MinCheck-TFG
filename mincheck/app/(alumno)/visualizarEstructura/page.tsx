@@ -61,6 +61,19 @@ export default function VisualizarEstructuraLibre() {
           <p className={styles.subtitulo}>
             Escribe o sube un código en C/C++ para ver paso a paso cómo evolucionan sus variables.
           </p>
+          <p className={styles.subtitulo} style={{ fontSize: "0.85em", opacity: 0.85 }}>
+             ⚠️ Este visualizador funciona mejor con variables ya inicializadas en el código. No
+             admite entrada por <code>cin</code> ni muestra <code>cout</code> en tiempo real: si tu
+             función lee de <code>cin</code>, sustitúyela por valores literales antes de visualizar. Ejemplo:
+           </p>
+           <pre style={{ fontSize: "0.8em", opacity: 0.85, whiteSpace: "pre-wrap" }}>
+ {`int main(){
+     int n;
+     n = 5;
+     n = n + 5;
+     return 0;
+ }`}
+           </pre>
         </div>
 
         <div className={styles.contenido}>

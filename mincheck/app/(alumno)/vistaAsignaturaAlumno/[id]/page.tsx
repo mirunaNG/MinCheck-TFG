@@ -174,10 +174,10 @@ export default function VistaAsignaturaAlumno({
                         }}
                       >
                         {ej.estado === "correcto"
-                          ? "✓ resuelto"
+                          ? "resuelto"
                           : ej.estado === "incorrecto"
-                          ? "✗ incorrecto"
-                          : "⏱ pendiente"}
+                          ? "incorrecto"
+                          : "pendiente"}
                       </span>
                       <div className={styles.cardPie}>
                         {ej.intentos > 0 && (
@@ -190,7 +190,7 @@ export default function VistaAsignaturaAlumno({
                             className={ej.estado === "incorrecto" ? styles.botonReintentar : styles.botonIntentar}
                             onClick={() => router.push(`/intentarEjercicio/${ej.id}`)}
                           >
-                            {ej.estado === "incorrecto" ? "REINTENTAR →" : "intentar →"}
+                            {ej.estado === "incorrecto" ? "reintentar" : "intentar"}
                           </button>
                         )}
                         {ej.cerrado && ej.estado !== "correcto" && (

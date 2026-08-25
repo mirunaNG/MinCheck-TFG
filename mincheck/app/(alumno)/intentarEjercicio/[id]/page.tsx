@@ -262,7 +262,8 @@ export default function IntentarEjercicio({
               intentosPrevios[0].resultado === "incorrecto" && (
                 <div className={styles.card}>
                   <h3 className={styles.cardTitulo}>RESULTADO</h3>
-                  <p className={styles.resultadoMensaje}>✗ Incorrecto</p>
+                  <p className={styles.resultadoMensaje}>Incorrecto</p>
+                  <p className={styles.resultadoMensaje}>{intentosPrevios.map((en) => (en.errorPrincipal))}</p>
                   
                   {intentosPrevios[0].detalleError && (
                     <div className={styles.cuadranteFeedback}>
@@ -273,12 +274,12 @@ export default function IntentarEjercicio({
                     </div>
                   )}
 
-                  <button
-                    className={styles.opcionBtn}
-                    onClick={() => router.push(`/visualizarEstructura/${intentosPrevios[0].id}`)}
-                  >
-                    🧩 Visualizar estructura de datos
-                  </button>
+                  {intentosPrevios[0].errorPrincipal === "Salida incorrecta" && (
+                     <button className={styles.opcionBtn} disabled>
+                       🧩 Visualizar con el contraejemplo mínimo
+                       <span className={styles.badgeProximamente}>PRÓXIMAMENTE</span>
+                     </button>
+                   )}
 
 
                   <div className={styles.cuadranteFeedback}>
@@ -294,6 +295,17 @@ export default function IntentarEjercicio({
                         No se ha podido calcular un contraejemplo para este intento.
                       </p>
                     )}
+
+                    {intentosPrevios[0].contraejemplo && (
+                       <p className={styles.cuadranteTexto} style={{ fontSize: "0.85em", opacity: 0.8, marginTop: "0.5rem" }}>
+                         Consejo: Prueba a ver la estructura de datos con estos valores en el{" "}
+                         <a href="/visualizarEstructura" style={{ textDecoration: "underline", color: "#e38500" }}>
+                           visualizador libre
+                         </a>
+                         : copia tu función y crea un <code>main()</code> que inicialice las variables
+                         directamente con este contraejemplo, en vez de leerlas con <code>cin</code>.
+                       </p>
+                     )}
                   </div>
 
                   <button className={styles.opcionBtn} disabled>
@@ -330,10 +342,10 @@ export default function IntentarEjercicio({
                         }}
                       >
                         {en.resultado === "correcto"
-                          ? "✓ Correcto"
+                          ? "Correcto"
                           : en.resultado === "incorrecto"
-                          ? "✗ Incorrecto"
-                          : "⏱ Pendiente"}
+                          ? "Incorrecto"
+                          : "Pendiente"}
 
                       </span>
                       <span className={styles.intentoFecha}>{en.fechaHora}</span>

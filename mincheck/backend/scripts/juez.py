@@ -1,6 +1,7 @@
 import subprocess
 import tempfile
 
+
 from calculador_outputs import _preparar_comando, TIMEOUT_SEGUNDOS
 
 OUTPUT_LIMITE_BYTES = 10 * 1024 * 1024 

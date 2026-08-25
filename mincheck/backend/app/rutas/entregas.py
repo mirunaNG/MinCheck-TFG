@@ -3,6 +3,9 @@ from flask_jwt_extended import create_access_token
 from app import db, login_manager
 from app.modelos import Usuario
 import datetime
+import logging
+
+logger = logging.getLogger(__name__)
 
 def registrar_rutas_entregas(app):
     @app.route('/alumno/<int:alumno_id>/entregas', methods=['GET'])
@@ -128,21 +131,28 @@ def registrar_rutas_entregas(app):
         resultado = 'incorrecto'
         error_principal = 'No se pudo evaluar la entrega'
         detalle_error = None
+
+        timeout_juez = ejercicio.tiempo_limite * max(len(casos_prueba), 1) + 30
         try:
             with open(ruta_guardada, 'rb') as f:
                 respuesta = requests.post(
                     'http://localhost:8001/juzgar/entrega',
                     files={'codigo': (fname, f)},
                     data={'casos': json.dumps(casos_prueba), 'tiempo_limite': ejercicio.tiempo_limite},
-                    timeout=30,
+                    timeout=timeout_juez,
                 )
             if respuesta.ok:
                 datos_juicio = respuesta.json()
                 resultado = datos_juicio['resultado']
                 error_principal = datos_juicio['error_principal']
                 detalle_error = datos_juicio.get('detalle_error')
+            else:
+                logger.error(
+                    "Fallo al juzgar entrega %s: HTTP %s - %s",
+                    fname, respuesta.status_code, respuesta.text[:500],
+                )
         except requests.exceptions.RequestException:
-            pass
+            logger.exception("Error de conexión al juzgar entrega %s", fname)
 
         contraejemplo_input = None
         if resultado == 'incorrecto' and error_principal == 'Salida incorrecta':
@@ -163,8 +173,13 @@ def registrar_rutas_entregas(app):
                         contraejemplo = respuesta_ce.json().get('contraejemplo')
                         if contraejemplo:
                             contraejemplo_input = contraejemplo['input']
+                    else:
+                        logger.error(
+                            "Fallo al buscar contraejemplo para %s: HTTP %s - %s",
+                            fname, respuesta_ce.status_code, respuesta_ce.text[:500],
+                        )
                 except requests.exceptions.RequestException:
-                    pass
+                    logger.exception("Error de conexión al buscar contraejemplo para %s", fname)
 
 
         entrega = Entrega(

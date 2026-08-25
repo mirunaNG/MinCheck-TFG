@@ -131,7 +131,6 @@ class Caso_Prueba(db.Model):
     ejercicio_id: Mapped[int] = mapped_column(Integer, ForeignKey('ejercicios.id'), nullable=False)
     input: Mapped[str] = mapped_column(Text, nullable=False)
     output_esperado: Mapped[str] = mapped_column(Text, nullable=False)
-    es_visible: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
 
     # Relaciones: cada caso de prueba pertenece a un ejercicio
     ejercicio: Mapped["Ejercicio"] = relationship(back_populates="casos_prueba")
