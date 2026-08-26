@@ -27,6 +27,7 @@ def create_app() -> Flask:
 
     with app.app_context():
         from app import modelos
+        db.create_all()
         from app import rutas
         rutas.registrar_rutas(app)
     return app
