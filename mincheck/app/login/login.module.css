@@ -10,6 +10,7 @@
   align-items: center;
   gap: 30px;
 }
+
 /*Estilo de cada enlace de la menú de navegación */
 .linksNavegar a {
   color: #8b949e;
@@ -99,6 +100,7 @@
   flex: 1;
   border: none;
   outline: none;
+  background-color: #0d1117;
   color: white;
   font-size: 14px;
   padding: 12px 0;

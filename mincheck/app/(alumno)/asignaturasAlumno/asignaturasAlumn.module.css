@@ -100,10 +100,12 @@
 }
 .botonCancelar:hover {
   background-color: #4d7cfe;
+  color:#e6edf3
 }
 .botonAñadir {
   padding: 10px 20px;
   background-color: #e38500;
+  border: none;
   border-radius: 10px;
   font-weight: bold;
   font-size: 14px;

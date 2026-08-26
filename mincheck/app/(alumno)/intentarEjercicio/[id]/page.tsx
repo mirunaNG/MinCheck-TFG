@@ -263,7 +263,7 @@ export default function IntentarEjercicio({
                 <div className={styles.card}>
                   <h3 className={styles.cardTitulo}>RESULTADO</h3>
                   <p className={styles.resultadoMensaje}>Incorrecto</p>
-                  <p className={styles.resultadoMensaje}>{intentosPrevios.map((en) => (en.errorPrincipal))}</p>
+                  <p className={styles.resultadoMensaje}>{intentosPrevios[0].errorPrincipal}</p>
                   
                   {intentosPrevios[0].detalleError && (
                     <div className={styles.cuadranteFeedback}>

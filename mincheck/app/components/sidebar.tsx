@@ -15,8 +15,8 @@ const rutasSegunRol = {
 ],
     alumno: [
     { texto: "Dashboard", ruta: "/dashboardAlumno", icono: "▦" },
-    { texto: "Cursos", ruta: "/asignaturasAlumno", icono: "🔖" },
-    { texto: "Resultados", ruta: "/historialEntregas", icono: "📊" },
+    { texto: "Asignaturas", ruta: "/asignaturasAlumno", icono: "🔖" },
+    { texto: "Historial", ruta: "/historialEntregas", icono: "📊" },
     { texto: "Visualizar estructura", ruta: "/visualizarEstructura", icono: "🧩" },
     { texto: "Perfil", ruta: "/perfilAlumno", icono: "👤" },
   ],
