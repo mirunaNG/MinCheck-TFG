@@ -44,7 +44,7 @@ def _ejecutar_caso(comando: list[str], entrada: str) -> str | None:
 
 
 
-#Funcion principal que hace todo (tiene en cuenta que los ejemplos ya estan calculados)
+#Funcion principal que hace todo (tiene en cuenta que los ejemplos ya estan calculado y que los casos_clve hay que calcularlos)
 def calcular_outputs(casos: list[dict], ruta_solucion: str) -> list[dict]:
     with tempfile.TemporaryDirectory() as tmp_dir:
         comando = _preparar_comando(ruta_solucion, tmp_dir)

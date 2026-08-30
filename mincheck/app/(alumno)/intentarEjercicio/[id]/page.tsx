@@ -71,12 +71,13 @@ export default function IntentarEjercicio({
     reader.readAsText(file);
   };
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
+  /*quitado el useCallback((e:React.DragEvent...) => {...}, []); */
+  const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDragging(false);
     const file = e.dataTransfer.files[0];
     if (file) handleFile(file);
-  }, []);
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

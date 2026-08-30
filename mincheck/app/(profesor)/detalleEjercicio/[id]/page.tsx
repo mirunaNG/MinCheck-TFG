@@ -25,6 +25,7 @@ type EntregaDetalle = {
   id: number;
   alumno: string;
   fechaHora: string;
+  intentos: number;
   resultado: "correcto" | "incorrecto" | "pendiente";
   errorPrincipal: string | null;
 };
@@ -94,6 +95,7 @@ export default function DetalleEjercicio({
   const [configFeedback, setConfigFeedback]   = useState<ConfigFeedback>(FEEDBACK_DEFAULT);
   const [guardandoFeedback, setGuardandoFeedback] = useState(false);
   const [feedbackGuardado, setFeedbackGuardado]   = useState(false);
+  const [modalFeedbackNoFuncional, setModalFeedbackNoFuncional] = useState(false);
 
   const [casos, setCasos]             = useState<CasoPrueba[]>([]);
   const [generando, setGenerando]     = useState(false);
@@ -154,7 +156,7 @@ async function handleGenerar(){
       body: form,
     });
         const analisis = await resEstructura.json();
-    const { entrada_ejemplo, salida_ejemplo, ...estructura } = analisis;
+    const { entrada_ejemplo, salida_ejemplo, casos_clave, ...estructura } = analisis;
 
     //El ejemplo del enunciado solo se añade la primera vez que se generan casos para este ejercicio
     const esPrimeraGeneracion = casos.length === 0;
@@ -167,6 +169,7 @@ async function handleGenerar(){
         estructura,
         entrada_ejemplo: esPrimeraGeneracion ? entrada_ejemplo : undefined,
         salida_ejemplo: esPrimeraGeneracion ? salida_ejemplo : undefined,
+        casos_clave,
       }),
     });
 
@@ -388,10 +391,14 @@ async function handleAñadirManual() {
           </button>
           <button
             className={`${styles.tab} ${pestaña === "feedback" ? styles.tabActivo : ""}`}
-            onClick={() => setPestaña("feedback")}
+            onClick={() => {
+              setPestaña("feedback");
+              setModalFeedbackNoFuncional(true);
+            }}
           >
             ⚙️ FEEDBACK
           </button>
+
         </div>
 
         <div className={styles.content}>
@@ -629,7 +636,7 @@ async function handleAñadirManual() {
                         </div>
                       </td>
                       <td>{en.fechaHora}</td>
-                      {/* <td>{en.intentos}</td> */}
+                      <td>{en.intentos}</td>
                       <td>
                         {en.resultado === "correcto"
                           ? <span className={styles.check}>✓</span>
@@ -730,6 +737,21 @@ async function handleAñadirManual() {
 
         </div>
       </main>
+
+      {modalFeedbackNoFuncional && (
+        <div className={styles.modalOverlay} onClick={() => setModalFeedbackNoFuncional(false)}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <h2 className={styles.modalTitulo}>Funcionalidad no disponible</h2>
+            <p>Esta pestaña aún no es funcional, solo está la vista hecha.</p>
+            <div className={styles.modalFooter}>
+              <button className={styles.modalBtnConfirmar} onClick={() => setModalFeedbackNoFuncional(false)}>
+                Entendido
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
 
       {/*Modal para aádir caso manualmente */}
       {modalAñadir && (

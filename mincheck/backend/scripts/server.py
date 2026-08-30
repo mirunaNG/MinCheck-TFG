@@ -57,17 +57,20 @@ class GenerarCasosRequest(BaseModel):
     estructura: dict
     entrada_ejemplo: Optional[str] = None
     salida_ejemplo: Optional[str] = None
+    casos_clave: Optional[List[str]] = None
 
 
 class EjemploEjercicio(BaseModel):
     entrada_ejemplo: str
     salida_ejemplo: str
+    casos_clave: List[str] = []
 
 EJEMPLO_SCHEMA = {
     "type": "object",
     "properties": {
         "entrada_ejemplo": {"type": "string"},
         "salida_ejemplo": {"type": "string"},
+        "casos_clave": {"type": "array", "items": {"type": "string"}},
     },
     "required": ["entrada_ejemplo", "salida_ejemplo"],
 }
@@ -134,6 +137,22 @@ If the statement shows no example at all, return empty strings for both fields.
 Return ONLY valid JSON matching the requested schema.
 """
 
+SYSTEM_EJEMPLO += """
+
+Additionally, fill "casos_clave": a list of 2-4 extra raw input texts (same exact format/line layout
+as "entrada_ejemplo" — you will also receive the already-extracted field structure as context, use it
+to respect field names, order, types and bounds).
+
+Each one should specifically exercise the core condition the exercise's algorithm checks (e.g. a real
+palindrome if the exercise checks palindromes, an empty case if empty input is explicitly allowed, a
+value right at a described threshold). These do NOT need to appear in the statement — synthesize them
+yourself from understanding what the algorithm must do. Do not include an output for them.
+
+If the exercise has no meaningful special condition beyond ordinary numeric ranges, return an empty list
+— do not invent one artificially.
+"""
+
+
 SYSTEM_ANALISIS = """
 You are an expert in programming judges (online judges like DOMjudge or AceptaElReto). You analyze
 exercise statements to extract the STRUCTURE of their input — not concrete test data. That structure
@@ -190,9 +209,8 @@ You will receive the statement of a programming exercise. Your task is to fill i
        - "ilimitado": no count field and no stop value are given for this list; its length is free/random,
          bounded by "longitud_minima"/"longitud_maxima".
      For any non-vector field, "tipo_lectura_caso" is null.
-   - "valor_centinela_campo": ONLY relevant if "tipo_lectura_caso" is "centinela". If the statement gives
-     a specific stop value (e.g. "until a -1 is read"), put it here as text. If it gives no specific
-     value, null.
+   - "valor_centinela_campo": ONLY relevant if "tipo_lectura_caso" is "centinela". If the statement's own wording 
+     names a SPECIFIC stop value (e.g. "hasta leer un -1", "termina con la palabra FIN"), put it here as text. If the statement's wording is GENERIC ("cualquier palabra", "cualquier valor no numérico", "una palabra cualquiera"), leave this null and use "tipo_centinela_campo" instead — even if the sample input/output repeats the same literal word every time. The sample I/O is illustrative, not a control value, unless the statement itself commits to that literal.
    - "tipo_centinela_campo": ONLY relevant if "tipo_lectura_caso" is "centinela" AND "valor_centinela_campo"
      is null (generic stop condition, no specific value given). States the type of whatever ends the
      reading, choosing one of "entero", "real", "cadena", "caracter", "booleano" — for example, "any
@@ -214,7 +232,7 @@ You will receive the statement of a programming exercise. Your task is to fill i
    - "relacion_valor": number or null — the constant used in "relacion_operacion". Required (non-null)
      whenever "relacion_campo" is set.
 
-     - IMPORTANT — do not confuse a per-case sentinel with the file-level "centinela": if a stop value/word
+   - IMPORTANT — do not confuse a per-case sentinel with the file-level "centinela": if a stop value/word
     ends each INDIVIDUAL case's list (e.g., a list is read element by element until a word like "fin"
     appears, and then a NEW case starts on the next line) and the statement gives no separate value that
     stops the WHOLE FILE, then tipo_lectura must be "ilimitado" (cases are simply read until EOF), and it
@@ -457,7 +475,7 @@ def _numeros_en_texto(texto: str) -> set:
     patron_digitos = r"(\d+|" + "|".join(_NUMEROS_PALABRA_ES) + r")\s+(?:d[ií]gitos|cifras)"
     for grupo in re.findall(patron_digitos, texto, flags=re.IGNORECASE):
         n = int(grupo) if grupo.isdigit() else _NUMEROS_PALABRA_ES[grupo.lower()]
-        numeros.add(10 ** n - 1)   # p.ej. "cuatro dígitos" -> 9999 también válido como límite
+        numeros.add(10 ** n - 1)   # por ejemplo "cuatro dígitos" -> 9999 también válido como límite
         numeros.add(10 ** (n - 1))
 
     return numeros
@@ -478,147 +496,6 @@ def limitar_a_texto(estructura: EstructuraEjercicio, texto_original: str) -> Est
             if valor is not None and not _valor_aparece_en_texto(valor, numeros_texto, texto_original):
                 campo[clave] = None
     return estructura
-
-
-# ══════════════════════════════════════════════════════
-#  STREAMING GENERATOR
-# ══════════════════════════════════════════════════════
-def stream_analisis(enunciado_texto: str, tipo_forzado: Optional[str] = None):
-    """
-    Yields SSE events:
-      data: {"type": "progress", "text": "..."}   — estado intermedio
-      data: {"type": "result",   "tipo_lectura": "...", "valor_centinela": ..., "campos_por_caso": [...]}
-      data: {"type": "error",    "message": "..."}
-    """
-    mensaje_usuario = enunciado_texto
-    if tipo_forzado:
-        mensaje_usuario += (
-            f"\n\n[NOTA: el tipo de lectura de entrada ya ha sido fijado manualmente como "
-            f"'{tipo_forzado}'. No lo detectes ni lo cambies: usa 'tipo_lectura': '{tipo_forzado}' "
-            f"en la respuesta y limítate a describir los campos_por_caso.]"
-        )
-
-    if not OLLAMA_AVAILABLE:
-        # ── Modo mock cuando ollama no está instalado ──
-        yield f"data: {json.dumps({'type': 'progress', 'text': 'Ollama no disponible — modo demo'})}\n\n"
-        time.sleep(0.4)
-        mock = EstructuraEjercicio(
-            tipo_lectura="numCasos",
-            valor_centinela=None,
-            campos_por_caso=[
-                {
-                    "nombre": "numero",
-                    "tipo": "entero",
-                    "minimo": 0000,
-                    "maximo": 9999,
-                    "salto": None,
-                    "longitud_minima": None,
-                    "longitud_maxima": None,
-                    "longitud_referencia": None,
-                }
-            ],
-        )
-        yield f"data: {json.dumps({'type': 'result', **mock.model_dump()})}\n\n"
-        return
-
-    try:
-        yield f"data: {json.dumps({'type': 'progress', 'text': '⏳ Conectando con el modelo...'})}\n\n"
-
-        import threading
-
-        result_holder = {}
-        error_holder = {}
-
-        def call_ollama():
-            try:
-                response = ollama_chat(
-                    model=MODEL,
-                    messages=[
-                        {"role": "system", "content": SYSTEM_ANALISIS},
-                        {"role": "user", "content": mensaje_usuario},
-                    ],
-                    format=ESTRUCTURA_SCHEMA,
-                    options={"temperature":0},
-                )
-                result_holder['content'] = response.message.content
-            except Exception as e:
-                error_holder['msg'] = str(e)
-
-        thread = threading.Thread(target=call_ollama)
-        thread.start()
-
-        dots = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
-        i = 0
-        while thread.is_alive():
-            yield f"data: {json.dumps({'type': 'progress', 'text': f'{dots[i % len(dots)]} Analizando enunciado...'})}\n\n"
-            i += 1
-            time.sleep(0.2)
-            thread.join(timeout=0.2)
-
-        if 'msg' in error_holder:
-            yield f"data: {json.dumps({'type': 'error', 'message': error_holder['msg']})}\n\n"
-            return
-
-        raw = result_holder.get('content', '{}')
-
-        try:
-            estructura = EstructuraEjercicio.model_validate_json(raw)
-        except Exception as e:
-            yield f"data: {json.dumps({'type': 'error', 'message': f'Respuesta del modelo inválida: {e}'})}\n\n"
-            return
-
-        estructura = limitar_a_texto(estructura, enunciado_texto)
-
-        yield f"data: {json.dumps({'type': 'progress', 'text': '✓ Análisis completado'})}\n\n"
-        yield f"data: {json.dumps({'type': 'result', **estructura.model_dump()})}\n\n"
-
-        # ── Segunda llamada, independiente: extraer el ejemplo tal cual del enunciado ──
-        yield f"data: {json.dumps({'type': 'progress', 'text': '⏳ Buscando el ejemplo del enunciado...'})}\n\n"
-
-        result_holder_ejemplo = {}
-        error_holder_ejemplo = {}
-
-        def call_ollama_ejemplo():
-            try:
-                response = ollama_chat(
-                    model=MODEL,
-                    messages=[
-                        {"role": "system", "content": SYSTEM_EJEMPLO},
-                        {"role": "user", "content": enunciado_texto},
-                    ],
-                    format=EJEMPLO_SCHEMA,
-                    options={"temperature": 0},
-                )
-                result_holder_ejemplo['content'] = response.message.content
-            except Exception as e:
-                error_holder_ejemplo['msg'] = str(e)
-
-        thread_ejemplo = threading.Thread(target=call_ollama_ejemplo)
-        thread_ejemplo.start()
-
-        i = 0
-        while thread_ejemplo.is_alive():
-            yield f"data: {json.dumps({'type': 'progress', 'text': f'{dots[i % len(dots)]} Buscando el ejemplo...'})}\n\n"
-            i += 1
-            time.sleep(0.2)
-            thread_ejemplo.join(timeout=0.2)
-
-        if 'msg' in error_holder_ejemplo:
-            yield f"data: {json.dumps({'type': 'error', 'message': error_holder_ejemplo['msg']})}\n\n"
-            return
-
-        raw_ejemplo = result_holder_ejemplo.get('content', '{}')
-
-        try:
-            ejemplo = EjemploEjercicio.model_validate_json(raw_ejemplo)
-        except Exception as e:
-            yield f"data: {json.dumps({'type': 'error', 'message': f'Respuesta del modelo inválida (ejemplo): {e}'})}\n\n"
-            return
-
-        yield f"data: {json.dumps({'type': 'result_ejemplo', **ejemplo.model_dump()})}\n\n"
-
-    except Exception as e:
-        yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
 
 
 # ══════════════════════════════════════════════════════
@@ -652,15 +529,20 @@ async def analizar_enunciado_archivo(archivo: UploadFile = File(...)):
     print(json.dumps(estructura.model_dump(), indent=2, ensure_ascii=False))
 
 
+    mensaje_ejemplo = (
+        f"{texto}\n\n[ESTRUCTURA YA EXTRAÍDA]\n"
+        f"{json.dumps(estructura.model_dump(), ensure_ascii=False)}"
+    )
     response_ejemplo = ollama_chat(
         model=MODEL,
         messages=[
             {"role": "system", "content": SYSTEM_EJEMPLO},
-            {"role": "user", "content": texto},
+            {"role": "user", "content": mensaje_ejemplo},
         ],
         format=EJEMPLO_SCHEMA,
         options={"temperature": 0},
     )
+
     ejemplo = EjemploEjercicio.model_validate_json(response_ejemplo.message.content)
 
     return {**estructura.model_dump(), **ejemplo.model_dump()}
@@ -670,17 +552,29 @@ async def analizar_enunciado_archivo(archivo: UploadFile = File(...)):
 def generar_casos(req: GenerarCasosRequest):
     casos = generar_conjunto_de_pruebas(req.estructura)
 
+    pos_tras_ejemplo = 0
     if req.entrada_ejemplo:
         casos.insert(0, {
             "perfiles": ["ejemplo_enunciado"],
             "input": req.entrada_ejemplo,
             "output_esperado": req.salida_ejemplo,
         })
+        pos_tras_ejemplo = 1
+
+    if req.casos_clave:
+        if req.estructura.get("tipo_lectura") == "ilimitado":
+            # un fichero "ilimitado" admite varios inputs seguidos: se juntan en un solo caso
+            casos.insert(pos_tras_ejemplo, {"perfiles": ["caso_clave"], "input": "\n".join(req.casos_clave)})
+        else:
+            # "numCasos"/"centinela": cada string ya es un fichero completo con su propia
+            # cabecera/centinela, no se pueden concatenar
+            for entrada in req.casos_clave:
+                casos.insert(pos_tras_ejemplo, {"perfiles": ["caso_clave"], "input": entrada})
+
 
     return {"casos": casos}
 
 @app.post("/calcular/outputs")
-#guarda fichero con nombre original en directorio temporal porque la extensión determina qué compilador se usa
 async def calcular_outputs_endpoint(solucion: UploadFile = File(...), casos: str = Form(...)):
     casos_lista = json.loads(casos)
     contenido = await solucion.read()

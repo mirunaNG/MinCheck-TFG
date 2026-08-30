@@ -3,11 +3,14 @@ import { useState, useMemo } from "react";
 import { TraceOPT, formatearValorOPT } from "../lib/opt";
 import styles from "./visualizador.module.css";
 
+/*useMemo -> para trocear un string por saltos de línea */
+
 export default function VisualizadorTrace({ trace }: { trace: TraceOPT }) {
   const [pasoActual, setPasoActual] = useState(0);
   const pasos = trace.trace;
   const paso = pasos[pasoActual];
-  const lineasCodigo = useMemo(() => trace.code.split("\n"), [trace.code]);
+  /*const lineasCodigo = useMemo(() => trace.code.split("\n"), [trace.code]);*/
+  const lineasCodigo = trace.code.split("\n");
 
   if (pasos.length === 0) {
     return <p className={styles.aviso}>No hay pasos para mostrar.</p>;

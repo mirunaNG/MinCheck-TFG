@@ -26,7 +26,7 @@ def encontrar_contraejemplo_minimo(estructura: dict, ruta_codigo_alumno: str, ru
 
             output_referencia = _ejecutar_caso(comando_referencia, entrada)
             if output_referencia is None:
-                return False  # la propia referencia falla con este input: no sirve como contraejemplo
+                return False  # la propia referencia falla con este input -> no sirve como contraejemplo
 
             ejecucion_alumno = _ejecutar_caso_alumno(comando_alumno, entrada, tiempo_limite)
             if ejecucion_alumno["estado"] != "ok":

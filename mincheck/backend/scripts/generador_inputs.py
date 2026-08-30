@@ -1,5 +1,6 @@
 import string
 from hypothesis import given, settings, strategies as st
+from faker import Faker
 import random
 
 #Como min/max/longitudes pueden venir a null, hay que definir un rango por defecto para no generar valores sin sentido
@@ -7,6 +8,18 @@ RANGO_ENTERO_DEFECTO = (-1000, 1000)
 RANGO_REAL_DEFECTO = (-1000.0, 1000.0)
 RANGO_LONGITUD_DEFECTO = (0, 10)      # para vectores/cadenas sin longitud explícita
 ALFABETO_CADENA = string.ascii_lowercase
+
+# Vocabulario para generar cadenas con palabras reales en vez de basura aleatoria.
+# Se descartan las que llevan tilde/ñ: una solucion que manipule la cadena byte a byte
+# (invertir, palindromo con char con signo...) puede generar UTF-8 invalido en su salida
+# y tumbar la decodificacion del subproceso.
+# El pool se calcula una vez al importar el modulo porque la lista de Faker es fija.
+_fake = Faker("es_ES")
+_PALABRAS_BASE = sorted({p for p in _fake.words(500) if p.isascii()})
+
+
+def _palabras_en_rango(lm: int, hi: int) -> list[str]:
+    return [p for p in _PALABRAS_BASE if lm <= len(p) <= hi]
 
 LIMITE_HYPOTHESIS_LISTA = 200       # limite bajo porque salta el health check
 
@@ -99,17 +112,18 @@ def _strategy_escalar(campo: dict, modo: str = "normal"):
         lm = campo.get("longitud_minima") if campo.get("longitud_minima") is not None else RANGO_LONGITUD_DEFECTO[0]
         lM = campo.get("longitud_maxima") if campo.get("longitud_maxima") is not None else RANGO_LONGITUD_DEFECTO[1]
 
-        if modo == "simple":
-            hi_p = min(lM, 5)
-            if hi_p < lm:
-                hi_p = lM
-            return st.text(alphabet=ALFABETO_CADENA, min_size=lm, max_size=hi_p)
-
         if modo == "borde":
             candidatos = sorted({v for v in {lm, lm + 1, lM - 1, lM} if lm <= v <= lM})
             return st.one_of(*[st.text(alphabet=ALFABETO_CADENA, min_size=n, max_size=n) for n in candidatos])
 
-        return st.text(alphabet=ALFABETO_CADENA, min_size=lm, max_size=lM)
+        hi_p = min(lM, 5) if modo == "simple" else lM
+        if hi_p < lm:
+            hi_p = lM
+
+        palabras = _palabras_en_rango(lm, hi_p)
+        if palabras:
+            return st.sampled_from(palabras)
+        return st.text(alphabet=ALFABETO_CADENA, min_size=lm, max_size=hi_p)
 
     raise ValueError(f"tipo escalar desconocido: {tipo}")
 

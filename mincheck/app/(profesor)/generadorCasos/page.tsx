@@ -48,7 +48,7 @@ export default function GeneradorCasos() {
       });
       if (!resEstructura.ok) throw new Error("No se ha podido analizar el enunciado");
       const analisis = await resEstructura.json();
-      const { entrada_ejemplo, salida_ejemplo, ...estructura } = analisis;
+      const { entrada_ejemplo, salida_ejemplo, casos_clave, ...estructura } = analisis;
 
       // Generar los casos de prueba a partir de esa estructura
       const resCasos = await fetch("http://localhost:8001/generar/casos", {
@@ -58,6 +58,7 @@ export default function GeneradorCasos() {
           estructura,
           entrada_ejemplo,
           salida_ejemplo,
+          casos_clave,
         }),
       });
       if (!resCasos.ok) throw new Error("No se han podido generar los casos de prueba");
@@ -127,8 +128,8 @@ export default function GeneradorCasos() {
         <div className={styles.encabezado}>
           <h1 className={styles.titulo}>GENERADOR DE CASOS DE PRUEBA</h1>
           <p className={styles.subtitulo}>
-            En esta pestaña puedes subir un código y MinCheck te generará un set de casos de prueba incluyendo
-            contraejemplos mínimos, casos límite, etc...
+            En esta pestaña puedes subir un código con su enunciado y MinCheck te generará una serie de casos de prueba
+            automáticamente.
           </p>
         </div>
 

@@ -107,6 +107,7 @@
 
 .botonVerTodos {
   background: transparent;
+  border: none;
   font-size: 14px;
   color: #4d7cfe;
   cursor: pointer;
@@ -161,6 +162,7 @@
 }
 .linkAlCodigo {
   background: transparent;
+  border: none;
   color: #e38500;
   font-size: 14px;
   font-weight: bold;

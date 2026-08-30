@@ -131,12 +131,16 @@ def registrar_rutas_ejercicios(app):
             for c in ejercicio.casos_prueba
         ]
 
+        entregas_ordenadas = sorted(ejercicio.entregas, key=lambda e: e.id)
+        intentos_por_alumno = {}
         entregas = []
-        for e in ejercicio.entregas:
+        for e in entregas_ordenadas:
+            intentos_por_alumno[e.alumno_id] = intentos_por_alumno.get(e.alumno_id, 0) + 1
             entregas.append({
                 'id': e.id,
                 'alumno': e.alumno.nombre_completo,
                 'fechaHora': e.fecha_hora.strftime('%d/%m/%Y %H:%M') if e.fecha_hora else '-',
+                'intentos': intentos_por_alumno[e.alumno_id],
                 'resultado': e.resultado,
                 'errorPrincipal': e.error_principal,
             })

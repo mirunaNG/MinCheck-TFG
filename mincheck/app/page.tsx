@@ -54,13 +54,13 @@ export default function LandingPage() {
             <h3 className={styles.tituloCaracteristica}>Feedback al instante</h3>
             <p className={styles.explicacionCaracteristica}>
               Sube tu código y recibe un diagnóstico detallado: tipo de error,
-              línea exacta del fallo y comparación con la salida esperada.
+              mensaje detallado y contraejemplo.
             </p>
           </div>
 
           <div className={styles.caracteristicaCard}>
             <div className={styles.iconoCaracteristica}>💡</div>
-            <h3 className={styles.tituloCaracteristica}>Pistas antes que soluciones</h3>
+            <h3 className={styles.tituloCaracteristica}>Pistas inteligentes</h3>
             <p className={styles.explicacionCaracteristica}>
               El sistema te da una pista primero para que reflexiones. Solo si
               lo necesitas, accedes al feedback completo.
@@ -78,9 +78,9 @@ export default function LandingPage() {
 
           <div className={styles.caracteristicaCard}>
             <div className={styles.iconoCaracteristica}>📊</div>
-            <h3 className={styles.tituloCaracteristica}>Estadísticas del grupo</h3>
+            <h3 className={styles.tituloCaracteristica}>Estadísticas por asignatura</h3>
             <p className={styles.explicacionCaracteristica}>
-              Los profesores ven un resumen de los errores más comunesy
+              Los profesores ven un resumen de los errores más comunes y
               el progreso de cada alumno.
             </p>
           </div>
@@ -98,7 +98,7 @@ export default function LandingPage() {
             <h3 className={styles.tituloCaracteristica}>Contraejemplos mínimos</h3>
             <p className={styles.explicacionCaracteristica}>
               MinCheck genera el contraejemplo más pequeño posible que
-              invalida tu solución, para facilitarte la depuración.
+              invalida tu solución, para facilitarte la depuración y corrección.
             </p>
           </div>
 
