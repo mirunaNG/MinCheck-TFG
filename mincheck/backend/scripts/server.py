@@ -148,6 +148,11 @@ palindrome if the exercise checks palindromes, an empty case if empty input is e
 value right at a described threshold). These do NOT need to appear in the statement — synthesize them
 yourself from understanding what the algorithm must do. Do not include an output for them.
 
+Each string in "casos_clave" must contain ONLY raw input data — the exact lines a program would read,
+nothing else. NEVER include comments, explanations, headings, or notes about why the case is
+interesting (e.g. no "// caso límite: vector vacío", no "Ejemplo:", no parenthetical remarks). If you
+cannot express the case as pure data in the expected format, omit it instead of describing it in words.
+
 If the exercise has no meaningful special condition beyond ordinary numeric ranges, return an empty list
 — do not invent one artificially.
 """
@@ -409,21 +414,40 @@ a line, in which case use "misma_linea_que" on the later field to point at the e
 one — misma_linea_que works regardless of type or range differences between the two
 fields).
 
+Exception — never collapse into a vector if there is an explicit arithmetic relationship between two of
+the N values (i.e. the statement's own check compares them, e.g. "al menos 12 por cada persona", "el doble
+de", "no debe superar la suma de"): "relacion_campo"/"relacion_operacion"/"relacion_valor" only exist on
+scalar fields, never on elements inside a vector, so vectorizing them would silently discard that
+relationship. In that case keep them as separate scalar fields sharing a line via "misma_linea_que", and
+capture the relationship with "relacion_campo" following the direction defined above — "X ≈
+valor[relacion_campo] * relacion_valor" — not just on "whichever field comes second", even though both
+share type and bounds.
 
 Worked example, using a real exercise statement:
 
 Statement fragment: "La entrada comienza con un número que indica cuántos casos de prueba tendrán que
 evaluarse. Cada uno son dos números, que indican el número de uvas que he comprado y cuánta gente
-seremos esta noche a cenar. Los dos números están entre 1 y 1.000.000.000."
+seremos esta noche a cenar. Los dos números están entre 1 y 1.000.000.000." — and the statement's own
+check is "hay uvas suficientes si hay al menos 12 por cada comensal" i.e. uvas >= comensales * 12, an
+explicit arithmetic relationship between the two numbers.
 
-WRONG: two scalar "entero" fields "uvas" and "comensales" — the generator would print them on separate
-lines, but the statement's example shows them on the SAME line ("24 2").
-CORRECT: a single fixed-length vector, since both numbers share type "entero" and the same range:
+WRONG (loses the relationship): a single fixed-length "vector_entero" field — both numbers share type
+"entero" and the same range, but collapsing them would discard the "at least 12 per person" check.
+ALSO WRONG (relationship backwards): putting "relacion_campo" on "comensales" pointing at "uvas" — that
+would encode "comensales ≈ uvas * 12", not the threshold the exercise actually checks.
+CORRECT: two separate scalar fields sharing a line, with "relacion_campo" on "uvas" (the field whose
+threshold is being expressed), pointing at "comensales":
 
 {"tipo_lectura": "numCasos", "valor_centinela": null, "campos_por_caso": [
-  {"nombre": "uvas_comensales", "tipo": "vector_entero", "minimo": 1, "maximo": 1000000000,
-   "salto": null, "longitud_minima": 2, "longitud_maxima": 2, "longitud_referencia": null,
-   "tipo_lectura_caso": null, "valor_centinela_campo": null, "tipo_centinela_campo": null}
+  {"nombre": "uvas", "tipo": "entero", "minimo": 1, "maximo": 1000000000, "salto": null,
+   "longitud_minima": null, "longitud_maxima": null, "longitud_referencia": null,
+   "tipo_lectura_caso": null, "valor_centinela_campo": null, "tipo_centinela_campo": null,
+   "misma_linea_que": null, "relacion_campo": "comensales", "relacion_operacion": "multiplo",
+   "relacion_valor": 12},
+  {"nombre": "comensales", "tipo": "entero", "minimo": 1, "maximo": 1000000000, "salto": null,
+   "longitud_minima": null, "longitud_maxima": null, "longitud_referencia": null,
+   "tipo_lectura_caso": null, "valor_centinela_campo": null, "tipo_centinela_campo": null,
+   "misma_linea_que": "uvas", "relacion_campo": null, "relacion_operacion": null, "relacion_valor": null}
 ]}
 """
 
@@ -498,6 +522,18 @@ def limitar_a_texto(estructura: EstructuraEjercicio, texto_original: str) -> Est
     return estructura
 
 
+_PREFIJOS_COMENTARIO = ("//", "#", "--", ";")
+
+def _limpiar_caso_clave(entrada: str) -> str:
+    """Quita líneas de comentario que el LLM a veces cuela en casos_clave (p.ej.
+    "// caso límite: vector vacío") en vez de devolver solo datos de entrada."""
+    lineas = [
+        linea for linea in entrada.split("\n")
+        if not linea.strip().startswith(_PREFIJOS_COMENTARIO)
+    ]
+    return "\n".join(lineas).strip()
+
+
 # ══════════════════════════════════════════════════════
 #  ENDPOINTS
 # ══════════════════════════════════════════════════════
@@ -551,6 +587,7 @@ async def analizar_enunciado_archivo(archivo: UploadFile = File(...)):
 @app.post("/generar/casos")
 def generar_casos(req: GenerarCasosRequest):
     casos = generar_conjunto_de_pruebas(req.estructura)
+    casos_clave = [c for c in (_limpiar_caso_clave(c) for c in (req.casos_clave or [])) if c]
 
     pos_tras_ejemplo = 0
     if req.entrada_ejemplo:
@@ -561,14 +598,14 @@ def generar_casos(req: GenerarCasosRequest):
         })
         pos_tras_ejemplo = 1
 
-    if req.casos_clave:
+    if casos_clave:
         if req.estructura.get("tipo_lectura") == "ilimitado":
             # un fichero "ilimitado" admite varios inputs seguidos: se juntan en un solo caso
-            casos.insert(pos_tras_ejemplo, {"perfiles": ["caso_clave"], "input": "\n".join(req.casos_clave)})
+            casos.insert(pos_tras_ejemplo, {"perfiles": ["caso_clave"], "input": "\n".join(casos_clave)})
         else:
             # "numCasos"/"centinela": cada string ya es un fichero completo con su propia
             # cabecera/centinela, no se pueden concatenar
-            for entrada in req.casos_clave:
+            for entrada in casos_clave:
                 casos.insert(pos_tras_ejemplo, {"perfiles": ["caso_clave"], "input": entrada})
 
 

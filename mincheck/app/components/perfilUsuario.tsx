@@ -120,14 +120,16 @@ export default function PerfilUsuario({ defaultRol = "" }: { defaultRol?: string
                 onChange={(e) => setCorreo(e.target.value)}
               />
             </div>
-            <div className={styles.campoGrupo}>
-              <label className={styles.label}>Universidad</label>
-              <input
-                className={styles.input}
-                value={universidad}
-                onChange={(e) => setUniversidad(e.target.value)}
-              />
-            </div>
+            {rol === "profesor" && (
+              <div className={styles.campoGrupo}>
+                <label className={styles.label}>Universidad</label>
+                <input
+                  className={styles.input}
+                  value={universidad}
+                  onChange={(e) => setUniversidad(e.target.value)}
+                />
+              </div>
+            )}
 
             {rol === "profesor" && (
               <div className={styles.toggleFila}>

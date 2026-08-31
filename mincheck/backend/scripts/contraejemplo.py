@@ -21,7 +21,10 @@ def encontrar_contraejemplo_minimo(estructura: dict, ruta_codigo_alumno: str, ru
         comando_alumno = _preparar_comando(ruta_codigo_alumno, tmp_alumno)
         comando_referencia = _preparar_comando(ruta_codigo_referencia, tmp_referencia)
 
+        primer_fallo = None
+
         def es_contraejemplo(valores: dict) -> bool:
+            nonlocal primer_fallo
             entrada = _formatear_fichero([valores], campos, tipo_lectura, valor_centinela)
 
             output_referencia = _ejecutar_caso(comando_referencia, entrada)
@@ -30,9 +33,14 @@ def encontrar_contraejemplo_minimo(estructura: dict, ruta_codigo_alumno: str, ru
 
             ejecucion_alumno = _ejecutar_caso_alumno(comando_alumno, entrada, tiempo_limite)
             if ejecucion_alumno["estado"] != "ok":
-                return True  # timeout/error/output excedido también es un fallo
+                es_fallo = True  # timeout/error/output excedido también es un fallo
+            else:
+                es_fallo = _normalizar(ejecucion_alumno["output"]) != _normalizar(output_referencia)
 
-            return _normalizar(ejecucion_alumno["output"]) != _normalizar(output_referencia)
+            if es_fallo and primer_fallo is None:
+                primer_fallo = valores  # se guarda por si no se llega a minimizar
+
+            return es_fallo
 
         estrategia = _strategy_caso(campos, modo="normal")
 
@@ -48,6 +56,8 @@ def encontrar_contraejemplo_minimo(estructura: dict, ruta_codigo_alumno: str, ru
                 ),
             )
         except NoSuchExample:
-            return None  # no se encontró ningún contraejemplo dentro del presupuesto
+            if primer_fallo is None:
+                return None  # no se encontró ningún caso de fallo dentro del presupuesto
+            valores_minimos = primer_fallo  # no se pudo minimizar, se usa el primer caso de fallo encontrado
 
     return {"input": _formatear_fichero([valores_minimos], campos, tipo_lectura, valor_centinela)}
