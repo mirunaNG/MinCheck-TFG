@@ -1,12 +1,15 @@
 from flask import request, jsonify
 from flask_jwt_extended import create_access_token
-from app import db, login_manager
+from app import db
 from app.modelos import Usuario
 import datetime
+
+#ambas funciones devuelven un token de acceso y los datos del usuario
 
 def registrar_rutas_auth(app):
     @app.route('/registro', methods=['POST'])
     def registro():
+        # registra al usuario en la aplicación
         datos = request.get_json()
 
         nombre = datos.get('nombre')
@@ -43,6 +46,7 @@ def registrar_rutas_auth(app):
 
     @app.route('/login', methods=['POST'])
     def login():
+        # permite iniciar sesión comprobando los datos introducidos
         datos = request.get_json()
 
         correo = datos.get('correo')
@@ -55,6 +59,7 @@ def registrar_rutas_auth(app):
         
         usuario_loggeado = Usuario.query.filter_by(correo=correo).first()
 
+        #verificar la contraseña con check_password
         if not usuario_loggeado or not usuario_loggeado.check_password(contrasena):
             return jsonify(
                 {'mensaje': 'Correo o contraseña incorrectos'}

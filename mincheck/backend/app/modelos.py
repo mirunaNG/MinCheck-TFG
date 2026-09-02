@@ -6,6 +6,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import String, Float, Integer, Boolean, ForeignKey, Text, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+#uso Mapped como en ABD
+
 class Usuario(db.Model):
     __tablename__ = 'usuarios'
 

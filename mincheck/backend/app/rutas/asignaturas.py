@@ -1,12 +1,12 @@
 from flask import request, jsonify
-from flask_jwt_extended import create_access_token
-from app import db, login_manager
+from app import db
 from app.modelos import Usuario
 import datetime
 
 def registrar_rutas_asignaturas(app):
     @app.route('/alumno/<int:alumno_id>/asignaturasAlumno', methods=['GET'])
     def asignaturas_alumno(alumno_id):
+        # devuelve todas las asignaturas en las que está matriculdo un alumno
         from app.modelos import Matricula, Ejercicio
         matriculas = Matricula.query.filter_by(alumno_id=alumno_id).all()
         res = []
@@ -28,6 +28,7 @@ def registrar_rutas_asignaturas(app):
     
     @app.route('/matriculas', methods=['POST'])
     def unirse_asignatura():
+        # para que el alumno se mattricule a la asignatura con el código del profe
         from app.modelos import Matricula, Asignatura, Ejercicio
         datos = request.get_json()
         alumno_id = datos.get('alumno_id')
@@ -64,6 +65,7 @@ def registrar_rutas_asignaturas(app):
     
     @app.route('/profesor/<int:profesor_id>/asignaturasProfesor', methods=['GET'])
     def asignaturas_profesor(profesor_id):
+        # devieulve todas las asignaturas de un profesor 
         from app.modelos import Asignatura, Matricula, Ejercicio
         asignaturas = Asignatura.query.filter_by(profesor_id=profesor_id).all()
         if not asignaturas:
@@ -86,6 +88,7 @@ def registrar_rutas_asignaturas(app):
         
     @app.route('/asignaturasProfesor', methods=['POST'])
     def crear_asignatura():
+        # nueva asignatura de un profesor -> genera el código de acceso aleatorio
         from app.modelos import Asignatura
         import secrets, string
 
@@ -95,7 +98,8 @@ def registrar_rutas_asignaturas(app):
 
         if not nombre or not profesor_id:
             return jsonify({'mensaje': 'Faltan datos'}), 400
-        
+
+        #códgio de acceso con letras y números para más combinaciones
         chars = string.ascii_uppercase + string.digits
         while True:
             codigo_asignatura = ''.join(secrets.choice(chars) for _ in range(6))
@@ -122,6 +126,7 @@ def registrar_rutas_asignaturas(app):
     
     @app.route('/profesor/<int:profesor_id>/erroresComunes', methods=['GET'])
     def errores_comunes_profesro(profesor_id):
+        # errores más comunes de los ejercicios -> NO TERMINADO DE IMPLEMENTAR, solo para la vista general del dashboard
         from app.modelos import Ejercicio, Asignatura, Entrega
         from sqlalchemy import func
 
@@ -182,6 +187,7 @@ def registrar_rutas_asignaturas(app):
 
     @app.route('/asignatura/<int:asignatura_id>', methods=['GET'])
     def detalle_asignatura(asignatura_id):
+        # devuelve los detalles de la asignatura (nombre, curso, código, color y profesor)
         from app.modelos import Asignatura
         asignatura = Asignatura.query.get(asignatura_id)
         if not asignatura:
@@ -198,6 +204,7 @@ def registrar_rutas_asignaturas(app):
 
     @app.route('/asignatura/<int:asignatura_id>', methods=['DELETE'])
     def eliminar_asignatura(asignatura_id):
+        # borra la asignatura y sus relaciones
         from app.modelos import Asignatura
         asignatura = Asignatura.query.get(asignatura_id)
         if not asignatura:
@@ -210,6 +217,7 @@ def registrar_rutas_asignaturas(app):
     
     @app.route('/asignatura/<int:asignatura_id>/alumnos', methods=['GET'])
     def alumnos_asignatura(asignatura_id):
+        # devuelve los alumnos de la asignatura 
         from app.modelos import Matricula, Ejercicio, Entrega, Asignatura
         asignatura = Asignatura.query.get(asignatura_id)
         if not asignatura:
@@ -217,12 +225,14 @@ def registrar_rutas_asignaturas(app):
         
         tema_ids = [t.id for t in asignatura.temas]
         total_ejercicios= Ejercicio.query.filter(Ejercicio.tema_id.in_(tema_ids)).count()
+        # ids de todos los ejercicios de la asignatura
         ejercicio_ids = [e.id for t in asignatura.temas for e in t.ejercicios]
 
         matriculas = Matricula.query.filter_by(asignatura_id=asignatura_id).all()
         res = []
         for m in matriculas:
             if ejercicio_ids:
+                # contar los completados 
                 completados = Entrega.query.filter(
                     Entrega.alumno_id==m.alumno_id,
                     Entrega.ejercicio_id.in_(ejercicio_ids),
@@ -244,7 +254,8 @@ def registrar_rutas_asignaturas(app):
     
     @app.route('/asignatura/<int:asignatura_id>/ultimasEntregas', methods=['GET'])
     def ultimas_entregas_asignatura(asignatura_id):
-        from app.modelos import Entrega, Ejercicio, Asignatura
+        # últimas 10 entregas en una asignatura
+        from app.modelos import Entrega, Asignatura
         from sqlalchemy.orm import joinedload
 
         asignatura = Asignatura.query.get(asignatura_id)

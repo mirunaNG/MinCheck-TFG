@@ -9,6 +9,8 @@ db = SQLAlchemy()
 login_manager = LoginManager()
 jwt = JWTManager()
 
+#igual que en ABD:
+
 @login_manager.user_loader
 def carga_usuario(id_usuario):
     from app.modelos import Usuario

@@ -5,6 +5,7 @@ from app import db
 def registrar_rutas_ejercicios(app):
     @app.route('/tema/<int:tema_id>/ejercicios', methods=['POST'])
     def crear_ejercicio(tema_id):
+        # crea el ejercicio dentro del tema dado
         from app.modelos import Ejercicio, Tema
         import datetime, os
         from werkzeug.utils import secure_filename
@@ -16,7 +17,8 @@ def registrar_rutas_ejercicios(app):
         nombre = request.form.get('nombre')
         if not nombre:
             return jsonify({'mensaje': 'falta el nombre del tema '}), 400
-        
+
+        #carpeta de uploads para almacenar las subidas
         UPLOAD_FOLDER=os.path.join(os.path.dirname(__file__), '..', 'uploads')
         os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
@@ -61,12 +63,14 @@ def registrar_rutas_ejercicios(app):
 
     @app.route('/ejercicio/<int:ejercicio_id>', methods=['DELETE'])
     def eliminar_ejercicio_ruta(ejercicio_id):
+        #borra un ejercicio y los archivos que se hayan subido a él 
         from app.modelos import Ejercicio
         import os
         ejercicio = Ejercicio.query.get(ejercicio_id)
         if not ejercicio:
             return jsonify({'mensaje': 'Ejercicio no encontrado'}), 404
 
+        
         UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), '..', 'uploads')
 
         if ejercicio.enunciado_nombre:
@@ -93,35 +97,45 @@ def registrar_rutas_ejercicios(app):
 
     @app.route('/ejercicio/<int:ejercicio_id>/errores', methods=['GET'])
     def errores_ejercicio(ejercicio_id):
+        # devuelve los errores más frecuentes de un ejercicio para las estadísticas inidividuales de cada ejercicio
         from app.modelos import Ejercicio, Entrega
         from sqlalchemy import func
+
         ejercicio = Ejercicio.query.get(ejercicio_id)
         if not ejercicio:
             return jsonify({'mensaje': 'Ejercicio no encontrado'}), 404
+
+        # total de entregas
         total = Entrega.query.filter_by(ejercicio_id=ejercicio_id).count()
         if total == 0:
             return jsonify([]), 200
         filas = (
+            # errores principales y el numero de veces que se repiten
             db.session.query(Entrega.error_principal, func.count(Entrega.id).label('n'))
             .filter(Entrega.ejercicio_id == ejercicio_id, Entrega.error_principal != None, Entrega.error_principal != '')
             .group_by(Entrega.error_principal)
             .order_by(func.count(Entrega.id).desc())
             .all()
         )
+
+        # devuelve una lista de diccionarios con el error principal y el cálculo de su porcentaje
         return jsonify([{'error': f.error_principal, 'porcentaje': round((f.n / total) * 100)} for f in filas]), 200
 
 
     @app.route('/ejercicio/<int:ejercicio_id>', methods=['GET'])
     def detalle_ejercicio(ejercicio_id):
+        # detalle de un ejercicio 
         from app.modelos import Ejercicio
 
         ejercicio=Ejercicio.query.get(ejercicio_id)
         if not ejercicio:
             return jsonify({'mensaje': 'Ejercicio no encontrado'}), 404
-        
+
+        # para la cabecera 
         tema = ejercicio.tema
         asignatura = tema.asignatura
 
+        # para mostrar los casos que se han generado antes, si existen
         casos_prueba=[
             {
                 'id': c.id,
@@ -131,6 +145,7 @@ def registrar_rutas_ejercicios(app):
             for c in ejercicio.casos_prueba
         ]
 
+        #tabla de entregas, ordenadas por id para respetar el orden de entrega
         entregas_ordenadas = sorted(ejercicio.entregas, key=lambda e: e.id)
         intentos_por_alumno = {}
         entregas = []
@@ -163,11 +178,14 @@ def registrar_rutas_ejercicios(app):
     
     @app.route('/ejercicio/<int:ejercicio_id>/configuracion', methods=['PUT'])
     def guardar_configuracion_ejercicio(ejercicio_id):
+        # guardar la configuración del ejercicio (visibilidad, fecha y tiempo límite)
         from app.modelos import Ejercicio
         import datetime
+
         ejercicio = Ejercicio.query.get(ejercicio_id)
         if not ejercicio:
             return jsonify({'mensaje': 'Ejercicio no encontrado'}), 404
+        
         datos = request.get_json()
         ejercicio.visible = datos.get('visible', ejercicio.visible)
         fecha_str = datos.get('fechaLimite')
@@ -180,6 +198,7 @@ def registrar_rutas_ejercicios(app):
     
     @app.route('/ejercicio/<int:ejercicio_id>/feedback', methods=['GET'])
     def cargar_feedback_ejercicio(ejercicio_id):
+        # comienzo de la configuración del feedback, no se tiene en cuenta en la lógica aún.
         from app.modelos import Ejercicio
         ejerciio = Ejercicio.query.get(ejercicio_id)
         if not ejerciio:
@@ -213,6 +232,7 @@ def registrar_rutas_ejercicios(app):
     
     @app.route('/ejercicio/<int:ejercicio_id>/feedback', methods=['PUT'])
     def guardar_feedback(ejercicio_id):
+        #guarda la conficuración del feedback, repito: no se usa en la lógica aún
         from app.modelos import Ejercicio, Configuracion_feedback
         ejercicio = Ejercicio.query.get(ejercicio_id)
         if not ejercicio:
@@ -240,6 +260,7 @@ def registrar_rutas_ejercicios(app):
 
     @app.route('/ejercicio/<int:ejercicio_id>/archivos', methods=['PUT'])
     def actualizar_archivos_ej(ejercicio_id):
+        # reemplaza los archivos que están subidos por el nuevo
         from app.modelos import Ejercicio
         from werkzeug.utils import secure_filename
         import os
@@ -278,6 +299,7 @@ def registrar_rutas_ejercicios(app):
     
     @app.route('/ejercicio/<int:ejercicio_id>/archivos/<tipo>', methods=['DELETE'])
     def eliminar_archivo_ej(ejercicio_id, tipo):
+        # borrar el archivo adjunto de un ejercicio (enunciado o solución)
         from app.modelos import Ejercicio
         import os
 
@@ -304,13 +326,16 @@ def registrar_rutas_ejercicios(app):
 
     @app.route('/uploads/<path:nombre_archivo>', methods=['GET'])
     def servir_archivo_subido(nombre_archivo):
+        # devuelve los archivos subidos
         from flask import send_from_directory
         import os
+
         UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), '..', 'uploads')
         return send_from_directory(UPLOAD_FOLDER, nombre_archivo)
 
     @app.route('/ejercicio/<int:ejercicio_id>/casos', methods=['POST'])
     def guardar_casos_prueba(ejercicio_id):
+        #guarda los casos de prueba tras generarlos y la estructura del ejercicio (JSON ollama)
         from app.modelos import Ejercicio, Caso_Prueba
 
         ejercicio = Ejercicio.query.get(ejercicio_id)
@@ -343,6 +368,7 @@ def registrar_rutas_ejercicios(app):
 
     @app.route('/caso/<int:caso_id>', methods=['DELETE'])
     def eliminar_caso_prueba(caso_id):
+        # borra un caso de prueba
         from app.modelos import Caso_Prueba
 
         caso = Caso_Prueba.query.get(caso_id)

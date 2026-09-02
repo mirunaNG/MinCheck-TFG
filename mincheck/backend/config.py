@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 
 load_dotenv(override=True)
 
+#igual que en ABD: 
 
 class ConfiguracionFlask:
     """

@@ -1,8 +1,5 @@
 from flask import request, jsonify
-from flask_jwt_extended import create_access_token
-from app import db, login_manager
-from app.modelos import Usuario
-import datetime
+from app import db
 import logging
 
 logger = logging.getLogger(__name__)
@@ -10,8 +7,10 @@ logger = logging.getLogger(__name__)
 def registrar_rutas_entregas(app):
     @app.route('/alumno/<int:alumno_id>/entregas', methods=['GET'])
     def entregas_alumno(alumno_id):
+        # devuelve las últimas entegas de un alumno
         from app.modelos import Entrega
         from sqlalchemy.orm import joinedload
+
         limite = request.args.get('limite', 4, type=int)
         entregas = (
             Entrega.query.filter_by(alumno_id = alumno_id)
@@ -33,6 +32,7 @@ def registrar_rutas_entregas(app):
     
     @app.route('/ejercicio/<int:ejercicio_id>/alumno/<int:alumno_id>/intentos', methods=['GET'])
     def intentos_alumno_ejercicio(ejercicio_id, alumno_id):
+        # intentos del alumno y su código 
         from app.modelos import Ejercicio, Entrega
         import os
 
@@ -58,24 +58,22 @@ def registrar_rutas_entregas(app):
                 'detalleError': e.detalle_error,
                 'contraejemplo': e.contraejemplo_input,
             })
-
-        
         
         ultimo_codigo = None
         if entregas:
             ultima = entregas[0] # Cogemos solo el último intento
             
-            # Comprobamos si la url contiene la palabra uploads
+            # Comprobar si la url contiene la palabra uploads
             if ultima.codigo_url and 'uploads' in ultima.codigo_url:
                 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), '..', 'uploads')
                 
-                # Extraemos solo el nombre del archivo, ignorando si tiene / delante o no
+                # Extraer solo el nombre del archivo, ignorando si tiene / delante o no
                 nombre_archivo = ultima.codigo_url.split('uploads/')[-1].lstrip('/')
                 ruta = os.path.join(UPLOAD_FOLDER, nombre_archivo)
                 
                 try:
                     with open(ruta, 'r', encoding='utf-8', errors='replace') as f:
-                        ultimo_codigo = f.read() # Leemos el código real
+                        ultimo_codigo = f.read() # Lee el código real
                 except FileNotFoundError:
                     ultimo_codigo = "// Error: Archivo no encontrado en el servidor."
             else:
@@ -97,6 +95,7 @@ def registrar_rutas_entregas(app):
     
     @app.route('/ejercicio/<int:ejercicio_id>/entregas', methods=['POST'])
     def guardar_entrega(ejercicio_id):
+        # guarda la entrega del alumno
         from app.modelos import Ejercicio, Entrega
         from werkzeug.utils import secure_filename
         import datetime, os, json, requests
@@ -115,7 +114,8 @@ def registrar_rutas_entregas(app):
         os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
         timestamp = int(datetime.datetime.now().timestamp())
-        #todos los archivos comparten la misma carpeta uploads/. Si dos alumnos suben un archivo llamado solucion.cpp, sin ese prefijo el segundo sobreescribiría el del primero. 
+        #todos los archivos comparten la misma carpeta uploads/. Si dos alumnos suben un archivo 
+        #llamado solucion.cpp, sin ese prefijo el segundo sobreescribiría el del primero. 
         # Con el prefijo cada entrega es única.
         fname = f'entrega_{ejercicio_id}_{alumno_id}_{timestamp}_{secure_filename(archivo.filename)}'
         ruta_guardada = os.path.join(UPLOAD_FOLDER, fname)
@@ -135,6 +135,7 @@ def registrar_rutas_entregas(app):
         timeout_juez = ejercicio.tiempo_limite * max(len(casos_prueba), 1) + 30
         try:
             with open(ruta_guardada, 'rb') as f:
+                # enviar el código al juez
                 respuesta = requests.post(
                     'http://localhost:8001/juzgar/entrega',
                     files={'codigo': (fname, f)},
@@ -156,11 +157,13 @@ def registrar_rutas_entregas(app):
 
         contraejemplo_input = None
         if resultado == 'incorrecto' and error_principal == 'Salida incorrecta':
+            #solo se calcula el contraejemplo si el error es Salida incorrecta 
             if ejercicio.solucion_nombre and ejercicio.estructura_json:
                 try:
                     ruta_solucion = os.path.join(UPLOAD_FOLDER, ejercicio.solucion_nombre)
                     with open(ruta_guardada, 'rb') as f_alumno, open(ruta_solucion, 'rb') as f_solucion:
                         respuesta_ce = requests.post(
+                            # llamada al calculo del contraejemplo
                             'http://localhost:8001/juzgar/contraejemplo',
                             files={
                                 'codigo': (fname, f_alumno),
@@ -207,6 +210,7 @@ def registrar_rutas_entregas(app):
 
     @app.route('/entrega/<int:entrega_id>/codigo', methods=['GET'])
     def obtener_codigo_entrega(entrega_id):
+        # devuelve el código de una entrega
         from app.modelos import Entrega
         import os
 
@@ -234,6 +238,7 @@ def registrar_rutas_entregas(app):
 
     @app.route('/entrega/<int:entrega_id>/visualizacion', methods=['GET'])
     def visualizar_entrega(entrega_id):
+        # info de la visualización de ejecución
         from app.modelos import Entrega
         import os, requests
 
@@ -250,6 +255,7 @@ def registrar_rutas_entregas(app):
         try:
             with open(ruta, 'rb') as f:
                 respuesta = requests.post(
+                    #llama al script de visualización 
                     'http://localhost:8001/visualizar/entrega',
                     files={'codigo': (nombre_archivo, f)},
                     data={'lenguaje': lenguaje, 'entrada': entrega.contraejemplo_input or ''},
@@ -263,6 +269,7 @@ def registrar_rutas_entregas(app):
     
     @app.route('/alumno/<int:alumno_id>/historialEntregas', methods=['GET'])
     def historial_entregas_alumno(alumno_id):
+        #historial de entregas del alumno, agrupadas por asigntatura
         from app.modelos import Matricula, Entrega
         from sqlalchemy.orm import joinedload
 

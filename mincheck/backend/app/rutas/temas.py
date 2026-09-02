@@ -1,12 +1,10 @@
 from flask import request, jsonify
-from flask_jwt_extended import create_access_token
-from app import db, login_manager
-from app.modelos import Usuario
-import datetime
+from app import db
 
 def registrar_rutas_temas(app):
     @app.route('/asignatura/<int:asignatura_id>/temas', methods=['GET'])
     def temas_asignatura(asignatura_id):
+        # devuelve todos los temas de una aasignatura
         from app.modelos import Asignatura, Entrega
         asignatura = Asignatura.query.get(asignatura_id)
         if not asignatura:
@@ -33,6 +31,7 @@ def registrar_rutas_temas(app):
     
     @app.route('/asignatura/<int:asignatura_id>/temas', methods=['POST'])
     def crear_tema(asignatura_id):
+        # nuevo tema para una asignatura 
         from app.modelos import Asignatura, Tema
         asignatura = Asignatura.query.get(asignatura_id)
         if not asignatura:
@@ -57,6 +56,7 @@ def registrar_rutas_temas(app):
     
     @app.route('/tema/<int:tema_id>', methods=['DELETE'])
     def eliminar_tema(tema_id):
+        #borra el tema y sus ejercicios asociados
         from app.modelos import Tema
         tema = Tema.query.get(tema_id)
         if not tema:
@@ -68,6 +68,7 @@ def registrar_rutas_temas(app):
     
     @app.route('/asignatura/<int:asignatura_id>/alumno/<int:alumno_id>/temas', methods=['GET'])
     def temas_asignatura_alumno(asignatura_id, alumno_id):
+        # devuelve todos los temas de una asignatura
         from app.modelos import Asignatura, Entrega
         import datetime
 
@@ -82,6 +83,7 @@ def registrar_rutas_temas(app):
             for ej in tema.ejercicios:
                 if not ej.visible:
                     continue
+                #importante comprobar si permite entregas o no
                 ahora = datetime.datetime.now()
                 cerrado = ej.fecha_limite is not None and ahora.date() > ej.fecha_limite
                 entregas_ej = (
@@ -92,6 +94,7 @@ def registrar_rutas_temas(app):
                 )
                 intentos = len(entregas_ej)
                 ultima_entrega = entregas_ej[0] if entregas_ej else None
+                #en funcion de la última entrega se marca el estado del ejercicio, si no hya pues pendiente
                 estado = ultima_entrega.resultado if ultima_entrega else 'pendiente'
                 if estado == 'correcto':
                     resueltos += 1
