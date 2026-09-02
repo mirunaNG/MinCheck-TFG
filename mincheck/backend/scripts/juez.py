@@ -8,10 +8,12 @@ OUTPUT_LIMITE_BYTES = 10 * 1024 * 1024
 
 
 def _normalizar(texto: str | None) -> str:
+    #eliminar espacios en blanco 
     return (texto or "").strip()
 
 
 def _ejecutar_caso_alumno(comando: list[str], entrada: str, tiempo_limite: float) -> dict:
+    # ejecuta el código del alumno con la entrada dada en la cabecera y devuelve el estado y el output
     try:
         resultado = subprocess.run(
             comando, input=entrada, capture_output=True, text=True,
@@ -36,8 +38,9 @@ def juzgar_entrega(casos: list[dict], ruta_codigo: str, tiempo_limite: float = T
             return {"resultado": "incorrecto", "error_principal": "Error de compilación", "detalle_error": str(e), "caso_fallido": None}
 
         for caso in casos:
+            #ejecuta cada caso
             ejecucion = _ejecutar_caso_alumno(comando, caso["input"], tiempo_limite)
-
+            #cada fallo posible en funcino de lo que devuelva la ejecucion:
             if ejecucion["estado"] == "timeout":
                 return {
                     "resultado": "incorrecto",
@@ -67,4 +70,6 @@ def juzgar_entrega(casos: list[dict], ruta_codigo: str, tiempo_limite: float = T
                     "caso_fallido": {"input": caso["input"], "output_esperado": caso["output_esperado"], "output_obtenido": ejecucion["output"]},
                 }
 
+            #si no entra en ninguno, es que es correcto y sigue con el siguiente
+    #si sale del bucle y llega hasta aqui, ha pasado todos los casos ok, asi que es correcto
     return {"resultado": "correcto", "error_principal": None, "detalle_error": None, "caso_fallido": None}

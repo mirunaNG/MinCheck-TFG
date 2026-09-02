@@ -7,7 +7,6 @@ Puerto:   8001
 from typing import List, Literal, Optional
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
 from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel
 from io import BytesIO
@@ -24,7 +23,7 @@ from calculador_outputs import calcular_outputs, TIMEOUT_SEGUNDOS
 from juez import juzgar_entrega
 from visualizador import generar_trace
 
-
+#Basado en el ejemplo proporcionado por Clara
 
 # ── Intentar importar ollama; si no está disponible, usar modo mock ──
 try:
@@ -451,19 +450,22 @@ threshold is being expressed), pointing at "comensales":
 ]}
 """
 
+#Se ha ido extendiendo el prompt para que se entienda bien lo que se pide, ya que a veces el LLM no lo hacía bien. 
 
 # ══════════════════════════════════════════════════════
 #  HELPERS
 # ══════════════════════════════════════════════════════
+#Fucnion para cuando hacia las pruebas con la ruta desde el servidor en google para ver el JSON generado, ahora el pdf esta subido
+# def extraer_texto_pdf(ruta_pdf: str) -> str:
+#     texto = []
+#     with pdfplumber.open(ruta_pdf) as pdf:
+#         for pagina in pdf.pages:
+#             texto.append(pagina.extract_text() or "")
+#     return "\n".join(texto)
 
-def extraer_texto_pdf(ruta_pdf: str) -> str:
-    texto = []
-    with pdfplumber.open(ruta_pdf) as pdf:
-        for pagina in pdf.pages:
-            texto.append(pagina.extract_text() or "")
-    return "\n".join(texto)
 
-def extraer_texto_pdf_bytes(contenido: bytes) -> str:
+def extraer_texto_pdf(contenido: bytes) -> str:
+    #recibe el pdf cargado en memoria como bytes y extrae el texto
     texto = []
     with pdfplumber.open(BytesIO(contenido)) as pdf:
         for pagina in pdf.pages:
@@ -544,8 +546,9 @@ def health():
 
 @app.post("/analizar/enunciado/archivo")
 async def analizar_enunciado_archivo(archivo: UploadFile = File(...)):
+    #con el enunciado en pdf subido, LLM extrae la estructura + el ejemplo de entrada/salida
     contenido = await archivo.read()
-    texto = extraer_texto_pdf_bytes(contenido)
+    texto = extraer_texto_pdf(contenido)
     texto = _limpiar_diacriticos_rotos(texto)
 
     if not OLLAMA_AVAILABLE:
@@ -586,6 +589,7 @@ async def analizar_enunciado_archivo(archivo: UploadFile = File(...)):
 
 @app.post("/generar/casos")
 def generar_casos(req: GenerarCasosRequest):
+    #con la estructura extraida, genera los casos de prueba
     casos = generar_conjunto_de_pruebas(req.estructura)
     casos_clave = [c for c in (_limpiar_caso_clave(c) for c in (req.casos_clave or [])) if c]
 
@@ -613,6 +617,7 @@ def generar_casos(req: GenerarCasosRequest):
 
 @app.post("/calcular/outputs")
 async def calcular_outputs_endpoint(solucion: UploadFile = File(...), casos: str = Form(...)):
+    #ejecuta la solucion subida por el profe con los casos generados para sacar los outputs esperados
     casos_lista = json.loads(casos)
     contenido = await solucion.read()
 
@@ -628,9 +633,8 @@ async def calcular_outputs_endpoint(solucion: UploadFile = File(...), casos: str
     return {"casos": casos_lista}
 
 @app.post("/juzgar/entrega")
-async def juzgar_entrega_endpoint(
-    codigo: UploadFile = File(...), casos: str = Form(...), tiempo_limite: float = Form(TIMEOUT_SEGUNDOS)
-):
+async def juzgar_entrega_endpoint(codigo: UploadFile = File(...), casos: str = Form(...), tiempo_limite: float = Form(TIMEOUT_SEGUNDOS)):
+    #compara la los outputs entrega del alumno con los outputs esperados
     casos_lista = json.loads(casos)
     contenido = await codigo.read()
 
@@ -646,21 +650,17 @@ async def juzgar_entrega_endpoint(
     return resultado
 
 @app.post("/visualizar/entrega")
-async def visualizar_entrega_endpoint(
-    codigo: UploadFile = File(...), lenguaje: str = Form(...), entrada: str = Form("")
-):
+async def visualizar_entrega_endpoint(codigo: UploadFile = File(...), lenguaje: str = Form(...), entrada: str = Form("")):
+    #genera el trace del codigo para visualizar la estructura 
     contenido = await codigo.read()
     trace = generar_trace(contenido.decode("utf-8", errors="replace"), lenguaje, entrada)
     return trace
 
 
 @app.post("/juzgar/contraejemplo")
-async def juzgar_contraejemplo_endpoint(
-    codigo: UploadFile = File(...),
-    solucion: UploadFile = File(...),
-    estructura: str = Form(...),
-    tiempo_limite: float = Form(TIMEOUT_SEGUNDOS),
-):
+async def juzgar_contraejemplo_endpoint(codigo: UploadFile = File(...), solucion: UploadFile = File(...),
+    estructura: str = Form(...), tiempo_limite: float = Form(TIMEOUT_SEGUNDOS)):
+    #busca el contraejemplo minimo que hace fallar la solucion del alumno
     estructura_dict = json.loads(estructura)
     contenido_codigo = await codigo.read()
     contenido_solucion = await solucion.read()

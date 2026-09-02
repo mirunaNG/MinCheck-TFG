@@ -10,16 +10,14 @@ RANGO_LONGITUD_DEFECTO = (0, 10)      # para vectores/cadenas sin longitud expl�
 ALFABETO_CADENA = string.ascii_lowercase
 
 # Vocabulario para generar cadenas con palabras reales en vez de basura aleatoria.
-# Se descartan las que llevan tilde/ñ: una solucion que manipule la cadena byte a byte
-# (invertir, palindromo con char con signo...) puede generar UTF-8 invalido en su salida
-# y tumbar la decodificacion del subproceso.
+# Se descartan las que llevan tilde/ñ
 # El pool se calcula una vez al importar el modulo porque la lista de Faker es fija.
 _fake = Faker("es_ES")
 _PALABRAS_BASE = sorted({p for p in _fake.words(500) if p.isascii()})
-
-
 def _palabras_en_rango(lm: int, hi: int) -> list[str]:
     return [p for p in _PALABRAS_BASE if lm <= len(p) <= hi]
+
+#Valores importantes:
 
 LIMITE_HYPOTHESIS_LISTA = 200       # limite bajo porque salta el health check
 
@@ -36,7 +34,9 @@ NUM_CASOS_GRANDES = 2        # casos con inputs muy grandes para probar timeout
 GRUPOS_CASO_GRANDE = 100
 MARGEN_GRANDE = 5            # cuánto por debajo del máximo se permite en el caso grande
 
-#Estrategia para un valor que representa un tamaño: longitud de vector/cadena
+#ESTRATEGIAS PARA GENERAR LOS VALORES:
+
+#Estrategia para generar un valor que representa un tamaño: longitud de vector/cadena
 # o un contador que otro campo referencia como longitud_referencia.
 def _strategy_tamano(lo: int, hi: int, modo: str):
     if modo == "simple":
@@ -50,7 +50,6 @@ def _strategy_tamano(lo: int, hi: int, modo: str):
         return st.sampled_from(candidatos)
 
     return st.integers(min_value=lo, max_value=hi)
-
 
 
 #Estrategia -> traduce el campo a una estrategia de Hypothesis para generar valores válidos
@@ -132,20 +131,19 @@ _TIPO_BASE_VECTOR = {
     "vector_real": "real",
     "vector_cadena": "cadena",
 }
-
 #estrategia para un campo vector -> se aplica la del escalar a cada uno de sus elemetnos
 def _strategy_elemento_vector(campo: dict, modo: str = "normal"):
     tipo_base = _TIPO_BASE_VECTOR[campo["tipo"]]
     return _strategy_escalar({**campo, "tipo": tipo_base}, modo)
 
-
+# para un campo que representa el tamaño de un vector
 def _strategy_longitud_vector(campo: dict, modo: str):
     lm = campo.get("longitud_minima") if campo.get("longitud_minima") is not None else RANGO_LONGITUD_DEFECTO[0]
     lM = campo.get("longitud_maxima") if campo.get("longitud_maxima") is not None else RANGO_LONGITUD_DEFECTO[1]
     lM = min(lM, LIMITE_HYPOTHESIS_LISTA)
     return _strategy_tamano(lm, lM, modo)
 
-
+#igual que la de arriba pero para se usada por otro campo como longitud_referencia (como un contador)
 def _strategy_contador(campo: dict, modo: str):
     lo = int(campo["minimo"]) if campo.get("minimo") is not None else RANGO_ENTERO_DEFECTO[0]
     hi = int(campo["maximo"]) if campo.get("maximo") is not None else RANGO_ENTERO_DEFECTO[1]
@@ -168,16 +166,21 @@ def _strategy_valor_relacionado(base_valor, operacion: str, valor: float, lo, hi
     deltas = [0, 0, -1, 1, -2, 2, -3, 3]
     candidatos = sorted({v for v in (centro + d for d in deltas) if lo <= v <= hi})
     if not candidatos:
+        # si el valor exacto esta fuera del rango, devuelve el valor mas cercano dentro del rango
         return st.just(max(lo, min(hi, centro)))
+    #uno al azar
     return st.sampled_from(candidatos)
 
 
-#st.composite permite dependencias (unas estrategias que dependan de otras)
+#ESTRATEGIA PARA GENERAR UN CASO COMPLETO Y FICHERO:
+
+#st.composite permite dependencias -> que unas estrategias dependan de valores generados por otras
 @st.composite
 #devuelve una estrategia que produce un diccionario con los valores para un CASO COMPLETO
 def _strategy_caso(draw, campos_por_caso: list[dict], modo: str = "normal"):
     referenciados = {c["longitud_referencia"] for c in campos_por_caso if c.get("longitud_referencia")}
     valores = {}
+    #primera pasada: genera valores para todos los campos en orden, sin sesgar
     for campo in campos_por_caso:
         nombre = campo["nombre"]
         tipo = campo["tipo"]
@@ -272,6 +275,7 @@ def _formatear_caso(valores: dict, campos_por_caso: list[dict]) -> str:
 
 def _formatear_fichero(grupos: list[dict], campos_por_caso: list[dict],
                         tipo_lectura: str, valor_centinela) -> str:
+    # formatea cada grupo de valores
     lineas = [_formatear_caso(g, campos_por_caso) for g in grupos]
     if tipo_lectura == "numCasos":
         lineas = [str(len(grupos))] + lineas
@@ -283,16 +287,18 @@ def _formatear_fichero(grupos: list[dict], campos_por_caso: list[dict],
 def _generar_ficheros(campos: list[dict], modo: str, num_grupos: int, cantidad: int) -> list[list[dict]]:
     ficheros_generados = []
 
+    # settings de hypothesis, max_examples = cantidad para que genere la cantidad de ficheros que queremos
     @settings(max_examples=cantidad, deadline=None, database=None)
+    #decorador para que hypothesis genere los ficheros de prueba
     @given(_strategy_fichero(campos, modo, num_grupos))
     def _recolectar(grupos):
+        #guarda cada ejemplo en la lista
         ficheros_generados.append(grupos)
 
     _recolectar()
     return ficheros_generados[:cantidad]
 
-# ---- Perfil "grande": generado con random puro, sin Hypothesis ----
-
+#Perfil "grande": generado con random puro, sin Hypothesis
 def _dominio_entero(campo: dict):
     """(lo, hi) del campo si es entero de rango fijo, o None si no aplica
     (real/cadena: dominio tan grande que una colision por azar es improbable)."""
@@ -347,10 +353,10 @@ def _valor_grande_escalar(campo: dict):
 
 
 def _columna_sin_repetir(campo: dict, n: int):
-    """n valores para el caso "grande": distintos entre si mientras el dominio
-    de valores posibles lo permita, porque repetir un valor que el juez ya
-    evaluo no aporta nada nuevo. Si el dominio es mas pequeno que n, se
-    reparte lo que hay en vez de fallar."""
+    #n valores para el caso "grande": distintos entre si mientras el dominio
+    #de valores posibles lo permita, porque repetir un valor que el juez ya
+    #ha evaluado no aporta nada nuevo. Si el dominio es mas pequeno que n, se
+    #reparte lo que hay en vez de fallar.
     if n <= 0:
         return []
 
@@ -432,6 +438,7 @@ def generar_conjunto_de_pruebas(estructura: dict) -> list[dict]:
         ("exhaustivo", "borde", GRUPOS_CASO_EXHAUSTIVO, 1),
     ]
     for nombre, modo, num_grupos, cantidad in perfiles_hypothesis:
+        #cantidad + 1 porque la primera se descarta (es la que genera Hypothesis para el health check)
         for grupos in _generar_ficheros(campos, modo, num_grupos, cantidad + 1)[1:]:
             texto = _formatear_fichero(grupos, campos, tipo_lectura, valor_centinela)
             resultados.append({"perfiles": [nombre], "input": texto})

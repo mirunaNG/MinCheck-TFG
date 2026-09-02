@@ -5,9 +5,12 @@ TIMEOUT_VISUALIZACION = 15
 MEM_LIMIT = "1024m"
 DOCKER_IMAGE = "pgbovine/opt-cpp-backend:v1"
 
+#Para que esta parte funcione hay que tener Docker abierto
 
 def generar_trace(codigo: str, lenguaje: str, entrada: str = "") -> dict:
-    """lenguaje debe ser 'c' o 'cpp'. Devuelve el JSON de OPT ya parseado."""
+    # el lenguaje debe ser c/c++. Devuelve el JSON de OPT ya parseado
+    
+    #construye el comando para lanzar el contenedor de docker con la imagen de OPT
     comando = [
         "docker", "run", "-i", "-m", MEM_LIMIT, "--rm",
         "--user=netuser", "--net=none", "--cap-drop", "all",
@@ -16,10 +19,12 @@ def generar_trace(codigo: str, lenguaje: str, entrada: str = "") -> dict:
         codigo, lenguaje,
     ]
     try:
+        # ejecuta el contenedor
         resultado = subprocess.run(
             comando, input=entrada, capture_output=True, text=True,
             timeout=TIMEOUT_VISUALIZACION,
         )
+        #si se supera el timeout, se devuelve un errir
     except subprocess.TimeoutExpired:
         return {"code": codigo, "trace": [{
             "event": "uncaught_exception",
@@ -27,7 +32,9 @@ def generar_trace(codigo: str, lenguaje: str, entrada: str = "") -> dict:
         }]}
 
     try:
+        #el stdout contiene el JSON de las trazas de ejecucion, y se parsea
         return json.loads(resultado.stdout)
+    #si no es un JSON válido devuelve error
     except (json.JSONDecodeError, ValueError):
         return {"code": codigo, "trace": [{
             "event": "uncaught_exception",

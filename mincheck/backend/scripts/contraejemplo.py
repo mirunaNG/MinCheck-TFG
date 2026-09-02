@@ -17,6 +17,7 @@ def encontrar_contraejemplo_minimo(estructura: dict, ruta_codigo_alumno: str, ru
     tipo_lectura = estructura["tipo_lectura"]
     valor_centinela = estructura.get("valor_centinela")
 
+    # directorio temporal para no interferir con otros procesos
     with tempfile.TemporaryDirectory() as tmp_alumno, tempfile.TemporaryDirectory() as tmp_referencia:
         comando_alumno = _preparar_comando(ruta_codigo_alumno, tmp_alumno)
         comando_referencia = _preparar_comando(ruta_codigo_referencia, tmp_referencia)
@@ -25,8 +26,10 @@ def encontrar_contraejemplo_minimo(estructura: dict, ruta_codigo_alumno: str, ru
 
         def es_contraejemplo(valores: dict) -> bool:
             nonlocal primer_fallo
+            #funcion del generador inputs
             entrada = _formatear_fichero([valores], campos, tipo_lectura, valor_centinela)
 
+            #calcular el output
             output_referencia = _ejecutar_caso(comando_referencia, entrada)
             if output_referencia is None:
                 return False  # la propia referencia falla con este input -> no sirve como contraejemplo
@@ -60,4 +63,5 @@ def encontrar_contraejemplo_minimo(estructura: dict, ruta_codigo_alumno: str, ru
                 return None  # no se encontró ningún caso de fallo dentro del presupuesto
             valores_minimos = primer_fallo  # no se pudo minimizar, se usa el primer caso de fallo encontrado
 
+    #devuelve el input
     return {"input": _formatear_fichero([valores_minimos], campos, tipo_lectura, valor_centinela)}
