@@ -41,6 +41,15 @@ Si no aparece nada:
    ollama pull qwen2.5-coder:7b
 ```
 
+
+5. Construye la imagen Docker del backend de visualización de estructuras. Este backend proviene del proyecto de código abierto [Online Python Tutor](https://github.com/pathrise-eng/pathrise-python-tutor) (concretamente su backend C/C++, en `v4-cokapi/backends/c_cpp`). No forma parte del código del proyecto: se clona aparte, se construye la imagen una única vez y luego ya no hace falta el código fuente, solo queda la imagen guardada en Docker:
+```bash
+   git clone https://github.com/pathrise-eng/pathrise-python-tutor
+   cd pathrise-python-tutor/v4-cokapi/backends/c_cpp
+   make docker
+```
+
+
 ## Puesta en marcha
 1. Abre **Docker Desktop** (puede estar en segundo plano)
 
